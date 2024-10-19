@@ -44,8 +44,9 @@ sina == {
   },
 
 AAC == {
-    TeX -> Subscript[G, H],
+    TeX -> Subscript[G,aachi],
     ParameterType -> External,
+    ComplexParameter -> False,
     BlockName -> NPINPUTS,
     Value -> 1e-6,
     InteractionOrder -> {NP, 1},
@@ -108,6 +109,7 @@ F[16] == {
          PropagatorLabel->"chi1", 
          PropagatorType->Straight, 
          ParticleName     -> {"~chi1" },
+         AntiParticleName -> {"~chi1bar" },
          FullName         -> {"Heavy dark fermion"} },
 
 F[17] == { 
@@ -121,21 +123,25 @@ F[17] == {
          PropagatorLabel->"chi0", 
          PropagatorType->Straight, 
          ParticleName     -> {"~chi0" },
+         AntiParticleName     -> {"~chi0bar" },
          FullName         -> {"Light dark fermion"} },
 
 (* Dark Scalar *)
 S[4]  == {
-    ClassName       -> S,
+    ClassName       -> Sd,
     SelfConjugate   -> True,
+    Unphysical      -> False,
+    QuantumNumbers  -> {},
     Mass            -> {MS, 1000},
     Width           -> {WS, 1.0},
     PropagatorLabel -> "S",
-    PropagatorType  -> D,
+    PropagatorType  -> Scalar,
     PropagatorArrow -> None,
     PDG             -> 35,
-    ParticleName    -> "S",
-    FullName        -> "S"};
-}
+    ParticleName    -> {"S"},
+    FullName        -> {"S"}}
+};
+
 
 (* ************************** *)
 (* *****   Lagrangian   ***** *)
@@ -144,22 +150,27 @@ S[4]  == {
 (* gauge kinetic and mass terms *)
 
 LkinBSM :=  Block[{mu},
-               (I*chi1bar.Ga[mu].DC[chi1, mu] - (M1) chi1bar.chi1 + I*chi0bar.Ga[mu].DC[chi0, mu] - (M0) chi0bar.chi0  + (1/2) del[S,mu] del[S,mu] -  (1/2) MS^2 Sbar S)
+               (I*chi1bar.Ga[mu].DC[chi1, mu] - (M1) chi1bar.chi1 + I*chi0bar.Ga[mu].DC[chi0, mu] - (M0) chi0bar.chi0  + (1/2) del[Sd,mu] del[Sd,mu] -  (1/2) MS^2 Sd^2)
               ];
+
 
 (* Effective gluon-gluon-S/h couplings *)
 
-LGG := -1/4 GGH FS[G, mu, nu, b] FS[G, mu, nu, b] H  -1/4 GGS FS[G, mu, nu, b] FS[G, mu, nu, b] S;
+LGG := -1/4 GGH FS[G, mu, nu, b] FS[G, mu, nu, b] H  -1/4 GGS FS[G, mu, nu, b] FS[G, mu, nu, b] Sd;              
 
 (* Dark Scalar-Dark Fermion couplings *)
 
-LYukawaBSM := -ychi1 (chi1bar.chi1)*S - ychi0 (chi0bar.chi0)*S - (ychi10/2) (chi1bar.chi0 + chi0bar.chi1)*S;
+LYukawaBSM := -ychi1 (chi1bar.chi1)*Sd - ychi0 (chi0bar.chi0)*Sd - (ychi10/2) (chi1bar.chi0 + chi0bar.chi1)*Sd;
 
 (* Dipole Coupling *)
 
-Gammamunu[mu_,nu_,sp_,sp2_]:=Module[{sp1},(1/2)*(Ga[mu,sp,sp1]*Ga[nu,sp1,sp2]-Ga[nu,sp,sp1]*Ga[mu,sp1,sp2])];
+Gammamunu[mu_,nu_,sp1_,sp2_]:= Module[{sp},(1/2)*(Ga[mu,sp1,sp]*Ga[nu,sp,sp2]-Ga[nu,sp1,sp]*Ga[mu,sp,sp2])];
+
+LDipole0 := Block[{mu,nu,sp1,sp2},
+                  AAC*FS[A,mu,nu]*(ch1bar[sp1].chi0[sp2] + ch0bar[sp1].chi1[sp2])*Gammamunu[mu,nu,sp1,sp2]];
 
 LDipole := Block[{mu,nu,sp1,sp2},
-                  ExpandIndices[AAC*FS[A,mu,nu]*(ch1bar[sp1].chi0[sp2] + ch0bar[sp1].chi1[sp2])*Gammamunu[mu,nu,sp1,sp2]];]
+                  AAC*FS[A,mu,nu]*(chi1bar[sp1].chi0[sp2])*Gammamunu[mu,nu,sp1,sp2]
+];
 
-LBSM:= LkinBSM + LGG + LYukawaBSM + LDipole;
+LBSM:= LkinBSM + LGG + LYukawaBSM + LDipole + HC[LDipole];
