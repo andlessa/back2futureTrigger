@@ -1,0 +1,165 @@
+(***************************************************************************************************************)
+(******                       This is the FeynRules file for the DipoleDM model                       ******)
+(******                                                                                                   ******)
+(******                           Authors: Andre Lessa                                            ******)
+(******                                                                                                   ******)
+(****** Choose whether Feynman gauge is desired.                                                          ******)
+(****** If set to False, unitary gauge is assumed.                                                          ****)
+(****** Feynman gauge is especially useful for CalcHEP/CompHEP where the calculation is 10-100 times faster. ***)
+(****** Feynman gauge is not supported in MadGraph and Sherpa.                                              ****)
+(***************************************************************************************************************)
+
+(* ************************** *)
+(* *****  Information   ***** *)
+(* ************************** *)
+M$ModelName = "DipoleDM";
+
+M$Information = { Authors      -> {"Andre Lessa"}, 
+                  Emails       ->{"andre.leessa@ufabc.edu.br"},
+                  Date         ->"19.10.2024", 
+                  Version      ->"1",
+                  URLs         ->""};
+
+FeynmanGauge = True;
+
+M$InteractionOrderHierarchy = {  {QCD, 1}, {NP, 1}, {QED,2} };
+
+
+
+(*** From HiggsEffective Model (Author: C. Duhr) ***)
+(* The loop coefficient for the CP-even coupling *)
+
+sert[x_] := 1+ 7/30 x + 2/21 x^2 + 26/525 x^3;
+
+(***** Parameter list ******)
+
+M$Parameters = {
+
+sina == {
+    ParameterType -> External,
+    BlockName -> NPINPUTS,
+    Value -> 0.2,
+    InteractionOrder -> {NP, 1},
+    Description -> "Sine of S-Higgs mixing angle"
+  },
+
+AAC == {
+    TeX -> Subscript[G, H],
+    ParameterType -> External,
+    BlockName -> NPINPUTS,
+    Value -> 1e-6,
+    InteractionOrder -> {NP, 1},
+    Description -> "Photon-Dark Fermion dipole coupling"
+},
+
+ychi1 == {
+    ParameterType -> External,
+    InteractionOrder -> {NP, 1},
+    BlockName -> NPINPUTS,
+    TeX -> Subscript[y,chi1],
+    Value -> 1.0,
+    Description -> "Yukawa coupling S-chi1-chi1"
+  },         
+
+ychi0 == {
+    ParameterType -> External,
+    InteractionOrder -> {NP, 1},
+    BlockName -> NPINPUTS,
+    TeX -> Subscript[y,chi0],
+    Value -> 0.0,
+    Description -> "Yukawa coupling S-chi0-chi0"
+  },         
+
+ychi10 == {
+    ParameterType -> External,
+    InteractionOrder -> {NP, 1},
+    BlockName -> NPINPUTS,
+    TeX -> Subscript[y,chi10],
+    Value -> 0.0,
+    Description -> "Yukawa coupling S-chi1-chi0"
+  },  
+
+GGH == {TeX -> Subscript[G, H],
+       ParameterType -> Internal,
+       InteractionOrder -> {HIG, 1},
+       Value -> -gs^2/(4Pi(3Pi v)) sert[(MH/2/MT)^2] },
+
+GGS == {TeX -> Subscript[G, S],
+       ParameterType -> Internal,
+       InteractionOrder -> {HIG, 1},
+       Value -> -gs^2*sina/(4Pi(3Pi v)) sert[(MS/2/MT)^2] }
+}
+
+(* ************************** *)
+(* **** Particle classes **** *)
+(* ************************** *)
+M$ClassesDescription = {
+
+
+(* Dark fermions *)
+F[16] == { 
+         ClassName -> chi1, 
+         SelfConjugate-> False, 
+         QuantumNumbers -> {}, 
+         Mass->{M1,  500.0},  
+         Width->{w1,0.}, 
+         ParticleName-> "~chi1", 
+         PDG->5000023, 
+         PropagatorLabel->"chi1", 
+         PropagatorType->Straight, 
+         ParticleName     -> {"~chi1" },
+         FullName         -> {"Heavy dark fermion"} },
+
+F[17] == { 
+         ClassName -> chi0, 
+         SelfConjugate-> False, 
+         QuantumNumbers -> {}, 
+         Mass->{M0,  425.0},  
+         Width->{w0,0.}, 
+         ParticleName-> "~chi0", 
+         PDG->5000022, 
+         PropagatorLabel->"chi0", 
+         PropagatorType->Straight, 
+         ParticleName     -> {"~chi0" },
+         FullName         -> {"Light dark fermion"} },
+
+(* Dark Scalar *)
+S[4]  == {
+    ClassName       -> S,
+    SelfConjugate   -> True,
+    Mass            -> {MS, 1000},
+    Width           -> {WS, 1.0},
+    PropagatorLabel -> "S",
+    PropagatorType  -> D,
+    PropagatorArrow -> None,
+    PDG             -> 35,
+    ParticleName    -> "S",
+    FullName        -> "S"};
+}
+
+(* ************************** *)
+(* *****   Lagrangian   ***** *)
+(* ************************** *)
+
+(* gauge kinetic and mass terms *)
+
+LkinBSM :=  Block[{mu},
+               (I*chi1bar.Ga[mu].DC[chi1, mu] - (M1) chi1bar.chi1 + I*chi0bar.Ga[mu].DC[chi0, mu] - (M0) chi0bar.chi0  + (1/2) del[S,mu] del[S,mu] -  (1/2) MS^2 Sbar S)
+              ];
+
+(* Effective gluon-gluon-S/h couplings *)
+
+LGG := -1/4 GGH FS[G, mu, nu, b] FS[G, mu, nu, b] H  -1/4 GGS FS[G, mu, nu, b] FS[G, mu, nu, b] S;
+
+(* Dark Scalar-Dark Fermion couplings *)
+
+LYukawaBSM := -ychi1 (chi1bar.chi1)*S - ychi0 (chi0bar.chi0)*S - (ychi10/2) (chi1bar.chi0 + chi0bar.chi1)*S;
+
+(* Dipole Coupling *)
+
+Gammamunu[mu_,nu_,sp_,sp2_]:=Module[{sp1},(1/2)*(Ga[mu,sp,sp1]*Ga[nu,sp1,sp2]-Ga[nu,sp,sp1]*Ga[mu,sp1,sp2])];
+
+LDipole := Block[{mu,nu,sp1,sp2},
+                  ExpandIndices[AAC*FS[A,mu,nu]*(ch1bar[sp1].chi0[sp2] + ch0bar[sp1].chi1[sp2])*Gammamunu[mu,nu,sp1,sp2]];]
+
+LBSM:= LkinBSM + LGG + LYukawaBSM + LDipole;
