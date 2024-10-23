@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Sat 19 Oct 2024 11:10:38
+# Date: Wed 23 Oct 2024 16:41:08
 
 
 
@@ -250,7 +250,7 @@ GGH = Parameter(name = 'GGH',
 GGS = Parameter(name = 'GGS',
                 nature = 'internal',
                 type = 'real',
-                value = '-(G**2*sina)/(12.*cmath.pi**2*v)',
+                value = '-(( ((3*MH**2)/(8.*MT**2) - (3*cmath.asin(cmath.sqrt(MH**2/MT**2)/2.)**2)/2. + (3*MH**2*cmath.asin(cmath.sqrt(MH**2/MT**2)/2.)**2)/(8.*MT**2))/(10.**(-10) + MH**4/(16.*MT**4)) if MH**2/(4.*MT**2)<1 else ((3*MH**2)/(8.*MT**2) + (3*cmath.log(1 - 2*(MH**2/(4.*MT**2) + (cmath.sqrt(-1 + MH**2/(4.*MT**2))*cmath.sqrt(MH**2/MT**2))/2.))**2)/8. - (3*MH**2*cmath.log(1 - 2*(MH**2/(4.*MT**2) + (cmath.sqrt(-1 + MH**2/(4.*MT**2))*cmath.sqrt(MH**2/MT**2))/2.))**2)/(32.*MT**2))/(10.**(-10) + MH**4/(16.*MT**4)) )*G**2*sina)/(12.*cmath.pi**2*v)',
                 texname = 'G_S')
 
 sw2 = Parameter(name = 'sw2',
