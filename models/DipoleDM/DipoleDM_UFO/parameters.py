@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 23 Oct 2024 16:41:08
+# Date: Wed 23 Oct 2024 17:35:57
 
 
 
@@ -28,7 +28,7 @@ sina = Parameter(name = 'sina',
 AAC = Parameter(name = 'AAC',
                 nature = 'external',
                 type = 'real',
-                value = -6 + e,
+                value = 1.e-6,
                 texname = 'G_{\\text{aachi}}',
                 lhablock = 'NPINPUTS',
                 lhacode = [ 2 ])
@@ -161,6 +161,14 @@ M0 = Parameter(name = 'M0',
                lhablock = 'MASS',
                lhacode = [ 5000022 ])
 
+MSd = Parameter(name = 'MSd',
+                nature = 'external',
+                type = 'real',
+                value = 1000,
+                texname = '\\text{MSd}',
+                lhablock = 'MASS',
+                lhacode = [ 35 ])
+
 WZ = Parameter(name = 'WZ',
                nature = 'external',
                type = 'real',
@@ -241,18 +249,6 @@ ee = Parameter(name = 'ee',
                value = '2*cmath.sqrt(aEW)*cmath.sqrt(cmath.pi)',
                texname = 'e')
 
-GGH = Parameter(name = 'GGH',
-                nature = 'internal',
-                type = 'real',
-                value = '-(G**2*(1 + (13*MH**6)/(16800.*MT**6) + MH**4/(168.*MT**4) + (7*MH**2)/(120.*MT**2)))/(12.*cmath.pi**2*v)',
-                texname = 'G_H')
-
-GGS = Parameter(name = 'GGS',
-                nature = 'internal',
-                type = 'real',
-                value = '-(( ((3*MH**2)/(8.*MT**2) - (3*cmath.asin(cmath.sqrt(MH**2/MT**2)/2.)**2)/2. + (3*MH**2*cmath.asin(cmath.sqrt(MH**2/MT**2)/2.)**2)/(8.*MT**2))/(10.**(-10) + MH**4/(16.*MT**4)) if MH**2/(4.*MT**2)<1 else ((3*MH**2)/(8.*MT**2) + (3*cmath.log(1 - 2*(MH**2/(4.*MT**2) + (cmath.sqrt(-1 + MH**2/(4.*MT**2))*cmath.sqrt(MH**2/MT**2))/2.))**2)/8. - (3*MH**2*cmath.log(1 - 2*(MH**2/(4.*MT**2) + (cmath.sqrt(-1 + MH**2/(4.*MT**2))*cmath.sqrt(MH**2/MT**2))/2.))**2)/(32.*MT**2))/(10.**(-10) + MH**4/(16.*MT**4)) )*G**2*sina)/(12.*cmath.pi**2*v)',
-                texname = 'G_S')
-
 sw2 = Parameter(name = 'sw2',
                 nature = 'internal',
                 type = 'real',
@@ -289,6 +285,12 @@ vev = Parameter(name = 'vev',
                 value = '(2*MW*sw)/ee',
                 texname = '\\text{vev}')
 
+GGH = Parameter(name = 'GGH',
+                nature = 'internal',
+                type = 'real',
+                value = '-(G**2*(1 + (13*MH**6)/(16800.*MT**6) + MH**4/(168.*MT**4) + (7*MH**2)/(120.*MT**2)))/(12.*cmath.pi**2*vev)',
+                texname = 'G_H')
+
 lam = Parameter(name = 'lam',
                 nature = 'internal',
                 type = 'real',
@@ -312,6 +314,12 @@ ytau = Parameter(name = 'ytau',
                  type = 'real',
                  value = '(ymtau*cmath.sqrt(2))/vev',
                  texname = '\\text{ytau}')
+
+GGS = Parameter(name = 'GGS',
+                nature = 'internal',
+                type = 'complex',
+                value = '-(( ((3*MSd**2)/(8.*MT**2) - (3*cmath.asin(cmath.sqrt(MSd**2/MT**2)/2.)**2)/2. + (3*MSd**2*cmath.asin(cmath.sqrt(MSd**2/MT**2)/2.)**2)/(8.*MT**2))/(1.e-10 + MSd**4/(16.*MT**4)) if MSd**2/(4.*MT**2)<1 else ((3*MSd**2)/(8.*MT**2) + (3*cmath.log(1 - 2*(MSd**2/(4.*MT**2) + (cmath.sqrt(-1 + MSd**2/(4.*MT**2))*cmath.sqrt(MSd**2/MT**2))/2.))**2)/8. - (3*MSd**2*cmath.log(1 - 2*(MSd**2/(4.*MT**2) + (cmath.sqrt(-1 + MSd**2/(4.*MT**2))*cmath.sqrt(MSd**2/MT**2))/2.))**2)/(32.*MT**2))/(1.e-10 + MSd**4/(16.*MT**4)) )*G**2*sina)/(12.*cmath.pi**2*vev)',
+                texname = 'G_S')
 
 muH = Parameter(name = 'muH',
                 nature = 'internal',

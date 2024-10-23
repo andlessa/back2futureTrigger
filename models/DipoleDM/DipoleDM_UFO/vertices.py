@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 23 Oct 2024 16:41:08
+# Date: Wed 23 Oct 2024 17:35:57
 
 
 from object_library import all_vertices, Vertex
@@ -82,7 +82,7 @@ V_12 = Vertex(name = 'V_12',
               couplings = {(0,0):C.GC_15})
 
 V_13 = Vertex(name = 'V_13',
-              particles = [ P.g, P.g, P.S ],
+              particles = [ P.g, P.g, P.Sd ],
               color = [ 'Identity(1,2)' ],
               lorentz = [ L.VVS2 ],
               couplings = {(0,0):C.GC_18})
@@ -226,25 +226,25 @@ V_36 = Vertex(name = 'V_36',
               couplings = {(0,0):C.GC_66})
 
 V_37 = Vertex(name = 'V_37',
-              particles = [ P.P__tilde__chi0bar, P.P__tilde__chi0, P.S ],
+              particles = [ P.P__tilde__chi0bar, P.P__tilde__chi0, P.Sd ],
               color = [ '1' ],
               lorentz = [ L.FFS1 ],
               couplings = {(0,0):C.GC_70})
 
 V_38 = Vertex(name = 'V_38',
-              particles = [ P.P__tilde__chi1bar, P.P__tilde__chi0, P.S ],
+              particles = [ P.P__tilde__chi1bar, P.P__tilde__chi0, P.Sd ],
               color = [ '1' ],
               lorentz = [ L.FFS1 ],
               couplings = {(0,0):C.GC_72})
 
 V_39 = Vertex(name = 'V_39',
-              particles = [ P.P__tilde__chi0bar, P.P__tilde__chi1, P.S ],
+              particles = [ P.P__tilde__chi0bar, P.P__tilde__chi1, P.Sd ],
               color = [ '1' ],
               lorentz = [ L.FFS1 ],
               couplings = {(0,0):C.GC_72})
 
 V_40 = Vertex(name = 'V_40',
-              particles = [ P.P__tilde__chi1bar, P.P__tilde__chi1, P.S ],
+              particles = [ P.P__tilde__chi1bar, P.P__tilde__chi1, P.Sd ],
               color = [ '1' ],
               lorentz = [ L.FFS1 ],
               couplings = {(0,0):C.GC_71})
@@ -280,13 +280,13 @@ V_45 = Vertex(name = 'V_45',
               couplings = {(1,1):C.GC_17,(0,0):C.GC_17,(2,2):C.GC_17})
 
 V_46 = Vertex(name = 'V_46',
-              particles = [ P.g, P.g, P.g, P.S ],
+              particles = [ P.g, P.g, P.g, P.Sd ],
               color = [ 'f(1,2,3)' ],
               lorentz = [ L.VVVS1 ],
               couplings = {(0,0):C.GC_19})
 
 V_47 = Vertex(name = 'V_47',
-              particles = [ P.g, P.g, P.g, P.g, P.S ],
+              particles = [ P.g, P.g, P.g, P.g, P.Sd ],
               color = [ 'f(-1,1,2)*f(3,4,-1)', 'f(-1,1,3)*f(2,4,-1)', 'f(-1,1,4)*f(2,3,-1)' ],
               lorentz = [ L.VVVVS1, L.VVVVS2, L.VVVVS3 ],
               couplings = {(1,1):C.GC_20,(0,0):C.GC_20,(2,2):C.GC_20})

@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 23 Oct 2024 16:41:08
+# Date: Wed 23 Oct 2024 17:35:57
 
 
 from object_library import all_couplings, Coupling
@@ -67,27 +67,27 @@ GC_14 = Coupling(name = 'GC_14',
 
 GC_15 = Coupling(name = 'GC_15',
                  value = '-(complex(0,1)*GGH)',
-                 order = {'HIG':1})
+                 order = {'QCD':2})
 
 GC_16 = Coupling(name = 'GC_16',
                  value = '-(G*GGH)',
-                 order = {'HIG':1,'QCD':1})
+                 order = {'QCD':3})
 
 GC_17 = Coupling(name = 'GC_17',
                  value = 'complex(0,1)*G**2*GGH',
-                 order = {'HIG':1,'QCD':2})
+                 order = {'QCD':4})
 
 GC_18 = Coupling(name = 'GC_18',
                  value = '-(complex(0,1)*GGS)',
-                 order = {'HIG':1})
+                 order = {'NP':1,'QCD':2})
 
 GC_19 = Coupling(name = 'GC_19',
                  value = '-(G*GGS)',
-                 order = {'HIG':1,'QCD':1})
+                 order = {'NP':1,'QCD':3})
 
 GC_20 = Coupling(name = 'GC_20',
                  value = 'complex(0,1)*G**2*GGS',
-                 order = {'HIG':1,'QCD':2})
+                 order = {'NP':1,'QCD':4})
 
 GC_21 = Coupling(name = 'GC_21',
                  value = 'I1a33',

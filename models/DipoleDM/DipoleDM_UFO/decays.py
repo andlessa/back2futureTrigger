@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 23 Oct 2024 16:41:08
+# Date: Wed 23 Oct 2024 17:35:57
 
 
 from object_library import all_decays, Decay
@@ -14,12 +14,12 @@ Decay_b = Decay(name = 'Decay_b',
 Decay_P__tilde__chi0 = Decay(name = 'Decay_P__tilde__chi0',
                              particle = P.P__tilde__chi0,
                              partial_widths = {(P.a,P.P__tilde__chi1):'((M0**2 - M1**2)*(16*AAC**2*M0**4 - 32*AAC**2*M0**2*M1**2 + 16*AAC**2*M1**4))/(32.*cmath.pi*abs(M0)**3)',
-                                               (P.S,P.P__tilde__chi1):'(((M0**2*ychi10**2)/2. + M0*M1*ychi10**2 + (M1**2*ychi10**2)/2. - (MS**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MS**2 - 2*M1**2*MS**2 + MS**4))/(32.*cmath.pi*abs(M0)**3)'})
+                                               (P.Sd,P.P__tilde__chi1):'(((M0**2*ychi10**2)/2. + M0*M1*ychi10**2 + (M1**2*ychi10**2)/2. - (MSd**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MSd**2 - 2*M1**2*MSd**2 + MSd**4))/(32.*cmath.pi*abs(M0)**3)'})
 
 Decay_P__tilde__chi1 = Decay(name = 'Decay_P__tilde__chi1',
                              particle = P.P__tilde__chi1,
                              partial_widths = {(P.a,P.P__tilde__chi0):'((-M0**2 + M1**2)*(16*AAC**2*M0**4 - 32*AAC**2*M0**2*M1**2 + 16*AAC**2*M1**4))/(32.*cmath.pi*abs(M1)**3)',
-                                               (P.S,P.P__tilde__chi0):'(((M0**2*ychi10**2)/2. + M0*M1*ychi10**2 + (M1**2*ychi10**2)/2. - (MS**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MS**2 - 2*M1**2*MS**2 + MS**4))/(32.*cmath.pi*abs(M1)**3)'})
+                                               (P.Sd,P.P__tilde__chi0):'(((M0**2*ychi10**2)/2. + M0*M1*ychi10**2 + (M1**2*ychi10**2)/2. - (MSd**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MSd**2 - 2*M1**2*MSd**2 + MSd**4))/(32.*cmath.pi*abs(M1)**3)'})
 
 Decay_H = Decay(name = 'Decay_H',
                 particle = P.H,
@@ -30,13 +30,13 @@ Decay_H = Decay(name = 'Decay_H',
                                   (P.W__minus__,P.W__plus__):'(((3*ee**4*vev**2)/(4.*sw**4) + (ee**4*MH**4*vev**2)/(16.*MW**4*sw**4) - (ee**4*MH**2*vev**2)/(4.*MW**2*sw**4))*cmath.sqrt(MH**4 - 4*MH**2*MW**2))/(16.*cmath.pi*abs(MH)**3)',
                                   (P.Z,P.Z):'(((9*ee**4*vev**2)/2. + (3*ee**4*MH**4*vev**2)/(8.*MZ**4) - (3*ee**4*MH**2*vev**2)/(2.*MZ**2) + (3*cw**4*ee**4*vev**2)/(4.*sw**4) + (cw**4*ee**4*MH**4*vev**2)/(16.*MZ**4*sw**4) - (cw**4*ee**4*MH**2*vev**2)/(4.*MZ**2*sw**4) + (3*cw**2*ee**4*vev**2)/sw**2 + (cw**2*ee**4*MH**4*vev**2)/(4.*MZ**4*sw**2) - (cw**2*ee**4*MH**2*vev**2)/(MZ**2*sw**2) + (3*ee**4*sw**2*vev**2)/cw**2 + (ee**4*MH**4*sw**2*vev**2)/(4.*cw**2*MZ**4) - (ee**4*MH**2*sw**2*vev**2)/(cw**2*MZ**2) + (3*ee**4*sw**4*vev**2)/(4.*cw**4) + (ee**4*MH**4*sw**4*vev**2)/(16.*cw**4*MZ**4) - (ee**4*MH**2*sw**4*vev**2)/(4.*cw**4*MZ**2))*cmath.sqrt(MH**4 - 4*MH**2*MZ**2))/(32.*cmath.pi*abs(MH)**3)'})
 
-Decay_S = Decay(name = 'Decay_S',
-                particle = P.S,
-                partial_widths = {(P.P__tilde__chi0,P.P__tilde__chi0bar):'((-8*M0**2*ychi0**2 + 2*MS**2*ychi0**2)*cmath.sqrt(-4*M0**2*MS**2 + MS**4))/(16.*cmath.pi*abs(MS)**3)',
-                                  (P.P__tilde__chi0,P.P__tilde__chi1bar):'((-(M0**2*ychi10**2)/2. - M0*M1*ychi10**2 - (M1**2*ychi10**2)/2. + (MS**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MS**2 - 2*M1**2*MS**2 + MS**4))/(16.*cmath.pi*abs(MS)**3)',
-                                  (P.P__tilde__chi1,P.P__tilde__chi0bar):'((-(M0**2*ychi10**2)/2. - M0*M1*ychi10**2 - (M1**2*ychi10**2)/2. + (MS**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MS**2 - 2*M1**2*MS**2 + MS**4))/(16.*cmath.pi*abs(MS)**3)',
-                                  (P.P__tilde__chi1,P.P__tilde__chi1bar):'((-8*M1**2*ychi1**2 + 2*MS**2*ychi1**2)*cmath.sqrt(-4*M1**2*MS**2 + MS**4))/(16.*cmath.pi*abs(MS)**3)',
-                                  (P.g,P.g):'(GGS**2*MS**6)/(8.*cmath.pi*abs(MS)**3)'})
+Decay_Sd = Decay(name = 'Decay_Sd',
+                 particle = P.Sd,
+                 partial_widths = {(P.P__tilde__chi0,P.P__tilde__chi0bar):'((-8*M0**2*ychi0**2 + 2*MSd**2*ychi0**2)*cmath.sqrt(-4*M0**2*MSd**2 + MSd**4))/(16.*cmath.pi*abs(MSd)**3)',
+                                   (P.P__tilde__chi0,P.P__tilde__chi1bar):'((-(M0**2*ychi10**2)/2. - M0*M1*ychi10**2 - (M1**2*ychi10**2)/2. + (MSd**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MSd**2 - 2*M1**2*MSd**2 + MSd**4))/(16.*cmath.pi*abs(MSd)**3)',
+                                   (P.P__tilde__chi1,P.P__tilde__chi0bar):'((-(M0**2*ychi10**2)/2. - M0*M1*ychi10**2 - (M1**2*ychi10**2)/2. + (MSd**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MSd**2 - 2*M1**2*MSd**2 + MSd**4))/(16.*cmath.pi*abs(MSd)**3)',
+                                   (P.P__tilde__chi1,P.P__tilde__chi1bar):'((-8*M1**2*ychi1**2 + 2*MSd**2*ychi1**2)*cmath.sqrt(-4*M1**2*MSd**2 + MSd**4))/(16.*cmath.pi*abs(MSd)**3)',
+                                   (P.g,P.g):'(GGS*MSd**6*complexconjugate(GGS))/(8.*cmath.pi*abs(MSd)**3)'})
 
 Decay_t = Decay(name = 'Decay_t',
                 particle = P.t,

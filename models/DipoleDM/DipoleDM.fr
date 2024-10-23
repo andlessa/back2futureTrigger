@@ -55,7 +55,7 @@ AAC == {
     ParameterType -> External,
     ComplexParameter -> False,
     BlockName -> NPINPUTS,
-    Value -> 1e-6,
+    Value -> 10^(-6),
     InteractionOrder -> {NP, 1},
     Description -> "Photon-Dark Fermion dipole coupling"
 },
@@ -90,13 +90,14 @@ ychi10 == {
 
 GGH == {TeX -> Subscript[G, H],
        ParameterType -> Internal,
-       InteractionOrder -> {HIG, 1},
-       Value -> -gs^2/(4Pi(3Pi v)) sert[(MH/2/MT)^2] },
+       InteractionOrder -> {QCD, 2},
+       Value -> -gs^2/(4Pi(3Pi vev)) sert[(MH/2/MT)^2] },
 
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
-       InteractionOrder -> {HIG, 1},
-       Value -> -gs^2*sina/(4Pi(3Pi v)) formGGH[(MH/2/MT)^2] }
+       ComplexParameter -> True,
+       InteractionOrder -> {{QCD, 2},{NP,1}},
+       Value -> -gs^2*sina/(4Pi(3Pi vev)) formGGH[(MSd/2/MT)^2] }
 }
 
 (* ************************** *)
@@ -140,14 +141,14 @@ S[4]  == {
     SelfConjugate   -> True,
     Unphysical      -> False,
     QuantumNumbers  -> {},
-    Mass            -> {MS, 1000},
+    Mass            -> {MSd, 1000},
     Width           -> {WS, 1.0},
-    PropagatorLabel -> "S",
+    PropagatorLabel -> "Sd",
     PropagatorType  -> Scalar,
     PropagatorArrow -> None,
     PDG             -> 35,
-    ParticleName    -> {"S"},
-    FullName        -> {"S"}}
+    ParticleName    -> {"Sd"},
+    FullName        -> {"Sd"}}
 };
 
 
@@ -158,7 +159,7 @@ S[4]  == {
 (* gauge kinetic and mass terms *)
 
 LkinBSM :=  Block[{mu},
-               (I*chi1bar.Ga[mu].DC[chi1, mu] - (M1) chi1bar.chi1 + I*chi0bar.Ga[mu].DC[chi0, mu] - (M0) chi0bar.chi0  + (1/2) del[Sd,mu] del[Sd,mu] -  (1/2) MS^2 Sd^2)
+               (I*chi1bar.Ga[mu].DC[chi1, mu] - (M1) chi1bar.chi1 + I*chi0bar.Ga[mu].DC[chi0, mu] - (M0) chi0bar.chi0  + (1/2) del[Sd,mu] del[Sd,mu] -  (1/2) MSd^2 Sd^2)
               ];
 
 
