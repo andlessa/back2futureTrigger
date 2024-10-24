@@ -31,9 +31,10 @@ M$InteractionOrderHierarchy = {  {QCD, 1}, {NP, 1}, {QED,2} };
 
 sert[x_] := 1+ 7/30 x + 2/21 x^2 + 26/525 x^3;
 
-(* We need to make sure each term is finite in case they are evaluated at x = 0. So we regularize the apparent divergence with the 10^(-10) term *)
+(* The sert function is only valid for x < 1 (mS < 2*mQ). To be more precise we include both regimes and expand up to order x^8 for x < 1 or 1/x^8 for x > 1 *)
 (* This introduces a negligible error for x > 10^(-5) *)
-formGGH[x_] := If[x < 1,((3*x)/2 - (3*ArcSin[Sqrt[x]]^2)/2 + (3*x*ArcSin[Sqrt[x]]^2)/2)/(x^2+10^(-10)),((3*x)/2 + (3*Log[1 - 2*(Sqrt[-1 + x]*Sqrt[x] + x)]^2)/8 - (3*x*Log[1 - 2*(Sqrt[-1 + x]*Sqrt[x] + x)]^2)/8)/(x^2+10^(-10))];
+formGGH[x_] := If[x < 1, 1 + (7*x)/30 + (2*x^2)/21 + (26*x^3)/525 + (512*x^4)/17325 + (1216*x^5)/63063 + (128*x^6)/9555 + (640*x^7)/65637 + (229376*x^8)/31177575, 71/(12288*x^8) + 4003/(491520*x^7) + 49/(4096*x^6) + 37/(2048*x^5) + 3/(128*x^4) - 3/(32*x^3) + 3/(2*x) - (165*Log[-4*x])/(28672*x^8) - (357*Log[-4*x])/(40960*x^7) - (147*Log[-4*x])/(10240*x^6) - 
+ (55*Log[-4*x])/(2048*x^5) - Log[-4*x]/(16*x^4) - (15*Log[-4*x])/(64*x^3) + (3*Log[-4*x])/(8*x^2) + (3*Log[-4*x]^2)/(8*x^2) - (3*Log[-4*x]^2)/(8*x)];
 
 (** formGGH[x_] := If[x < 0.0001,1+ 7/30 x ,(3*(x + (-1 + x)*ArcSin[Sqrt[x]]^2))/(2*x^2)]; **)
 
@@ -48,6 +49,17 @@ sina == {
     Value -> 0.2,
     InteractionOrder -> {NP, 1},
     Description -> "Sine of S-Higgs mixing angle"
+  },
+
+(* For convenience we include a new parameter for the (SM/BSM) quark mass responsible for the loop induced G-G-Sd coupling *)
+(* (we assume the top quark by default) *)
+
+MQloop == {
+    ParameterType -> External,
+    BlockName -> NPINPUTS,
+    ComplexParameter -> True,
+    Value -> MT,
+    Description -> "Heavy quark mass responsible for the effective G-G-S interaction"
   },
 
 AAC == {
@@ -88,6 +100,15 @@ ychi10 == {
     Description -> "Yukawa coupling S-chi1-chi0"
   },  
 
+  (* We define an Sd-t-t coupling used to compute the Sd-G-G effective coupling *)
+  ystt == {
+    ParameterType -> External,
+    BlockName -> NPINPUTS,
+    TeX -> Subscript[y,Sdtt],
+    Value -> 0.2*Sqrt[2]*MT/vev,
+    Description -> "Effective Yukawa coupling S-t-tbar"
+  },  
+
 GGH == {TeX -> Subscript[G, H],
        ParameterType -> Internal,
        InteractionOrder -> {QCD, 2},
@@ -97,7 +118,7 @@ GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
        ComplexParameter -> True,
        InteractionOrder -> {{QCD, 2},{NP,1}},
-       Value -> -gs^2*sina/(4Pi(3Pi vev)) formGGH[(MSd/2/MT)^2] }
+       Value -> -gs^2*ystt/(4Pi(3Pi Sqrt[2])) formGGH[(MSd/2/MQloop)^2]/MQloop }
 }
 
 (* ************************** *)
@@ -146,7 +167,7 @@ S[4]  == {
     PropagatorLabel -> "Sd",
     PropagatorType  -> Scalar,
     PropagatorArrow -> None,
-    PDG             -> 35,
+    PDG             -> 55,
     ParticleName    -> {"Sd"},
     FullName        -> {"Sd"}}
 };
@@ -169,7 +190,7 @@ LGG := -1/4 GGH FS[G, mu, nu, b] FS[G, mu, nu, b] H  -1/4 GGS FS[G, mu, nu, b] F
 
 (* Dark Scalar-Dark Fermion couplings *)
 
-LYukawaBSM := -ychi1 (chi1bar.chi1)*Sd - ychi0 (chi0bar.chi0)*Sd - (ychi10/2) (chi1bar.chi0 + chi0bar.chi1)*Sd;
+LYukawaBSM := -ychi1 (chi1bar.chi1)*Sd - ychi0 (chi0bar.chi0)*Sd - (ychi10/2) (chi1bar.chi0 + chi0bar.chi1)*Sd - ystt*tbar.t*Sd;
 
 (* Dipole Coupling *)
 

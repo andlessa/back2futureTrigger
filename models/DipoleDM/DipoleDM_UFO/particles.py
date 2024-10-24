@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 23 Oct 2024 17:35:57
+# Date: Wed 23 Oct 2024 21:15:50
 
 
 from __future__ import division
@@ -417,7 +417,7 @@ P__tilde__chi0 = Particle(pdg_code = 5000022,
 
 P__tilde__chi0bar = P__tilde__chi0.anti()
 
-Sd = Particle(pdg_code = 35,
+Sd = Particle(pdg_code = 55,
               name = 'Sd',
               antiname = 'Sd',
               spin = 1,

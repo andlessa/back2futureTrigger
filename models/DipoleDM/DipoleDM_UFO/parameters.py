@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 23 Oct 2024 17:35:57
+# Date: Wed 23 Oct 2024 21:15:50
 
 
 
@@ -25,13 +25,21 @@ sina = Parameter(name = 'sina',
                  lhablock = 'NPINPUTS',
                  lhacode = [ 1 ])
 
+MQloop = Parameter(name = 'MQloop',
+                   nature = 'external',
+                   type = 'complex',
+                   value = MT,
+                   texname = '\\text{MQloop}',
+                   lhablock = 'NPINPUTS',
+                   lhacode = [ 2 ])
+
 AAC = Parameter(name = 'AAC',
                 nature = 'external',
                 type = 'real',
                 value = 1.e-6,
                 texname = 'G_{\\text{aachi}}',
                 lhablock = 'NPINPUTS',
-                lhacode = [ 2 ])
+                lhacode = [ 3 ])
 
 ychi1 = Parameter(name = 'ychi1',
                   nature = 'external',
@@ -39,7 +47,7 @@ ychi1 = Parameter(name = 'ychi1',
                   value = 1.,
                   texname = 'y_{\\text{chi1}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 3 ])
+                  lhacode = [ 4 ])
 
 ychi0 = Parameter(name = 'ychi0',
                   nature = 'external',
@@ -47,7 +55,7 @@ ychi0 = Parameter(name = 'ychi0',
                   value = 0.,
                   texname = 'y_{\\text{chi0}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 4 ])
+                  lhacode = [ 5 ])
 
 ychi10 = Parameter(name = 'ychi10',
                    nature = 'external',
@@ -55,7 +63,15 @@ ychi10 = Parameter(name = 'ychi10',
                    value = 0.,
                    texname = 'y_{\\text{chi10}}',
                    lhablock = 'NPINPUTS',
-                   lhacode = [ 5 ])
+                   lhacode = [ 6 ])
+
+ystt = Parameter(name = 'ystt',
+                 nature = 'external',
+                 type = 'real',
+                 value = (0.28284271247461906*MT)/vev,
+                 texname = 'y_{\\text{Sdtt}}',
+                 lhablock = 'NPINPUTS',
+                 lhacode = [ 7 ])
 
 aEWM1 = Parameter(name = 'aEWM1',
                   nature = 'external',
@@ -167,7 +183,7 @@ MSd = Parameter(name = 'MSd',
                 value = 1000,
                 texname = '\\text{MSd}',
                 lhablock = 'MASS',
-                lhacode = [ 35 ])
+                lhacode = [ 55 ])
 
 WZ = Parameter(name = 'WZ',
                nature = 'external',
@@ -223,7 +239,7 @@ WS = Parameter(name = 'WS',
                value = 1.,
                texname = '\\text{WS}',
                lhablock = 'DECAY',
-               lhacode = [ 35 ])
+               lhacode = [ 55 ])
 
 aEW = Parameter(name = 'aEW',
                 nature = 'internal',
@@ -248,6 +264,12 @@ ee = Parameter(name = 'ee',
                type = 'real',
                value = '2*cmath.sqrt(aEW)*cmath.sqrt(cmath.pi)',
                texname = 'e')
+
+GGS = Parameter(name = 'GGS',
+                nature = 'internal',
+                type = 'complex',
+                value = '-(( 1 + (7*MSd**2)/(120.*MQloop**2) + MSd**4/(168.*MQloop**4) + (13*MSd**6)/(16800.*MQloop**6) + (2*MSd**8)/(17325.*MQloop**8) + (19*MSd**10)/(1.009008e6*MQloop**10) + MSd**12/(305760.*MQloop**12) + (5*MSd**14)/(8.401536e6*MQloop**14) + (7*MSd**16)/(6.235515e7*MQloop**16) if MSd**2/(4.*MQloop**2)<1 else (1136*MQloop**16)/(3.*MSd**16) + (4003*MQloop**14)/(30.*MSd**14) + (49*MQloop**12)/MSd**12 + (37*MQloop**10)/(2.*MSd**10) + (6*MQloop**8)/MSd**8 - (6*MQloop**6)/MSd**6 + (6*MQloop**2)/MSd**2 - (2640*MQloop**16*cmath.log(-(MSd**2/MQloop**2)))/(7.*MSd**16) - (714*MQloop**14*cmath.log(-(MSd**2/MQloop**2)))/(5.*MSd**14) - (294*MQloop**12*cmath.log(-(MSd**2/MQloop**2)))/(5.*MSd**12) - (55*MQloop**10*cmath.log(-(MSd**2/MQloop**2)))/(2.*MSd**10) - (16*MQloop**8*cmath.log(-(MSd**2/MQloop**2)))/MSd**8 - (15*MQloop**6*cmath.log(-(MSd**2/MQloop**2)))/MSd**6 + (6*MQloop**4*cmath.log(-(MSd**2/MQloop**2)))/MSd**4 + (6*MQloop**4*cmath.log(-(MSd**2/MQloop**2))**2)/MSd**4 - (3*MQloop**2*cmath.log(-(MSd**2/MQloop**2))**2)/(2.*MSd**2) )*G**2*ystt)/(12.*cmath.pi**2*MQloop*cmath.sqrt(2))',
+                texname = 'G_S')
 
 sw2 = Parameter(name = 'sw2',
                 nature = 'internal',
@@ -314,12 +336,6 @@ ytau = Parameter(name = 'ytau',
                  type = 'real',
                  value = '(ymtau*cmath.sqrt(2))/vev',
                  texname = '\\text{ytau}')
-
-GGS = Parameter(name = 'GGS',
-                nature = 'internal',
-                type = 'complex',
-                value = '-(( ((3*MSd**2)/(8.*MT**2) - (3*cmath.asin(cmath.sqrt(MSd**2/MT**2)/2.)**2)/2. + (3*MSd**2*cmath.asin(cmath.sqrt(MSd**2/MT**2)/2.)**2)/(8.*MT**2))/(1.e-10 + MSd**4/(16.*MT**4)) if MSd**2/(4.*MT**2)<1 else ((3*MSd**2)/(8.*MT**2) + (3*cmath.log(1 - 2*(MSd**2/(4.*MT**2) + (cmath.sqrt(-1 + MSd**2/(4.*MT**2))*cmath.sqrt(MSd**2/MT**2))/2.))**2)/8. - (3*MSd**2*cmath.log(1 - 2*(MSd**2/(4.*MT**2) + (cmath.sqrt(-1 + MSd**2/(4.*MT**2))*cmath.sqrt(MSd**2/MT**2))/2.))**2)/(32.*MT**2))/(1.e-10 + MSd**4/(16.*MT**4)) )*G**2*sina)/(12.*cmath.pi**2*vev)',
-                texname = 'G_S')
 
 muH = Parameter(name = 'muH',
                 nature = 'internal',
