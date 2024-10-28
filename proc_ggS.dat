@@ -1,6 +1,5 @@
 import model ../../models/DipoleDM/DipoleDM_UFO
-generate p p > Sd
-output test2
-launch
+generate p p > sd
+output ../../pp2Sd_scan
 done
 done

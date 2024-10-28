@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 12:30:23
+# Date: Mon 28 Oct 2024 14:26:01
 
 
 # 
@@ -34,7 +34,7 @@
 # Parameter definitions
 #
 
-   * Parameter GGS is complex, but declared as real. Changing type to complex.
+   * Parameter GGS has no value. Default value 1 assigned.
 
 
 # Vertices

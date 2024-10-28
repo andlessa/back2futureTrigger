@@ -28,10 +28,21 @@ M$InteractionOrderHierarchy = {  {QCD, 1}, {NP, 1}, {QED,2} };
 
 (*** From HiggsEffective Model (Author: C. Duhr) ***)
 (* The loop coefficient for the CP-even coupling *)
-(* The sert function is only valid for x < 1 (mS < 2*mQ) *)
+(* The sert function is only valid for x = (mS/2mQ)^2 < 1 (mS < 2*mQ) *)
 
-sert[x_] := 3/(2*x) - (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x^2) + (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x);
+(* Approximation for low x: *)
+(* sert[x_] := 1+ 7/30 x + 2/21 x^2 + 26/525 x^3; *)
 
+sert[x_] := (3/(2*x) - (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x^2) + (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x));
+
+
+
+fheavy2[x_] := (9*((Pi^2*(-1 + x) + 4*x)^2 + 2*(Pi^2*(-1 + x) - 4*x)*(-1 + x)*Log[(1 + Sqrt[(-1 + x)/x])/(1 - Sqrt[(-1 + x)/x])]^2 + (-1 + x)^2*Log[(1 + Sqrt[(-1 + x)/x])/(1 - Sqrt[(-1 + x)/x])]^4))/(64*x^4);
+
+(* Since the g g > Sd/h cross-section is only proportional to |F(x)|^2, we define this function to avoid dealing with a non-hermitian lagrangian *)
+(* The G-G-Sd coupling is given by Sqrt[|F|^2] *)
+
+ffabs2[x_] := If[x < 1, sert[x]^2, fheavy2[x]];
 
 
 (***** Parameter list ******)
@@ -107,7 +118,7 @@ GGH == {TeX -> Subscript[G, H],
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
        InteractionOrder -> {{QCD, 2},{NP,1}},
-       Value -> -(gs^2/(4Pi(3Pi)))*(ysQQ/(Sqrt[2]*MQloop))*sert[(MSd/2/MQloop)^2]}
+       Value -> -(gs^2/(4Pi(3Pi)))*(ysQQ/(Sqrt[2]*MQloop))*Sqrt[ffabs2[(MSd/2/MQloop)^2]]}
 }
 
 (* ************************** *)
