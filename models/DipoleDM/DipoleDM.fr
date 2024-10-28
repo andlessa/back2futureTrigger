@@ -29,7 +29,9 @@ M$InteractionOrderHierarchy = {  {QCD, 1}, {NP, 1}, {QED,2} };
 (*** From HiggsEffective Model (Author: C. Duhr) ***)
 (* The loop coefficient for the CP-even coupling *)
 
-sert[x_] := 1+ 7/30 x + 2/21 x^2 + 26/525 x^3;
+(* sert[x_] := 1+ 7/30 x + 2/21 x^2 + 26/525 x^3; *)
+
+sert[x_] := 3/(2*x) - (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x^2) + (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x);
 
 (* The sert function is only valid for x < 1 (mS < 2*mQ). To be more precise we include both regimes and expand up to order x^8 for x < 1 or 1/x^8 for x > 1 *)
 (* This introduces a negligible error for x > 10^(-5) *)
@@ -116,9 +118,8 @@ GGH == {TeX -> Subscript[G, H],
 
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
-       ComplexParameter -> True,
        InteractionOrder -> {{QCD, 2},{NP,1}},
-       Value -> -gs^2*ystt/(4Pi(3Pi Sqrt[2])) formGGH[(MSd/2/MQloop)^2]/MQloop }
+       Value -> -gs^2/(4Pi(3Pi vev)) sert[(MSd/2/MT)^2]}
 }
 
 (* ************************** *)

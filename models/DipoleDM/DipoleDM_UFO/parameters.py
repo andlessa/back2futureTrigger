@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 23 Oct 2024 21:15:50
+# Date: Mon 28 Oct 2024 10:49:08
 
 
 
@@ -265,12 +265,6 @@ ee = Parameter(name = 'ee',
                value = '2*cmath.sqrt(aEW)*cmath.sqrt(cmath.pi)',
                texname = 'e')
 
-GGS = Parameter(name = 'GGS',
-                nature = 'internal',
-                type = 'complex',
-                value = '-(( 1 + (7*MSd**2)/(120.*MQloop**2) + MSd**4/(168.*MQloop**4) + (13*MSd**6)/(16800.*MQloop**6) + (2*MSd**8)/(17325.*MQloop**8) + (19*MSd**10)/(1.009008e6*MQloop**10) + MSd**12/(305760.*MQloop**12) + (5*MSd**14)/(8.401536e6*MQloop**14) + (7*MSd**16)/(6.235515e7*MQloop**16) if MSd**2/(4.*MQloop**2)<1 else (1136*MQloop**16)/(3.*MSd**16) + (4003*MQloop**14)/(30.*MSd**14) + (49*MQloop**12)/MSd**12 + (37*MQloop**10)/(2.*MSd**10) + (6*MQloop**8)/MSd**8 - (6*MQloop**6)/MSd**6 + (6*MQloop**2)/MSd**2 - (2640*MQloop**16*cmath.log(-(MSd**2/MQloop**2)))/(7.*MSd**16) - (714*MQloop**14*cmath.log(-(MSd**2/MQloop**2)))/(5.*MSd**14) - (294*MQloop**12*cmath.log(-(MSd**2/MQloop**2)))/(5.*MSd**12) - (55*MQloop**10*cmath.log(-(MSd**2/MQloop**2)))/(2.*MSd**10) - (16*MQloop**8*cmath.log(-(MSd**2/MQloop**2)))/MSd**8 - (15*MQloop**6*cmath.log(-(MSd**2/MQloop**2)))/MSd**6 + (6*MQloop**4*cmath.log(-(MSd**2/MQloop**2)))/MSd**4 + (6*MQloop**4*cmath.log(-(MSd**2/MQloop**2))**2)/MSd**4 - (3*MQloop**2*cmath.log(-(MSd**2/MQloop**2))**2)/(2.*MSd**2) )*G**2*ystt)/(12.*cmath.pi**2*MQloop*cmath.sqrt(2))',
-                texname = 'G_S')
-
 sw2 = Parameter(name = 'sw2',
                 nature = 'internal',
                 type = 'real',
@@ -310,7 +304,7 @@ vev = Parameter(name = 'vev',
 GGH = Parameter(name = 'GGH',
                 nature = 'internal',
                 type = 'real',
-                value = '-(G**2*(1 + (13*MH**6)/(16800.*MT**6) + MH**4/(168.*MT**4) + (7*MH**2)/(120.*MT**2)))/(12.*cmath.pi**2*vev)',
+                value = '-(G**2*((6*MT**2)/MH**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**4))/(12.*cmath.pi**2*vev)',
                 texname = 'G_H')
 
 lam = Parameter(name = 'lam',
@@ -336,6 +330,12 @@ ytau = Parameter(name = 'ytau',
                  type = 'real',
                  value = '(ymtau*cmath.sqrt(2))/vev',
                  texname = '\\text{ytau}')
+
+GGS = Parameter(name = 'GGS',
+                nature = 'internal',
+                type = 'complex',
+                value = '-(G**2*((6*MT**2)/MSd**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**4))/(12.*cmath.pi**2*vev)',
+                texname = 'G_S')
 
 muH = Parameter(name = 'muH',
                 nature = 'internal',
