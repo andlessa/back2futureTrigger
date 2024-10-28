@@ -46,8 +46,8 @@ MQloop == {
     ParameterType -> External,
     BlockName -> NPINPUTS,
     ComplexParameter -> False,
-    Value -> 2000.0,
-    Description -> "Heavy BSM quark mass contributing to the effective G-G-S interaction"
+    Value -> 172.0,
+    Description -> "Quark mass contributing to the effective G-G-S interaction"
   },
 
 AAC == {
@@ -88,26 +88,17 @@ ychi10 == {
     Description -> "Yukawa coupling S-chi1-chi0"
   },  
 
-  (* We define a Sd-Q-Q coupling used to compute the BSM quark contributions to the Sd-G-G effective coupling *)
+  (* We define a Sd-Q-Q coupling used to compute the quark contribution to the Sd-G-G effective coupling *)
   ysQQ == {
     ParameterType -> External,
     BlockName -> NPINPUTS,
     TeX -> Subscript[y,SdQQ],
-    Value -> 0.0,
+    Value -> 0.2,
     InteractionOrder -> {QED, 1},
     Description -> "Effective Yukawa coupling S-Q-Q"
   },  
 
-  (* We define a Sd-t-tbar coupling used to compute the SM top quark contributions to the Sd-G-G effective coupling *)
-  ystt == {
-    ParameterType -> External,
-    BlockName -> NPINPUTS,
-    TeX -> Subscript[y,Sdtt],
-    Value -> 0.2/Sqrt[2],
-    InteractionOrder -> {QED, 1},
-    Description -> "Effective Yukawa coupling S-t-tbar"
-  },  
-
+ 
 GGH == {TeX -> Subscript[G, H],
        ParameterType -> Internal,
        InteractionOrder -> {QCD, 2},
@@ -116,7 +107,7 @@ GGH == {TeX -> Subscript[G, H],
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
        InteractionOrder -> {{QCD, 2},{NP,1}},
-       Value -> -gs^2/(4Pi(3Pi)) ((ysQQ/MQloop)*sert[(MSd/2/MQloop)^2]+ (ystt/MT)*sert[(MSd/2/MT)^2])}
+       Value -> -(gs^2/(4Pi(3Pi)))*(ysQQ/(Sqrt[2]*MQloop))*sert[(MSd/2/MQloop)^2]}
 }
 
 (* ************************** *)
@@ -188,7 +179,7 @@ LGG := -1/4 GGH FS[G, mu, nu, b] FS[G, mu, nu, b] H  -1/4 GGS FS[G, mu, nu, b] F
 
 (* Dark Scalar-Dark Fermion couplings *)
 
-LYukawaBSM := -ychi1 (chi1bar.chi1)*Sd - ychi0 (chi0bar.chi0)*Sd - (ychi10/2) (chi1bar.chi0 + chi0bar.chi1)*Sd - ystt*tbar.t*Sd;
+LYukawaBSM := -ychi1 (chi1bar.chi1)*Sd - ychi0 (chi0bar.chi0)*Sd - (ychi10/2) (chi1bar.chi0 + chi0bar.chi1)*Sd;
 
 (* Dipole Coupling *)
 

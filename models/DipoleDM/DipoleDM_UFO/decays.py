@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 11:59:23
+# Date: Mon 28 Oct 2024 12:30:43
 
 
 from object_library import all_decays, Decay
@@ -36,8 +36,7 @@ Decay_Sd = Decay(name = 'Decay_Sd',
                                    (P.P__tilde__chi0,P.P__tilde__chi1bar):'((-(M0**2*ychi10**2)/2. - M0*M1*ychi10**2 - (M1**2*ychi10**2)/2. + (MSd**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MSd**2 - 2*M1**2*MSd**2 + MSd**4))/(16.*cmath.pi*abs(MSd)**3)',
                                    (P.P__tilde__chi1,P.P__tilde__chi0bar):'((-(M0**2*ychi10**2)/2. - M0*M1*ychi10**2 - (M1**2*ychi10**2)/2. + (MSd**2*ychi10**2)/2.)*cmath.sqrt(M0**4 - 2*M0**2*M1**2 + M1**4 - 2*M0**2*MSd**2 - 2*M1**2*MSd**2 + MSd**4))/(16.*cmath.pi*abs(MSd)**3)',
                                    (P.P__tilde__chi1,P.P__tilde__chi1bar):'((-8*M1**2*ychi1**2 + 2*MSd**2*ychi1**2)*cmath.sqrt(-4*M1**2*MSd**2 + MSd**4))/(16.*cmath.pi*abs(MSd)**3)',
-                                   (P.g,P.g):'(GGS**2*MSd**6)/(8.*cmath.pi*abs(MSd)**3)',
-                                   (P.t,P.t__tilde__):'((6*MSd**2*ystt**2 - 24*MT**2*ystt**2)*cmath.sqrt(MSd**4 - 4*MSd**2*MT**2))/(16.*cmath.pi*abs(MSd)**3)'})
+                                   (P.g,P.g):'(GGS**2*MSd**6)/(8.*cmath.pi*abs(MSd)**3)'})
 
 Decay_t = Decay(name = 'Decay_t',
                 particle = P.t,

@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 11:59:23
+# Date: Mon 28 Oct 2024 12:30:43
 
 
 from object_library import all_couplings, Coupling
@@ -298,30 +298,26 @@ GC_72 = Coupling(name = 'GC_72',
                  order = {'NP':1})
 
 GC_73 = Coupling(name = 'GC_73',
-                 value = '-(complex(0,1)*ystt)',
-                 order = {'QED':1})
-
-GC_74 = Coupling(name = 'GC_74',
                  value = '-((complex(0,1)*yt)/cmath.sqrt(2))',
                  order = {'QED':1})
 
-GC_75 = Coupling(name = 'GC_75',
+GC_74 = Coupling(name = 'GC_74',
                  value = 'yt/cmath.sqrt(2)',
                  order = {'QED':1})
 
-GC_76 = Coupling(name = 'GC_76',
+GC_75 = Coupling(name = 'GC_75',
                  value = '-ytau',
                  order = {'QED':1})
 
-GC_77 = Coupling(name = 'GC_77',
+GC_76 = Coupling(name = 'GC_76',
                  value = 'ytau',
                  order = {'QED':1})
 
-GC_78 = Coupling(name = 'GC_78',
+GC_77 = Coupling(name = 'GC_77',
                  value = '-(ytau/cmath.sqrt(2))',
                  order = {'QED':1})
 
-GC_79 = Coupling(name = 'GC_79',
+GC_78 = Coupling(name = 'GC_78',
                  value = '-((complex(0,1)*ytau)/cmath.sqrt(2))',
                  order = {'QED':1})
 

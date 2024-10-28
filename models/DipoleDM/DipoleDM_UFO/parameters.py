@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 11:59:23
+# Date: Mon 28 Oct 2024 12:30:43
 
 
 
@@ -20,7 +20,7 @@ ZERO = Parameter(name = 'ZERO',
 MQloop = Parameter(name = 'MQloop',
                    nature = 'external',
                    type = 'real',
-                   value = 2000.,
+                   value = 172.,
                    texname = '\\text{MQloop}',
                    lhablock = 'NPINPUTS',
                    lhacode = [ 1 ])
@@ -60,18 +60,10 @@ ychi10 = Parameter(name = 'ychi10',
 ysQQ = Parameter(name = 'ysQQ',
                  nature = 'external',
                  type = 'real',
-                 value = 0.,
+                 value = 0.2,
                  texname = 'y_{\\text{SdQQ}}',
                  lhablock = 'NPINPUTS',
                  lhacode = [ 6 ])
-
-ystt = Parameter(name = 'ystt',
-                 nature = 'external',
-                 type = 'real',
-                 value = 0.1414213562373095,
-                 texname = 'y_{\\text{Sdtt}}',
-                 lhablock = 'NPINPUTS',
-                 lhacode = [ 7 ])
 
 aEWM1 = Parameter(name = 'aEWM1',
                   nature = 'external',
@@ -268,7 +260,7 @@ ee = Parameter(name = 'ee',
 GGS = Parameter(name = 'GGS',
                 nature = 'internal',
                 type = 'complex',
-                value = '-(G**2*((ysQQ*((6*MQloop**2)/MSd**2 - (24*MQloop**4*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**4 + (6*MQloop**2*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**2))/MQloop + (ystt*((6*MT**2)/MSd**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**4))/MT))/(12.*cmath.pi**2)',
+                value = '-(G**2*ysQQ*((6*MQloop**2)/MSd**2 - (24*MQloop**4*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**4 + (6*MQloop**2*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**2))/(12.*cmath.pi**2*MQloop*cmath.sqrt(2))',
                 texname = 'G_S')
 
 sw2 = Parameter(name = 'sw2',
