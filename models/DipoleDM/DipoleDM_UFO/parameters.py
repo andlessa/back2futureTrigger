@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 10:49:08
+# Date: Mon 28 Oct 2024 11:22:11
 
 
 
@@ -27,8 +27,8 @@ sina = Parameter(name = 'sina',
 
 MQloop = Parameter(name = 'MQloop',
                    nature = 'external',
-                   type = 'complex',
-                   value = MT,
+                   type = 'real',
+                   value = 172.,
                    texname = '\\text{MQloop}',
                    lhablock = 'NPINPUTS',
                    lhacode = [ 2 ])
@@ -68,7 +68,7 @@ ychi10 = Parameter(name = 'ychi10',
 ystt = Parameter(name = 'ystt',
                  nature = 'external',
                  type = 'real',
-                 value = (0.28284271247461906*MT)/vev,
+                 value = 0.28284271247461906,
                  texname = 'y_{\\text{Sdtt}}',
                  lhablock = 'NPINPUTS',
                  lhacode = [ 7 ])
