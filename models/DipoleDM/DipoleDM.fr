@@ -42,7 +42,7 @@ fheavy2[x_] := (9*((Pi^2*(-1 + x) + 4*x)^2 + 2*(Pi^2*(-1 + x) - 4*x)*(-1 + x)*Lo
 (* Since the g g > Sd/h cross-section is only proportional to |F(x)|^2, we define this function to avoid dealing with a non-hermitian lagrangian *)
 (* The G-G-Sd coupling is given by Sqrt[|F|^2] *)
 
-ffabs2[x_] := If[x < 1, sert[x]^2, fheavy2[x]];
+ffabs2[x_] := If[Abs[x] < 1.0, sert[x]^2, fheavy2[x]];
 
 
 (***** Parameter list ******)
@@ -60,6 +60,7 @@ MQloop == {
     Value -> 172.0,
     Description -> "Quark mass contributing to the effective G-G-S interaction"
   },
+  
 
 AAC == {
     TeX -> Subscript[G,aachi],
@@ -162,7 +163,7 @@ S[4]  == {
     SelfConjugate   -> True,
     Unphysical      -> False,
     QuantumNumbers  -> {},
-    Mass            -> {MSd, 1000},
+    Mass            -> {MSd, 1500},
     Width           -> {WS, 1.0},
     PropagatorLabel -> "Sd",
     PropagatorType  -> Scalar,
@@ -196,8 +197,6 @@ LYukawaBSM := -ychi1 (chi1bar.chi1)*Sd - ychi0 (chi0bar.chi0)*Sd - (ychi10/2) (c
 
 Sigmamunu[mu_,nu_,sp1_,sp2_]:= Module[{sp},(I/2)*(Ga[mu,sp1,sp]*Ga[nu,sp,sp2]-Ga[nu,sp1,sp]*Ga[mu,sp,sp2])];
 
-LDipole0 := Block[{mu,nu,sp1,sp2},
-                  AAC*FS[A,mu,nu]*(ch1bar[sp1].chi0[sp2] + ch0bar[sp1].chi1[sp2])*Gammamunu[mu,nu,sp1,sp2]];
 
 LDipole := Block[{mu,nu,sp1,sp2},
                   AAC*FS[A,mu,nu]*(chi1bar[sp1].chi0[sp2])*Sigmamunu[mu,nu,sp1,sp2]

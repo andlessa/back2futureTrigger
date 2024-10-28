@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 14:26:20
+# Date: Mon 28 Oct 2024 17:37:24
 
 
 
@@ -172,7 +172,7 @@ M0 = Parameter(name = 'M0',
 MSd = Parameter(name = 'MSd',
                 nature = 'external',
                 type = 'real',
-                value = 1000,
+                value = 1500,
                 texname = '\\text{MSd}',
                 lhablock = 'MASS',
                 lhacode = [ 55 ])
@@ -260,7 +260,7 @@ ee = Parameter(name = 'ee',
 GGS = Parameter(name = 'GGS',
                 nature = 'internal',
                 type = 'real',
-                value = '-(G**2*ysQQ*cmath.sqrt(( ((6*MQloop**2)/MSd**2 - (24*MQloop**4*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**4 + (6*MQloop**2*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**2)**2 if MSd**2/(4.*MQloop**2)<1 else (36*MQloop**8*((MSd**2/MQloop**2 + cmath.pi**2*(-1 + MSd**2/(4.*MQloop**2)))**2 + 2*(-1 + MSd**2/(4.*MQloop**2))*(-(MSd**2/MQloop**2) + cmath.pi**2*(-1 + MSd**2/(4.*MQloop**2)))*cmath.log((1 + 2*cmath.sqrt((MQloop**2*(-1 + MSd**2/(4.*MQloop**2)))/MSd**2))/(1 - 2*cmath.sqrt((MQloop**2*(-1 + MSd**2/(4.*MQloop**2)))/MSd**2)))**2 + (-1 + MSd**2/(4.*MQloop**2))**2*cmath.log((1 + 2*cmath.sqrt((MQloop**2*(-1 + MSd**2/(4.*MQloop**2)))/MSd**2))/(1 - 2*cmath.sqrt((MQloop**2*(-1 + MSd**2/(4.*MQloop**2)))/MSd**2)))**4))/MSd**8 )))/(12.*cmath.pi**2*MQloop*cmath.sqrt(2))',
+                value = '-(G**2*ysQQ*cmath.sqrt(( ((6*MQloop**2)/MSd**2 - (24*MQloop**4*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**4 + (6*MQloop**2*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**2)**2 if abs(MSd**2/MQloop**2)/4.<1. else (36*MQloop**8*((MSd**2/MQloop**2 + cmath.pi**2*(-1 + MSd**2/(4.*MQloop**2)))**2 + 2*(-1 + MSd**2/(4.*MQloop**2))*(-(MSd**2/MQloop**2) + cmath.pi**2*(-1 + MSd**2/(4.*MQloop**2)))*cmath.log((1 + 2*cmath.sqrt((MQloop**2*(-1 + MSd**2/(4.*MQloop**2)))/MSd**2))/(1 - 2*cmath.sqrt((MQloop**2*(-1 + MSd**2/(4.*MQloop**2)))/MSd**2)))**2 + (-1 + MSd**2/(4.*MQloop**2))**2*cmath.log((1 + 2*cmath.sqrt((MQloop**2*(-1 + MSd**2/(4.*MQloop**2)))/MSd**2))/(1 - 2*cmath.sqrt((MQloop**2*(-1 + MSd**2/(4.*MQloop**2)))/MSd**2)))**4))/MSd**8 )))/(12.*cmath.pi**2*MQloop*cmath.sqrt(2))',
                 texname = 'G_S')
 
 sw2 = Parameter(name = 'sw2',
