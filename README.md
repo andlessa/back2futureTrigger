@@ -3,7 +3,7 @@
 
 ## Dipole DM Model (J. Zurita)
 
-The BSM Lagrangian implemented [here]('./models/DipoleDM/DipoleDM.fr) is based on this expression (see [this note](./model_building_BTTF.pdf) for more details)
+The BSM Lagrangian implemented [here](./models/DipoleDM/DipoleDM.fr) is based on this expression (see [this note](./model_building_BTTF.pdf) for more details)
 
 
 <p float="left">
