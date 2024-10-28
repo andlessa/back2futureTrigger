@@ -38,13 +38,6 @@ sert[x_] := 3/(2*x) - (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x^2) + (3*ArcSin[1/Sqrt[x^
 
 M$Parameters = {
 
-sina == {
-    ParameterType -> External,
-    BlockName -> NPINPUTS,
-    Value -> 0.2,
-    InteractionOrder -> {NP, 1},
-    Description -> "Sine of S-Higgs mixing angle"
-  },
 
 (* For convenience we include a new parameter for the (SM/BSM) quark mass responsible for the loop induced G-G-Sd coupling *)
 (* (we assume the top quark by default) *)
@@ -53,8 +46,8 @@ MQloop == {
     ParameterType -> External,
     BlockName -> NPINPUTS,
     ComplexParameter -> False,
-    Value -> 172.0,
-    Description -> "Heavy quark mass responsible for the effective G-G-S interaction"
+    Value -> 2000.0,
+    Description -> "Heavy BSM quark mass contributing to the effective G-G-S interaction"
   },
 
 AAC == {
@@ -95,12 +88,22 @@ ychi10 == {
     Description -> "Yukawa coupling S-chi1-chi0"
   },  
 
-  (* We define an Sd-t-t coupling used to compute the Sd-G-G effective coupling *)
+  (* We define a Sd-Q-Q coupling used to compute the BSM quark contributions to the Sd-G-G effective coupling *)
+  ysQQ == {
+    ParameterType -> External,
+    BlockName -> NPINPUTS,
+    TeX -> Subscript[y,SdQQ],
+    Value -> 0.0,
+    InteractionOrder -> {QED, 1},
+    Description -> "Effective Yukawa coupling S-Q-Q"
+  },  
+
+  (* We define a Sd-t-tbar coupling used to compute the SM top quark contributions to the Sd-G-G effective coupling *)
   ystt == {
     ParameterType -> External,
     BlockName -> NPINPUTS,
     TeX -> Subscript[y,Sdtt],
-    Value -> 0.2*Sqrt[2],
+    Value -> 0.2/Sqrt[2],
     InteractionOrder -> {QED, 1},
     Description -> "Effective Yukawa coupling S-t-tbar"
   },  
@@ -113,7 +116,7 @@ GGH == {TeX -> Subscript[G, H],
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
        InteractionOrder -> {{QCD, 2},{NP,1}},
-       Value -> -gs^2/(4Pi(3Pi vev)) sert[(MSd/2/MT)^2]}
+       Value -> -gs^2/(4Pi(3Pi)) ((ysQQ/MQloop)*sert[(MSd/2/MQloop)^2]+ (ystt/MT)*sert[(MSd/2/MT)^2])}
 }
 
 (* ************************** *)

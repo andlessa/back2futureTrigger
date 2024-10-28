@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 11:22:11
+# Date: Mon 28 Oct 2024 11:59:23
 
 
 
@@ -17,21 +17,13 @@ ZERO = Parameter(name = 'ZERO',
                  texname = '0')
 
 # User-defined parameters.
-sina = Parameter(name = 'sina',
-                 nature = 'external',
-                 type = 'real',
-                 value = 0.2,
-                 texname = '\\text{sina}',
-                 lhablock = 'NPINPUTS',
-                 lhacode = [ 1 ])
-
 MQloop = Parameter(name = 'MQloop',
                    nature = 'external',
                    type = 'real',
-                   value = 172.,
+                   value = 2000.,
                    texname = '\\text{MQloop}',
                    lhablock = 'NPINPUTS',
-                   lhacode = [ 2 ])
+                   lhacode = [ 1 ])
 
 AAC = Parameter(name = 'AAC',
                 nature = 'external',
@@ -39,7 +31,7 @@ AAC = Parameter(name = 'AAC',
                 value = 1.e-6,
                 texname = 'G_{\\text{aachi}}',
                 lhablock = 'NPINPUTS',
-                lhacode = [ 3 ])
+                lhacode = [ 2 ])
 
 ychi1 = Parameter(name = 'ychi1',
                   nature = 'external',
@@ -47,7 +39,7 @@ ychi1 = Parameter(name = 'ychi1',
                   value = 1.,
                   texname = 'y_{\\text{chi1}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 4 ])
+                  lhacode = [ 3 ])
 
 ychi0 = Parameter(name = 'ychi0',
                   nature = 'external',
@@ -55,7 +47,7 @@ ychi0 = Parameter(name = 'ychi0',
                   value = 0.,
                   texname = 'y_{\\text{chi0}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 5 ])
+                  lhacode = [ 4 ])
 
 ychi10 = Parameter(name = 'ychi10',
                    nature = 'external',
@@ -63,12 +55,20 @@ ychi10 = Parameter(name = 'ychi10',
                    value = 0.,
                    texname = 'y_{\\text{chi10}}',
                    lhablock = 'NPINPUTS',
-                   lhacode = [ 6 ])
+                   lhacode = [ 5 ])
+
+ysQQ = Parameter(name = 'ysQQ',
+                 nature = 'external',
+                 type = 'real',
+                 value = 0.,
+                 texname = 'y_{\\text{SdQQ}}',
+                 lhablock = 'NPINPUTS',
+                 lhacode = [ 6 ])
 
 ystt = Parameter(name = 'ystt',
                  nature = 'external',
                  type = 'real',
-                 value = 0.28284271247461906,
+                 value = 0.1414213562373095,
                  texname = 'y_{\\text{Sdtt}}',
                  lhablock = 'NPINPUTS',
                  lhacode = [ 7 ])
@@ -265,6 +265,12 @@ ee = Parameter(name = 'ee',
                value = '2*cmath.sqrt(aEW)*cmath.sqrt(cmath.pi)',
                texname = 'e')
 
+GGS = Parameter(name = 'GGS',
+                nature = 'internal',
+                type = 'complex',
+                value = '-(G**2*((ysQQ*((6*MQloop**2)/MSd**2 - (24*MQloop**4*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**4 + (6*MQloop**2*cmath.asin(1/(2.*cmath.sqrt(MQloop**2/MSd**2)))**2)/MSd**2))/MQloop + (ystt*((6*MT**2)/MSd**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**4))/MT))/(12.*cmath.pi**2)',
+                texname = 'G_S')
+
 sw2 = Parameter(name = 'sw2',
                 nature = 'internal',
                 type = 'real',
@@ -330,12 +336,6 @@ ytau = Parameter(name = 'ytau',
                  type = 'real',
                  value = '(ymtau*cmath.sqrt(2))/vev',
                  texname = '\\text{ytau}')
-
-GGS = Parameter(name = 'GGS',
-                nature = 'internal',
-                type = 'complex',
-                value = '-(G**2*((6*MT**2)/MSd**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**4))/(12.*cmath.pi**2*vev)',
-                texname = 'G_S')
 
 muH = Parameter(name = 'muH',
                 nature = 'internal',
