@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 17:37:24
+# Date: Tue 29 Oct 2024 09:52:57
 
 
 from object_library import all_lorentz, Lorentz

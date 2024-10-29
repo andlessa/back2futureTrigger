@@ -35,8 +35,6 @@ M$InteractionOrderHierarchy = {  {QCD, 1}, {NP, 1}, {QED,2} };
 
 sert[x_] := (3/(2*x) - (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x^2) + (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x));
 
-
-
 fheavy2[x_] := (9*((Pi^2*(-1 + x) + 4*x)^2 + 2*(Pi^2*(-1 + x) - 4*x)*(-1 + x)*Log[(1 + Sqrt[(-1 + x)/x])/(1 - Sqrt[(-1 + x)/x])]^2 + (-1 + x)^2*Log[(1 + Sqrt[(-1 + x)/x])/(1 - Sqrt[(-1 + x)/x])]^4))/(64*x^4);
 
 (* Since the g g > Sd/h cross-section is only proportional to |F(x)|^2, we define this function to avoid dealing with a non-hermitian lagrangian *)
@@ -114,7 +112,7 @@ ychi10 == {
 GGH == {TeX -> Subscript[G, H],
        ParameterType -> Internal,
        InteractionOrder -> {QCD, 2},
-       Value -> -gs^2/(4Pi(3Pi vev)) sert[(MH/2/MT)^2] },
+       Value -> -(gs^2/(4Pi(3Pi vev)))*Sqrt[ffabs2[(MH/2/MT)^2]] },
 
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,

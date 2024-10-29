@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Mon 28 Oct 2024 17:37:24
+# Date: Tue 29 Oct 2024 09:52:57
 
 
 
@@ -302,7 +302,7 @@ vev = Parameter(name = 'vev',
 GGH = Parameter(name = 'GGH',
                 nature = 'internal',
                 type = 'real',
-                value = '-(G**2*((6*MT**2)/MH**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**4))/(12.*cmath.pi**2*vev)',
+                value = '-(G**2*cmath.sqrt(( ((6*MT**2)/MH**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**4)**2 if abs(MH**2/MT**2)/4.<1. else (36*MT**8*((cmath.pi**2*(-1 + MH**2/(4.*MT**2)) + MH**2/MT**2)**2 + 2*(cmath.pi**2*(-1 + MH**2/(4.*MT**2)) - MH**2/MT**2)*(-1 + MH**2/(4.*MT**2))*cmath.log((1 + 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2))/(1 - 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2)))**2 + (-1 + MH**2/(4.*MT**2))**2*cmath.log((1 + 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2))/(1 - 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2)))**4))/MH**8 )))/(12.*cmath.pi**2*vev)',
                 texname = 'G_H')
 
 lam = Parameter(name = 'lam',
