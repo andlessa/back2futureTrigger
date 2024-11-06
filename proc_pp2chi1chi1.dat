@@ -1,0 +1,5 @@
+import model ../../models/DipoleDM/DipoleDM_UFO
+generate p p > ~chi1 ~chi1bar
+output ../../pp2chi1chi1
+done
+done
