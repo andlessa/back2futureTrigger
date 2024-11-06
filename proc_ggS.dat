@@ -1,5 +1,5 @@
 import model ../../models/DipoleDM/DipoleDM_UFO
-generate p p > ~chi0 ~chi0bar a a QED=0
-output ../../test3 
+generate p p > sd
+output ../../test5
 done
 done
