@@ -26,18 +26,18 @@ The cross-section for $p p \to S$ production is computed considering two scenari
 
 ### Spin Dependence
 
-Although the $\chi_1 \to \chi_0 \gamma$ decay takes place through the dipole coupling ($\bar{\chi}_1 \sigma^{\mu\nu} \chi_0 F_{\mu\nu}$),
+Although the $\chi_1 \to \chi_0 \gamma$ decay takes place through the dipole coupling ($\bar\chi_1 \sigma^{\mu\nu} \chi_{0} F_{\mu\nu}$ ),
 this coupling does not produce any angular dependence. An explicit calculation of the differential decay rate can be found in [this notebook](./chi1Decay_FeynCalc.nb).
 
 In order to investigate the spin dependence it is relevant to check the distributions for the processes:
 
- * $p p \to \chi_0 \gamma \chi_0  \gamma$ (full matrix element)
- * $p p \to S$. This process can then be decayed using MadSpin ($S \to chi_1 \bar{chi}_1$. This  $\chi_1 \to chi_0 \gamma$) and assuming:
+ * $p p \to \chi_0 + \gamma + \chi_0 +  \gamma$ (full matrix element)
+ * $p p \to S$. This process can then be decayed using MadSpin ($S \to \chi_1 \bar\chi_1$. This  $\chi_1 \to \chi_0 \gamma$) and assuming:
    * off-shell effects and spin correlations (``spinmode = madspin``)[^1]
    * without off-shell effects and without spin correlations (``spinmode = none``)
 
 The constant decay rate ensures that spin correlations are not important for the decays considered.
-However, for the compressed scenario off-shell effects have a (very) small impact on the distributions of the final state particles ($\chi_0$ and $\gamma$).
+However, off-shell effects have a (very) small impact on the distributions of the final state particles ($\chi_0$ and $\gamma$).
 The comparison of several distributions are shown below and were produced using [this notebook](./spin_dists.ipynb):
 
 
@@ -47,7 +47,7 @@ The comparison of several distributions are shown below and were produced using 
     <img src="./spin_dists_log.png" alt="Comparison of distributions" width=65% height=65% />
 </p>
 
-[This notebook](./spin_tests.ipynb) shows the impact on the rest frame of the decaying particle and compares the angular distributions of the daughters
+[This notebook](./spin_tests.ipynb) shows the impact on the angular distributions of the daughters in the rest frame of the decaying particle 
 with and without off-shell effects. In particular, it is shown that if off-shell effects are turned off, the results with the full matrix element are
 identical to the ones without any spin correlation taken into account.
 
