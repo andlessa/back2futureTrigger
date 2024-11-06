@@ -44,7 +44,7 @@ The comparison of several distributions are shown below and were produced using 
 
 
 <p float="left">
-    <img src="./spin_dists_log.png" alt="Comparison of distributions" width=65% height=65% />
+    <img src="./spin_dists_log.png" alt="Comparison of distributions" width=80% height=80% />
 </p>
 
 [This notebook](./spin_tests.ipynb) shows the impact on the angular distributions of the daughters in the rest frame of the decaying particle 
