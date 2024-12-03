@@ -16,7 +16,7 @@ M$ModelName = "DipoleDM";
 
 M$Information = { Authors      -> {"Andre Lessa"}, 
                   Emails       ->{"andre.leessa@ufabc.edu.br"},
-                  Date         ->"19.10.2024", 
+                  Date         ->"03.12.2024", 
                   Version      ->"1",
                   URLs         ->""};
 
@@ -25,22 +25,6 @@ FeynmanGauge = True;
 M$InteractionOrderHierarchy = {  {QCD, 1}, {NP, 1}, {QED,2} };
 
 
-
-(*** From HiggsEffective Model (Author: C. Duhr) ***)
-(* The loop coefficient for the CP-even coupling *)
-(* The sert function is only valid for x = (mS/2mQ)^2 < 1 (mS < 2*mQ) *)
-
-(* Approximation for low x: *)
-(* sert[x_] := 1+ 7/30 x + 2/21 x^2 + 26/525 x^3; *)
-
-sert[x_] := (3/(2*x) - (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x^2) + (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x));
-
-fheavy2[x_] := (9*((Pi^2*(-1 + x) + 4*x)^2 + 2*(Pi^2*(-1 + x) - 4*x)*(-1 + x)*Log[(1 + Sqrt[(-1 + x)/x])/(1 - Sqrt[(-1 + x)/x])]^2 + (-1 + x)^2*Log[(1 + Sqrt[(-1 + x)/x])/(1 - Sqrt[(-1 + x)/x])]^4))/(64*x^4);
-
-(* Since the g g > Sd/h cross-section is only proportional to |F(x)|^2, we define this function to avoid dealing with a non-hermitian lagrangian *)
-(* The G-G-Sd coupling is given by Sqrt[|F|^2] *)
-
-ffabs2[x_] := If[Abs[x] < 1.0, sert[x]^2, fheavy2[x]];
 
 
 (***** Parameter list ******)
@@ -68,9 +52,8 @@ Lambda ==  {
     Description -> "UV scale suppressing higher dimensional operators"
   },
   
-
 Ca10 == {
-    TeX -> Subscript[C,\chi\chia],
+    TeX -> Subscript[C,xxa],
     ParameterType -> External,
     ComplexParameter -> False,
     BlockName -> NPINPUTS,
@@ -78,7 +61,6 @@ Ca10 == {
     InteractionOrder -> {NP, 1},
     Description -> "Photon-Dark Fermion dipole coupling"
 },
-
 
 ychi1 == {
     ParameterType -> External,
@@ -98,14 +80,6 @@ ychi0 == {
     Description -> "Yukawa coupling S-chi0-chi0"
   },         
 
-ychi10 == {
-    ParameterType -> External,
-    InteractionOrder -> {NP, 1},
-    BlockName -> NPINPUTS,
-    TeX -> Subscript[y,chi10],
-    Value -> 0.0,
-    Description -> "Yukawa coupling S-chi1-chi0"
-  },  
 
   (* We define a Sd-Q-Q coupling used to compute the quark contribution to the Sd-G-G effective coupling *)
   ysQQ == {
@@ -126,8 +100,79 @@ GGH == {TeX -> Subscript[G, H],
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
        InteractionOrder -> {{QCD, 2},{NP,1}},
-       Value -> -(gs^2/(4Pi(3Pi)))*(ysQQ/(Sqrt[2]*MQloop))*Sqrt[ffabs2[(MSd/2/MQloop)^2]]}
-}
+       Value -> -(gs^2/(4Pi(3Pi)))*(ysQQ/(Sqrt[2]*MQloop))*Sqrt[ffabs2[(MSd/2/MQloop)^2]]},
+
+sina == {
+    ParameterType -> External,
+    BlockName -> NPINPUTS,
+    Value -> 0.2,
+    InteractionOrder -> {NP, 1},
+    Description -> "Sine of Higgses mixing angle"
+  },
+   vevD == {
+    ParameterType    -> External,
+    InteractionOrder -> {NP, -1},
+    Value            -> 300.0,
+    Description      -> "PhiD VEV"
+  },
+
+(****** Internal BSM Parameters **************)
+  cosa == {
+    ParameterType    -> Internal,
+    Value            -> Sqrt[1-sina^2],
+    ParameterName    -> cosa,
+    Description      -> "Cosine of Higgses mixing angle"
+  },
+
+(**************Scalar Potential*******************)
+  lam1 == {
+    ParameterType    -> Internal,
+    Value            ->  MH^2/(2*vev^2)*cosa^2 + MSd^2/(2*vev^2)*sina^2,
+    ParameterName    -> lam1,
+    InteractionOrder -> {QED, 2},
+    Description      -> "Higgs quartic coupling piece for h"
+  },
+  lam2 == {
+    ParameterType    -> Internal,
+    Value            ->  MH^2/(2*vevD^2)*sina^2 + MSd^2/(2*vevD^2)*cosa^2,
+    ParameterName    -> lam2,
+    InteractionOrder -> {QED,2},
+    Description      -> "Higgs quartic coupling piece for Sd"
+  },
+  lam3 == {
+    ParameterType    -> Internal,
+    Value            -> (MSd^2 - MH^2)/(vevD*vev)*sina*cosa,
+    ParameterName    -> lam3,
+    InteractionOrder -> {QED, 2},
+    Description      -> "Mixing part"
+  },
+  mu2h == {
+    ParameterType -> Internal,
+    Value         -> -lam1 * vev^2 - (lam3 /2) * vevD^2, 
+    TeX           -> Subscript[\[Mu],H],
+    Description   -> "Coefficient of the quadratic piece of the h potential"
+  },
+  mu2sd == {
+    ParameterType   -> Internal,
+    Value           -> -(lam3 * vev^2 /2)  - lam2 * vevD^2,
+    TeX             -> Subscript[\[Mu],2],
+    Description     -> "Coefficient of the quadratic piece of the Sd potential"
+  },
+  (********Dark Femion Lagrangian Masses**********)
+  mu0 == {
+    ParameterType   -> Internal,
+    Value           -> M0-vevD*ychi0/Sqrt[2],
+    TeX             -> Subscript[\[Mu],0],
+    Description     -> "Lagrangian mass parameter for chi0"
+  },
+  mu1 == {
+    ParameterType   -> Internal,
+    Value           -> M1-vevD*ychi1/Sqrt[2],
+    TeX             -> Subscript[\[Mu],1],
+    Description     -> "Lagrangian mass parameter for chi0"
+  }
+
+};
 
 (* ************************** *)
 (* **** Particle classes **** *)
@@ -177,7 +222,14 @@ S[4]  == {
     PropagatorArrow -> None,
     PDG             -> 55,
     ParticleName    -> {"Sd"},
-    FullName        -> {"Sd"}}
+    FullName        -> {"Sd"}},
+S[12] == {
+    ClassName       -> PhiD,
+    Unphysical      -> True,
+    SelfConjugate   -> False,
+    QuantumNumbers  -> {},
+    Definitions     -> { PhiD -> (vevD - sina*H + cosa*Sd)/Sqrt[2]}
+  }
 };
 
 
@@ -188,17 +240,25 @@ S[4]  == {
 (* gauge kinetic and mass terms *)
 
 LkinBSM :=  Block[{mu},
-               (I*chi1bar.Ga[mu].DC[chi1, mu] - (M1) chi1bar.chi1 + I*chi0bar.Ga[mu].DC[chi0, mu] - (M0) chi0bar.chi0  + (1/2) del[Sd,mu] del[Sd,mu] -  (1/2) MSd^2 Sd^2)
+               (I*chi1bar.Ga[mu].DC[chi1, mu] - (mu1) chi1bar.chi1 + I*chi0bar.Ga[mu].DC[chi0, mu] - (mu0) chi0bar.chi0  + (1/2) del[PhiD,mu] del[Sd,mu])
               ];
 
+(* Scalar Potential *)
 
-(* Effective gluon-gluon-S/h couplings *)
-
-LGG := -1/4 GGH FS[G, mu, nu, b] FS[G, mu, nu, b] H  -1/4 GGS FS[G, mu, nu, b] FS[G, mu, nu, b] Sd;              
+LHiggsBSM := Block[{ii,mu, feynmangaugerules},
+  feynmangaugerules = If[Not[FeynmanGauge], {G0|GP|GPbar ->0}, {}];
+ 
+  ExpandIndices[DC[Phibar[ii],mu] DC[Phi[ii],mu] - mu2h Phibar[ii] Phi[ii] - lam1 Phibar[ii] Phi[ii] Phibar[jj] Phi[jj]
+(*******************B****************************)
++ (1/2)*del[PhiD,mu]^2 - mu2sd PhiD^2 - lam2 PhiD^4 - lam3 Phibar[ii]Phi[ii] PhiD^2
+(*******************END****************************)
+  , FlavorExpand->{SU2D,SU2W}]/.feynmangaugerules
+ ];
+            
 
 (* Dark Scalar-Dark Fermion couplings *)
 
-LYukawaBSM := -ychi1 (chi1bar.chi1)*Sd - ychi0 (chi0bar.chi0)*Sd - (ychi10/2) (chi1bar.chi0 + chi0bar.chi1)*Sd;
+LYukawaBSM := -ychi1 (chi1bar.chi1)*PhiD - ychi0 (chi0bar.chi0)*PhiD;
 
 (* Effective Dipole Coupling *)
 
@@ -213,4 +273,4 @@ LDipole := Block[{mu,nu,sp1,sp2},
                   AAC*FS[A,mu,nu]*(chi1bar[sp1].chi0[sp2])*Sigmamunu[mu,nu,sp1,sp2]
 ];
 
-LBSM:= LkinBSM + LGG + LYukawaBSM + LDipole + HC[LDipole];
+LBSM:= LkinBSM + LYukawaBSM + LDipole + HC[LDipole] + LHiggsBSM;
