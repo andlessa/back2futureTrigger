@@ -25,7 +25,8 @@ FeynmanGauge = True;
 M$InteractionOrderHierarchy = {  {QCD, 1}, {NP, 1}, {QED,2} };
 
 
-
+IndexRange[Index[DarkGen]] = Unfold[Range[2]];
+IndexStyle[DarkGen, g];
 
 (***** Parameter list ******)
 
@@ -52,18 +53,102 @@ Lambda ==  {
     Description -> "UV scale suppressing higher dimensional operators"
   },
   
-Ca10 == {
-    TeX -> Subscript[C,xxa],
+Caxx == {
+    TeX -> Subscript[C,axx],
+    Indices  -> {Index[DarkGen], Index[DarkGen]},
+    ParameterType -> Internal,
+    ComplexParameter -> False,
+    Value            -> {Caxx[1,1] -> Caxx0, Caxx[2,2] -> Caxx1, Caxx[1,2] -> Caxx10, Caxx[2,1] -> Caxx10},
+    Definitions      -> {Caxx[i_?NumericQ, j_?NumericQ] :> Caxx[j, i]  /; (i > j)},
+    InteractionOrder -> {NP, 1},
+    Description -> "Photon-chi-chi effective couplings"
+},
+
+Caxx1 == {
+    TeX -> Subscript[C,axx1],
     ParameterType -> External,
     ComplexParameter -> False,
     BlockName -> NPINPUTS,
-    Value -> 10^(-6),
+    Value -> 0.0,
     InteractionOrder -> {NP, 1},
-    Description -> "Photon-Dark Fermion dipole coupling"
+    Description -> "Photon-chi1-chi1 effective coupling"
 },
+
+Caxx0 == {
+    TeX -> Subscript[C,axx0],
+    ParameterType -> External,
+    ComplexParameter -> False,
+    BlockName -> NPINPUTS,
+    Value -> 0.0,
+    InteractionOrder -> {NP, 1},
+    Description -> "Photon-chi0-chi0 effective coupling"
+},
+
+Caxx10 == {
+    TeX -> Subscript[C,axx10],
+    ParameterType -> External,
+    ComplexParameter -> False,
+    BlockName -> NPINPUTS,
+    Value -> 0.1,
+    InteractionOrder -> {NP, 1},
+    Description -> "Photon-chi1-chi0 effective coupling"
+},
+
+Chxx == {
+    TeX -> Subscript[C,hxx],
+    Indices  -> {Index[DarkGen], Index[DarkGen]},
+    ParameterType -> Internal,
+    ComplexParameter -> False,
+    Value            -> {Chxx[1,1] -> Chxx0, Chxx[2,2] -> Chxx1, Chxx[1,2] -> Chxx10, Chxx[2,1] -> Chxx10},
+    Definitions      -> {Chxx[i_?NumericQ, j_?NumericQ] :> Chxx[j, i]  /; (i > j)},
+    InteractionOrder -> {NP, 1},
+    Description -> "Higgs-chi-chi effective couplings"
+},
+
+Chxx1 == {
+    TeX -> Subscript[C,hxx1],
+    ParameterType -> External,
+    ComplexParameter -> False,
+    BlockName -> NPINPUTS,
+    Value -> 0.0,
+    InteractionOrder -> {NP, 1},
+    Description -> "Higgs-chi1-chi1 effective coupling"
+},
+
+Chxx0 == {
+    TeX -> Subscript[C,hxx0],
+    ParameterType -> External,
+    ComplexParameter -> False,
+    BlockName -> NPINPUTS,
+    Value -> 0.0,
+    InteractionOrder -> {NP, 1},
+    Description -> "Higgs-chi0-chi0 effective coupling"
+},
+
+Chxx10 == {
+    TeX -> Subscript[C,hxx10],
+    ParameterType -> External,
+    ComplexParameter -> False,
+    BlockName -> NPINPUTS,
+    Value -> 0.1,
+    InteractionOrder -> {NP, 1},
+    Description -> "Higgs-chi1-chi0 effective coupling"
+},
+
+  ychi == {
+    ParameterType    -> Internal,
+    ComplexParameter -> False,
+    Indices          -> {Index[DarkGen], Index[DarkGen]},
+    Value            -> {ychi[1,1] -> ychi0, ychi[2,2] -> ychi1, ychi[1,2] -> ychi10, ychi[2,1] -> ychi10},
+    Definitions      -> {ychi[i_?NumericQ, j_?NumericQ] :> ychi[j, i]  /; (i > j)},
+    InteractionOrder -> {NP, 1},
+    TeX              -> Superscript[y, chi],
+    Description      -> "Dark Fermion Yukawa couplings"
+  },
 
 ychi1 == {
     ParameterType -> External,
+    ComplexParameter -> False,
     InteractionOrder -> {NP, 1},
     BlockName -> NPINPUTS,
     TeX -> Subscript[y,chi1],
@@ -73,12 +158,23 @@ ychi1 == {
 
 ychi0 == {
     ParameterType -> External,
+    ComplexParameter -> False,
     InteractionOrder -> {NP, 1},
     BlockName -> NPINPUTS,
     TeX -> Subscript[y,chi0],
     Value -> 0.0,
     Description -> "Yukawa coupling S-chi0-chi0"
-  },         
+  },  
+
+ychi10 == {
+    ParameterType -> External,
+    ComplexParameter -> False,
+    InteractionOrder -> {NP, 1},
+    BlockName -> NPINPUTS,
+    TeX -> Subscript[y,chi10],
+    Value -> 0.0,
+    Description -> "Yukawa coupling S-chi1-chi0"
+  },           
 
 
   (* We define a Sd-Q-Q coupling used to compute the quark contribution to the Sd-G-G effective coupling *)
@@ -159,17 +255,14 @@ sina == {
     Description     -> "Coefficient of the quadratic piece of the Sd potential"
   },
   (********Dark Femion Lagrangian Masses**********)
-  mu0 == {
-    ParameterType   -> Internal,
-    Value           -> M0-vevD*ychi0/Sqrt[2],
-    TeX             -> Subscript[\[Mu],0],
-    Description     -> "Lagrangian mass parameter for chi0"
-  },
-  mu1 == {
-    ParameterType   -> Internal,
-    Value           -> M1-vevD*ychi1/Sqrt[2],
-    TeX             -> Subscript[\[Mu],1],
-    Description     -> "Lagrangian mass parameter for chi0"
+  MMChi == {
+      ParameterType   -> Internal,
+      Indices         -> {Index[DarkGen], Index[DarkGen]},
+      Value           -> {MMChi[1,1] -> M0 - vevD*ychi[1,1]/Sqrt[2], MMChi[2,2] -> M1 - vevD*ychi[2,2]/Sqrt[2], MMChi[1,2] -> -vevD*ychi[1,2]/Sqrt[2], MMChi[2,1] -> -vevD*ychi[2,1]/Sqrt[2]},
+      Definitions      -> {MMChi[i_?NumericQ, j_?NumericQ] :> MMChi[j, i]  /; (i > j)},
+      InteractionOrder -> {NP, 1},
+      TeX             -> Superscript[MM, chi],
+      Description     -> "Dark Fermion Mass Matrix"
   }
 
 };
@@ -182,32 +275,21 @@ M$ClassesDescription = {
 
 (* Dark fermions *)
 F[16] == { 
-         ClassName -> chi1, 
-         SelfConjugate-> False, 
-         QuantumNumbers -> {}, 
-         Mass->{M1,  500.0},  
-         Width->{w1,0.}, 
-         ParticleName-> "~chi1", 
-         PDG->5000023, 
-         PropagatorLabel->"chi1", 
-         PropagatorType->Straight, 
-         ParticleName     -> {"~chi1" },
-         AntiParticleName -> {"~chi1bar" },
-         FullName         -> {"Heavy dark fermion"} },
+         ClassName -> chi, 
+         ClassMembers -> {chi0,chi1},
+         Indices      -> {Index[DarkGen]},
+         FlavorIndex  -> DarkGen,
+         SelfConjugate-> False,
+         Mass->{Mchi, {M0,  425.0}, {M1,  500.0}},  
+         Width->{{w0,0.0},{w1,1.0}},
+         PDG->{5000022,5000023},
+         PropagatorLabel->{"chi0","chi1"},
+         PropagatorType->Straight,
+         ParticleName     -> {"~chi0","~chi1"},
+         AntiParticleName -> {"~chi0bar","~chi1bar" },
+         FullName         -> {"Light Dark Fermion", "Heavy Dark Fermion"}
+      },
 
-F[17] == { 
-         ClassName -> chi0, 
-         SelfConjugate-> False, 
-         QuantumNumbers -> {}, 
-         Mass->{M0,  425.0},  
-         Width->{w0,0.}, 
-         ParticleName-> "~chi0", 
-         PDG->5000022, 
-         PropagatorLabel->"chi0", 
-         PropagatorType->Straight, 
-         ParticleName     -> {"~chi0" },
-         AntiParticleName     -> {"~chi0bar" },
-         FullName         -> {"Light dark fermion"} },
 
 (* Dark Scalar *)
 S[4]  == {
@@ -239,8 +321,8 @@ S[12] == {
 
 (* gauge kinetic and mass terms *)
 
-LkinBSM :=  Block[{mu},
-               (I*chi1bar.Ga[mu].DC[chi1, mu] - (mu1) chi1bar.chi1 + I*chi0bar.Ga[mu].DC[chi0, mu] - (mu0) chi0bar.chi0  + (1/2) del[PhiD,mu] del[Sd,mu])
+LkinBSM :=  Block[{mu,gg1,gg2,sp1,sp2},
+               ExpandIndices[I*chibar[sp1,gg1].Ga[mu,sp1,sp2].DC[chi[sp2,gg1], mu] - MMChi[gg1,gg2] chibar[sp1,gg1].chi[sp1,gg2], FlavorExpand->DarkGen] + (1/2) del[PhiD,mu] del[Sd,mu]
               ];
 
 (* Scalar Potential *)
@@ -258,19 +340,29 @@ LHiggsBSM := Block[{ii,mu, feynmangaugerules},
 
 (* Dark Scalar-Dark Fermion couplings *)
 
-LYukawaBSM := -ychi1 (chi1bar.chi1)*PhiD - ychi0 (chi0bar.chi0)*PhiD;
+LYukawaBSM := Block[{gg1,gg2,sp}, 
+                  ExpandIndices[ -ychi[gg1, gg2]*(chibar[sp,gg1].chi[sp,gg2])*PhiD, FlavorExpand->DarkGen]
+                ];
+
+
+
+(* Effective gluon-gluon-S/h couplings *)
+
+LGG := -1/4 GGH FS[G, mu, nu, b] FS[G, mu, nu, b] H  -1/4 GGS FS[G, mu, nu, b] FS[G, mu, nu, b] Sd;              
 
 (* Effective Dipole Coupling *)
 
 Sigmamunu[mu_,nu_,sp1_,sp2_]:= Module[{sp},(I/2)*(Ga[mu,sp1,sp]*Ga[nu,sp,sp2]-Ga[nu,sp1,sp]*Ga[mu,sp,sp2])];
 
-(* Effective Dark Scalar-Dark Fermion couplings *)
-
-Sigmamunu[mu_,nu_,sp1_,sp2_]:= Module[{sp},(I/2)*(Ga[mu,sp1,sp]*Ga[nu,sp,sp2]-Ga[nu,sp1,sp]*Ga[mu,sp,sp2])];
-
-
-LDipole := Block[{mu,nu,sp1,sp2},
-                  AAC*FS[A,mu,nu]*(chi1bar[sp1].chi0[sp2])*Sigmamunu[mu,nu,sp1,sp2]
+LDipole := Block[{mu,nu,sp1,sp2,gg1,gg2},
+                  ExpandIndices[(Caxx[gg1,gg2]/Lambda)*FS[A,mu,nu]*(chibar[sp1,gg1].chi[sp2,gg2])*Sigmamunu[mu,nu,sp1,sp2],FlavorExpand->DarkGen];
 ];
 
-LBSM:= LkinBSM + LYukawaBSM + LDipole + HC[LDipole] + LHiggsBSM;
+(* Effective Dark Femions-Higgs Coupling *)
+
+LHiggsDark := Block[{sp,gg1,gg2},
+                  ExpandIndices[(Chxx[gg1,gg2]/Lambda)*(chibar[sp,gg1].chi[sp,gg2])*Phibar.Phi,FlavorExpand->DarkGen];
+];
+
+
+LBSM:= LkinBSM + LYukawaBSM + LDipole + LHiggsBSM + LHiggsDark;

@@ -1,0 +1,12 @@
+! 5) Process selection
+Higgs:useBSM = on
+HiggsBSM:allH2 = on
+35:m0 = 600.
+1000023:m0 = 300.0
+1000022:m0 = 247.5
+1000023:tau0 = 7500
+1000022:mayDecay = off  ! this line is probably not necessary. Better safe than sorry
+
+! Force H0 > N2 N2, N2 > N1 gamma decays
+35:oneChannel = 1 1.000 100 1000023 1000023
+1000023:oneChannel 1 1.000 100 1000022 22
