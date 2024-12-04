@@ -44,7 +44,7 @@ MQloop == {
     Description -> "Quark mass contributing to the effective G-G-S interaction"
   },
 
-Lambda ==  {
+LambdaUV ==  {
     TeX -> \[Lambda],
     ParameterType -> External,
     BlockName -> NPINPUTS,
@@ -257,9 +257,8 @@ sina == {
   (********Dark Femion Lagrangian Masses**********)
   MMChi == {
       ParameterType   -> Internal,
-      Indices         -> {Index[DarkGen], Index[DarkGen]},
-      Value           -> {MMChi[1,1] -> M0 - vevD*ychi[1,1]/Sqrt[2], MMChi[2,2] -> M1 - vevD*ychi[2,2]/Sqrt[2], MMChi[1,2] -> -vevD*ychi[1,2]/Sqrt[2], MMChi[2,1] -> -vevD*ychi[2,1]/Sqrt[2]},
-      Definitions      -> {MMChi[i_?NumericQ, j_?NumericQ] :> MMChi[j, i]  /; (i > j)},
+      Indices         -> {Index[DarkGen], Index[DarkGen]},    
+      Definitions      -> {MMChi[i_?NumericQ, j_?NumericQ] :> (M0*IndexDelta[i,1] + M1*IndexDelta[i,2])*IndexDelta[i,j] - vevD*ychi[i,j]/Sqrt[2] - vev^2*Chxx[i,j]/(2*LambdaUV) },
       InteractionOrder -> {NP, 1},
       TeX             -> Superscript[MM, chi],
       Description     -> "Dark Fermion Mass Matrix"
@@ -321,8 +320,8 @@ S[12] == {
 
 (* gauge kinetic and mass terms *)
 
-LkinBSM :=  Block[{mu,gg1,gg2,sp1,sp2},
-               ExpandIndices[I*chibar[sp1,gg1].Ga[mu,sp1,sp2].DC[chi[sp2,gg1], mu] - MMChi[gg1,gg2] chibar[sp1,gg1].chi[sp1,gg2], FlavorExpand->DarkGen] + (1/2) del[PhiD,mu] del[Sd,mu]
+LkinBSM :=  Block[{mu,gg1,gg2,sp1,sp2,sp},
+               ExpandIndices[I*chibar[sp1,gg1].Ga[mu,sp1,sp2].DC[chi[sp2,gg1], mu] - MMChi[gg1,gg2] chibar[sp,gg1].chi[sp,gg2], FlavorExpand->DarkGen] + (1/2) del[PhiD,mu] del[Sd,mu]
               ];
 
 (* Scalar Potential *)
@@ -355,14 +354,14 @@ LGG := -1/4 GGH FS[G, mu, nu, b] FS[G, mu, nu, b] H  -1/4 GGS FS[G, mu, nu, b] F
 Sigmamunu[mu_,nu_,sp1_,sp2_]:= Module[{sp},(I/2)*(Ga[mu,sp1,sp]*Ga[nu,sp,sp2]-Ga[nu,sp1,sp]*Ga[mu,sp,sp2])];
 
 LDipole := Block[{mu,nu,sp1,sp2,gg1,gg2},
-                  ExpandIndices[(Caxx[gg1,gg2]/Lambda)*FS[A,mu,nu]*(chibar[sp1,gg1].chi[sp2,gg2])*Sigmamunu[mu,nu,sp1,sp2],FlavorExpand->DarkGen];
+                  ExpandIndices[(Caxx[gg1,gg2]/LambdaUV)*FS[A,mu,nu]*(chibar[sp1,gg1].chi[sp2,gg2])*Sigmamunu[mu,nu,sp1,sp2],FlavorExpand->DarkGen]
 ];
 
 (* Effective Dark Femions-Higgs Coupling *)
 
-LHiggsDark := Block[{sp,gg1,gg2},
-                  ExpandIndices[(Chxx[gg1,gg2]/Lambda)*(chibar[sp,gg1].chi[sp,gg2])*Phibar.Phi,FlavorExpand->DarkGen];
+LHiggsDark := Block[{ii,sp,gg1,gg2},
+                  ExpandIndices[-(Chxx[gg1,gg2]/LambdaUV)*(chibar[sp,gg1].chi[sp,gg2])*Phibar[ii]*Phi[ii],FlavorExpand->{SU2W,DarkGen}]
 ];
 
 
-LBSM:= LkinBSM + LYukawaBSM + LDipole + LHiggsBSM + LHiggsDark;
+LBSM := LkinBSM + LYukawaBSM + LDipole + LHiggsBSM + LHiggsDark + LGG;
