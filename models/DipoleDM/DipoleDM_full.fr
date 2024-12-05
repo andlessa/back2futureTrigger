@@ -130,7 +130,7 @@ Chxx0 == {
     ParameterType -> External,
     ComplexParameter -> False,
     BlockName -> NPINPUTS,
-    Value -> 0.0,
+    Value -> 0.0, 
     InteractionOrder -> {NP, 1},
     Description -> "Higgs-chi0-chi0 effective coupling"
 },
@@ -190,7 +190,7 @@ ychi10 == {
 GGH == {TeX -> Subscript[G, H],
        ParameterType -> Internal,
        InteractionOrder -> {QCD, 2},
-       Value -> -(gs^2/(4*Pi(3*Pi vev)))*Sqrt[ffabs2[(MH/2/MT)^2]] },
+       Value -> -cosa*(gs^2/(4*Pi(3*Pi vev)))*Sqrt[ffabs2[(MH/2/MT)^2]] },
 
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
@@ -221,21 +221,21 @@ vevD == {
 (**************Scalar Potential*******************)
   lam1 == {
     ParameterType    -> Internal,
-    Value            ->  MH^2/(2*vev^2)*cosa^2 + MSd^2/(2*vev^2)*sina^2,
+    Value            ->  MH^2*cosa^2/(2*vev^2) + MSd^2*sina^2/(2*vev^2),
     ParameterName    -> lam1,
     InteractionOrder -> {QED, 2},
     Description      -> "Higgs quartic coupling piece for h"
   },
   lam2 == {
     ParameterType    -> Internal,
-    Value            ->  MH^2/(2*vevD^2)*sina^2 + MSd^2/(2*vevD^2)*cosa^2,
+    Value            ->  MH^2*sina^2/(2*vevD^2) + MSd^2*cosa^2/(2*vevD^2),
     ParameterName    -> lam2,
     InteractionOrder -> {QED,2},
     Description      -> "Higgs quartic coupling piece for Sd"
   },
   lam3 == {
     ParameterType    -> Internal,
-    Value            -> (MSd^2 - MH^2)/(vevD*vev)*sina*cosa,
+    Value            -> (MSd^2 - MH^2)*sina*cosa/(vevD*vev),
     ParameterName    -> lam3,
     InteractionOrder -> {QED, 2},
     Description      -> "Mixing part"

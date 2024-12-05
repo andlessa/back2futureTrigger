@@ -11,7 +11,7 @@ M$Restrictions = {
         Chxx0 -> 0,
 	    ychi0->0,
 	    ychi10->0,
-		Chxx[i_?NumericQ, j_?NumericQ] :> 0 /; (i+j =!= 3),
-		Caxx[i_?NumericQ, j_?NumericQ] :> 0 /; (i+j =!= 3),
+		Chxx[i_?NumericQ, j_?NumericQ] :> 0 /; (i == j),
+		Caxx[i_?NumericQ, j_?NumericQ] :> 0 /; (i == j),
 		ychi[i_?NumericQ, j_?NumericQ] :> 0 /; (i+j =!= 4)
 }
