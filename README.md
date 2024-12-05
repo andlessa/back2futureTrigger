@@ -3,13 +3,31 @@
 
 ## Dipole DM Model (A. Lessa and J. Zurita)
 
-The BSM Lagrangian implemented [here](./models/DipoleDM/DipoleDM_full.fr) is based on [this note](./models/DipoleDM/dipodel.pdf):
+The BSM Lagrangian implemented [here](./models/DipoleDM/DipoleDM_full.fr) is based on [this note](./models/DipoleDM/dipoleDM.pdf):
 
 
 <p float="left">
     <img src="dipoleDM_lag.png" alt="Dipole DM lagrangian" width=65% height=45% />
-    <img src="dipoleDM_lag_terms.png" alt="Dipole DM lagrangian" width=65% height=45% />
 </p>
+where the terms are:
+<p float="left">
+    <img src="dipoleDM_lag_terms.png" alt="Dipole DM lagrangian" width=55% height=45% />
+</p>
+
+### Minimal scenario
+
+A minimal version of the above Lagrangian can be obtained with the [MinimalDipoleDM restrictions](./models/DipoleDM/MinimalDipoleDM.rst), which imposes the additional requirements:
+
+$$
+(y_{\chi})_{00} = (y_{\chi})_{10} = (y_{\chi})_{01} = 0
+$$
+$$
+(C_{\gamma\chi\chi})_{00} = (C_{\gamma\chi\chi})_{11} = 0
+$$
+$$
+(C_{H\chi\chi})_{00} = (C_{H\chi\chi})_{11} = 0
+$$
+With the above conditions $\chi_1$ only decays through the effective operators and there is no $\chi_0\chi_0$ or $\chi_1\chi_0$ production at tree level.
 
 
 ### Cross-sections
