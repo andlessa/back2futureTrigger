@@ -18,15 +18,8 @@ where the terms are:
 
 A minimal version of the above Lagrangian can be obtained with the [MinimalDipoleDM restrictions](./models/DipoleDM/MinimalDipoleDM.rst), which imposes the additional requirements:
 
-$$
-(y_{\chi})_{00} = (y_{\chi})_{10} = (y_{\chi})_{01} = 0
-$$
-$$
-(C_{\gamma\chi\chi})_{00} = (C_{\gamma\chi\chi})_{11} = 0
-$$
-$$
-(C_{H\chi\chi})_{00} = (C_{H\chi\chi})_{11} = 0
-$$
+$(y_\chi)\_{00}= (y_{\chi})\_{10} = (y_{\chi})\_{01} = 0$, $(C_{\gamma\chi\chi})\_{00} = (C_{\gamma\chi\chi})\_{11} = 0$, $(C_{H\chi\chi})\_{00} = (C_{H\chi\chi})\_{11} = 0$
+
 With the above conditions $\chi_1$ only decays through the effective operators and there is no $\chi_0\chi_0$ or $\chi_1\chi_0$ production at tree level.
 
 
