@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Thu 5 Dec 2024 11:45:16
+# Date: Thu 5 Dec 2024 11:39:39
 
 
 # 
@@ -40,8 +40,8 @@
 
 # Vertices
    * Calling FeynmanRules for 1 Lagrangians.
-   * Number of classes vertices: 163
-   * Number of flavored vertices: 189
+   * Number of classes vertices: 149
+   * Number of flavored vertices: 175
    * Saved vertices in InterfaceRun[ 1 ].
    * Checked QNumber conservation.
       - Quantum number GhostNumber conserved in all vertices.
@@ -54,7 +54,7 @@
 # Vertex definitions
 #
 
-   * 231 vertices written.
+   * 207 vertices written.
    * vertices.py written.
 #
 # Lorentz structure definitions
@@ -66,13 +66,9 @@
 # Coupling definitions
 #
 
-   >>>> Non positive interaction order QED found for coupling GC_94.
-   >>>> Non positive interaction order QED found for coupling GC_95.
-   >>>> Non positive interaction order QED found for coupling GC_96.
-   >>>> Non positive interaction order QED found for coupling GC_100.
-   >>>> Non positive interaction order QED found for coupling GC_101.
-   >>>> Non positive interaction order QED found for coupling GC_102.
-   * 149 couplings written.
+   >>>> Non positive interaction order QED found for coupling GC_84.
+   >>>> Non positive interaction order QED found for coupling GC_88.
+   * 131 couplings written.
    * couplings.py written.
 #
 # Coupling order definitions

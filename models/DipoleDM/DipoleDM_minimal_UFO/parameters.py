@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Thu 5 Dec 2024 11:46:10
+# Date: Thu 5 Dec 2024 11:40:29
 
 
 
@@ -25,22 +25,6 @@ LambdaUV = Parameter(name = 'LambdaUV',
                      lhablock = 'NPINPUTS',
                      lhacode = [ 1 ])
 
-Caxx1 = Parameter(name = 'Caxx1',
-                  nature = 'external',
-                  type = 'real',
-                  value = 0.,
-                  texname = 'C_{\\text{axx1}}',
-                  lhablock = 'NPINPUTS',
-                  lhacode = [ 2 ])
-
-Caxx0 = Parameter(name = 'Caxx0',
-                  nature = 'external',
-                  type = 'real',
-                  value = 0.,
-                  texname = 'C_{\\text{axx0}}',
-                  lhablock = 'NPINPUTS',
-                  lhacode = [ 3 ])
-
 Caxx10 = Parameter(name = 'Caxx10',
                    nature = 'external',
                    type = 'real',
@@ -48,22 +32,6 @@ Caxx10 = Parameter(name = 'Caxx10',
                    texname = 'C_{\\text{axx10}}',
                    lhablock = 'NPINPUTS',
                    lhacode = [ 4 ])
-
-Chxx1 = Parameter(name = 'Chxx1',
-                  nature = 'external',
-                  type = 'real',
-                  value = 0.,
-                  texname = 'C_{\\text{hxx1}}',
-                  lhablock = 'NPINPUTS',
-                  lhacode = [ 5 ])
-
-Chxx0 = Parameter(name = 'Chxx0',
-                  nature = 'external',
-                  type = 'real',
-                  value = 0.,
-                  texname = 'C_{\\text{hxx0}}',
-                  lhablock = 'NPINPUTS',
-                  lhacode = [ 6 ])
 
 Chxx10 = Parameter(name = 'Chxx10',
                    nature = 'external',
@@ -80,22 +48,6 @@ ychi1 = Parameter(name = 'ychi1',
                   texname = 'y_{\\text{chi1}}',
                   lhablock = 'NPINPUTS',
                   lhacode = [ 8 ])
-
-ychi0 = Parameter(name = 'ychi0',
-                  nature = 'external',
-                  type = 'real',
-                  value = 0.,
-                  texname = 'y_{\\text{chi0}}',
-                  lhablock = 'NPINPUTS',
-                  lhacode = [ 9 ])
-
-ychi10 = Parameter(name = 'ychi10',
-                   nature = 'external',
-                   type = 'real',
-                   value = 0.,
-                   texname = 'y_{\\text{chi10}}',
-                   lhablock = 'NPINPUTS',
-                   lhacode = [ 10 ])
 
 sina = Parameter(name = 'sina',
                  nature = 'external',
@@ -293,29 +245,11 @@ aEW = Parameter(name = 'aEW',
                 value = '1/aEWM1',
                 texname = '\\alpha _{\\text{EW}}')
 
-Caxx1x1 = Parameter(name = 'Caxx1x1',
-                    nature = 'internal',
-                    type = 'real',
-                    value = 'Caxx0',
-                    texname = '\\text{Caxx1x1}')
-
 Caxx1x2 = Parameter(name = 'Caxx1x2',
                     nature = 'internal',
                     type = 'real',
                     value = 'Caxx10',
                     texname = '\\text{Caxx1x2}')
-
-Caxx2x2 = Parameter(name = 'Caxx2x2',
-                    nature = 'internal',
-                    type = 'real',
-                    value = 'Caxx1',
-                    texname = '\\text{Caxx2x2}')
-
-Chxx1x1 = Parameter(name = 'Chxx1x1',
-                    nature = 'internal',
-                    type = 'real',
-                    value = 'Chxx0',
-                    texname = '\\text{Chxx1x1}')
 
 Chxx1x2 = Parameter(name = 'Chxx1x2',
                     nature = 'internal',
@@ -323,29 +257,11 @@ Chxx1x2 = Parameter(name = 'Chxx1x2',
                     value = 'Chxx10',
                     texname = '\\text{Chxx1x2}')
 
-Chxx2x2 = Parameter(name = 'Chxx2x2',
-                    nature = 'internal',
-                    type = 'real',
-                    value = 'Chxx1',
-                    texname = '\\text{Chxx2x2}')
-
 G = Parameter(name = 'G',
               nature = 'internal',
               type = 'real',
               value = '2*cmath.sqrt(aS)*cmath.sqrt(cmath.pi)',
               texname = 'G')
-
-ychi1x1 = Parameter(name = 'ychi1x1',
-                    nature = 'internal',
-                    type = 'real',
-                    value = 'ychi0',
-                    texname = '\\text{ychi1x1}')
-
-ychi1x2 = Parameter(name = 'ychi1x2',
-                    nature = 'internal',
-                    type = 'real',
-                    value = 'ychi10',
-                    texname = '\\text{ychi1x2}')
 
 ychi2x2 = Parameter(name = 'ychi2x2',
                     nature = 'internal',

@@ -184,18 +184,7 @@ ychi10 == {
     TeX -> Subscript[y,chi10],
     Value -> 0.0,
     Description -> "Yukawa coupling S-chi1-chi0"
-  },           
-
-
-  (* We define a Sd-Q-Q coupling used to compute the quark contribution to the Sd-G-G effective coupling *)
-  ysQQ == {
-    ParameterType -> External,
-    BlockName -> NPINPUTS,
-    TeX -> Subscript[y,SdQQ],
-    Value -> 0.2,
-    InteractionOrder -> {QED, 1},
-    Description -> "Effective Yukawa coupling S-Q-Q"
-  },  
+  }, 
 
  
 GGH == {TeX -> Subscript[G, H],
@@ -289,7 +278,7 @@ F[16] == {
          FlavorIndex  -> DarkGen,
          SelfConjugate-> False,
          Mass->{Mchi, {M0,  425.0}, {M1,  500.0}},  
-         Width->{{w0,0.0},{w1,1.0}},
+         Width->{{w0,0.0},{w1,1.7*10^(-4)}},
          PDG->{5000022,5000023},
          PropagatorLabel->{"chi0","chi1"},
          PropagatorType->Straight,
@@ -306,7 +295,7 @@ S[4]  == {
     Unphysical      -> False,
     QuantumNumbers  -> {},
     Mass            -> {MSd, 1500},
-    Width           -> {WS, 1.0},
+    Width           -> {WS, 103.0},
     PropagatorLabel -> "Sd",
     PropagatorType  -> Scalar,
     PropagatorArrow -> None,
