@@ -24,9 +24,26 @@ FeynmanGauge = True;
 
 M$InteractionOrderHierarchy = {  {QCD, 1}, {NP, 1}, {QED,2} };
 
-
+(* Introduce a Dark generation index to conveniently group the Dark Fermions *)
 IndexRange[Index[DarkGen]] = Unfold[Range[2]];
 IndexStyle[DarkGen, g];
+
+
+
+(*** From HiggsEffective Model (Author: C. Duhr) ***)
+(* The loop coefficient for the CP-even coupling *)
+(* The sert function is only valid for x = (mS/2mQ)^2 < 1 (mS < 2*mQ) *)
+(* Approximation for low x: *)
+(* sert[x_] := 1+ 7/30 x + 2/21 x^2 + 26/525 x^3; *)
+
+sert[x_] := (3/(2*x) - (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x^2) + (3*ArcSin[1/Sqrt[x^(-1)]]^2)/(2*x));
+
+fheavy2[x_] := (9*((Pi^2*(-1 + x) + 4*x)^2 + 2*(Pi^2*(-1 + x) - 4*x)*(-1 + x)*Log[(1 + Sqrt[(-1 + x)/x])/(1 - Sqrt[(-1 + x)/x])]^2 + (-1 + x)^2*Log[(1 + Sqrt[(-1 + x)/x])/(1 - Sqrt[(-1 + x)/x])]^4))/(64*x^4);
+
+(* Since the g g > Sd/h cross-section is only proportional to |F(x)|^2, we define this function to avoid dealing with a non-hermitian lagrangian *)
+(* The G-G-Sd coupling is given by Sqrt[|F|^2] *)
+
+ffabs2[x_] := If[Abs[x] < 1.0, sert[x]^2, fheavy2[x]];
 
 (***** Parameter list ******)
 
@@ -36,13 +53,6 @@ M$Parameters = {
 (* For convenience we include a new parameter for the (SM/BSM) quark mass responsible for the loop induced G-G-Sd coupling *)
 (* (we assume the top quark by default) *)
 
-MQloop == {
-    ParameterType -> External,
-    BlockName -> NPINPUTS,
-    ComplexParameter -> False,
-    Value -> 172.0,
-    Description -> "Quark mass contributing to the effective G-G-S interaction"
-  },
 
 LambdaUV ==  {
     TeX -> \[Lambda],
@@ -191,12 +201,12 @@ ychi10 == {
 GGH == {TeX -> Subscript[G, H],
        ParameterType -> Internal,
        InteractionOrder -> {QCD, 2},
-       Value -> -(gs^2/(4Pi(3Pi vev)))*Sqrt[ffabs2[(MH/2/MT)^2]] },
+       Value -> -(gs^2/(4*Pi(3*Pi vev)))*Sqrt[ffabs2[(MH/2/MT)^2]] },
 
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
        InteractionOrder -> {{QCD, 2},{NP,1}},
-       Value -> -(gs^2/(4Pi(3Pi)))*(ysQQ/(Sqrt[2]*MQloop))*Sqrt[ffabs2[(MSd/2/MQloop)^2]]},
+       Value -> -sina*(gs^2/(4*Pi(3*Pi vev)))*Sqrt[ffabs2[(MSd/2/MT)^2]]},
 
 sina == {
     ParameterType -> External,
@@ -205,17 +215,16 @@ sina == {
     InteractionOrder -> {NP, 1},
     Description -> "Sine of Higgses mixing angle"
   },
-   vevD == {
+vevD == {
     ParameterType    -> External,
-    InteractionOrder -> {NP, -1},
-    Value            -> 300.0,
+    Value            -> 1000.0,
     Description      -> "PhiD VEV"
   },
 
 (****** Internal BSM Parameters **************)
   cosa == {
     ParameterType    -> Internal,
-    Value            -> Sqrt[1-sina^2],
+    Definitions      -> {cosa -> Sqrt[1-sina^2]},
     ParameterName    -> cosa,
     Description      -> "Cosine of Higgses mixing angle"
   },
@@ -321,7 +330,7 @@ S[12] == {
 (* gauge kinetic and mass terms *)
 
 LkinBSM :=  Block[{mu,gg1,gg2,sp1,sp2,sp},
-               ExpandIndices[I*chibar[sp1,gg1].Ga[mu,sp1,sp2].DC[chi[sp2,gg1], mu] - MMChi[gg1,gg2] chibar[sp,gg1].chi[sp,gg2], FlavorExpand->DarkGen] + (1/2) del[PhiD,mu] del[Sd,mu]
+               ExpandIndices[I*chibar[sp1,gg1].Ga[mu,sp1,sp2].DC[chi[sp2,gg1], mu] - MMChi[gg1,gg2] chibar[sp,gg1].chi[sp,gg2], FlavorExpand->DarkGen] + (1/2) del[PhiD,mu]^2
               ];
 
 (* Scalar Potential *)
@@ -360,7 +369,7 @@ LDipole := Block[{mu,nu,sp1,sp2,gg1,gg2},
 (* Effective Dark Femions-Higgs Coupling *)
 
 LHiggsDark := Block[{ii,sp,gg1,gg2},
-                  ExpandIndices[-(Chxx[gg1,gg2]/LambdaUV)*(chibar[sp,gg1].chi[sp,gg2])*Phibar[ii]*Phi[ii],FlavorExpand->{SU2W,DarkGen}]
+                  ExpandIndices[-(Chxx[gg1,gg2]/LambdaUV)*(chibar[sp,gg1].chi[sp,gg2])*Phibar[ii]*Phi[ii],FlavorExpand->{SU2W,DarkGen,SU2D}]
 ];
 
 

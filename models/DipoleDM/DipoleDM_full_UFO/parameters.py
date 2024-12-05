@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 4 Dec 2024 17:41:49
+# Date: Thu 5 Dec 2024 09:50:35
 
 
 
@@ -17,21 +17,13 @@ ZERO = Parameter(name = 'ZERO',
                  texname = '0')
 
 # User-defined parameters.
-MQloop = Parameter(name = 'MQloop',
-                   nature = 'external',
-                   type = 'real',
-                   value = 172.,
-                   texname = '\\text{MQloop}',
-                   lhablock = 'NPINPUTS',
-                   lhacode = [ 1 ])
-
 LambdaUV = Parameter(name = 'LambdaUV',
                      nature = 'external',
                      type = 'real',
                      value = 5000.,
                      texname = '\\lambda',
                      lhablock = 'NPINPUTS',
-                     lhacode = [ 2 ])
+                     lhacode = [ 1 ])
 
 Caxx1 = Parameter(name = 'Caxx1',
                   nature = 'external',
@@ -39,7 +31,7 @@ Caxx1 = Parameter(name = 'Caxx1',
                   value = 0.,
                   texname = 'C_{\\text{axx1}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 3 ])
+                  lhacode = [ 2 ])
 
 Caxx0 = Parameter(name = 'Caxx0',
                   nature = 'external',
@@ -47,7 +39,7 @@ Caxx0 = Parameter(name = 'Caxx0',
                   value = 0.,
                   texname = 'C_{\\text{axx0}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 4 ])
+                  lhacode = [ 3 ])
 
 Caxx10 = Parameter(name = 'Caxx10',
                    nature = 'external',
@@ -55,7 +47,7 @@ Caxx10 = Parameter(name = 'Caxx10',
                    value = 0.1,
                    texname = 'C_{\\text{axx10}}',
                    lhablock = 'NPINPUTS',
-                   lhacode = [ 5 ])
+                   lhacode = [ 4 ])
 
 Chxx1 = Parameter(name = 'Chxx1',
                   nature = 'external',
@@ -63,7 +55,7 @@ Chxx1 = Parameter(name = 'Chxx1',
                   value = 0.,
                   texname = 'C_{\\text{hxx1}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 6 ])
+                  lhacode = [ 5 ])
 
 Chxx0 = Parameter(name = 'Chxx0',
                   nature = 'external',
@@ -71,7 +63,7 @@ Chxx0 = Parameter(name = 'Chxx0',
                   value = 0.,
                   texname = 'C_{\\text{hxx0}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 7 ])
+                  lhacode = [ 6 ])
 
 Chxx10 = Parameter(name = 'Chxx10',
                    nature = 'external',
@@ -79,7 +71,7 @@ Chxx10 = Parameter(name = 'Chxx10',
                    value = 0.1,
                    texname = 'C_{\\text{hxx10}}',
                    lhablock = 'NPINPUTS',
-                   lhacode = [ 8 ])
+                   lhacode = [ 7 ])
 
 ychi1 = Parameter(name = 'ychi1',
                   nature = 'external',
@@ -87,7 +79,7 @@ ychi1 = Parameter(name = 'ychi1',
                   value = 1.,
                   texname = 'y_{\\text{chi1}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 9 ])
+                  lhacode = [ 8 ])
 
 ychi0 = Parameter(name = 'ychi0',
                   nature = 'external',
@@ -95,7 +87,7 @@ ychi0 = Parameter(name = 'ychi0',
                   value = 0.,
                   texname = 'y_{\\text{chi0}}',
                   lhablock = 'NPINPUTS',
-                  lhacode = [ 10 ])
+                  lhacode = [ 9 ])
 
 ychi10 = Parameter(name = 'ychi10',
                    nature = 'external',
@@ -103,7 +95,7 @@ ychi10 = Parameter(name = 'ychi10',
                    value = 0.,
                    texname = 'y_{\\text{chi10}}',
                    lhablock = 'NPINPUTS',
-                   lhacode = [ 11 ])
+                   lhacode = [ 10 ])
 
 ysQQ = Parameter(name = 'ysQQ',
                  nature = 'external',
@@ -111,7 +103,7 @@ ysQQ = Parameter(name = 'ysQQ',
                  value = 0.2,
                  texname = 'y_{\\text{SdQQ}}',
                  lhablock = 'NPINPUTS',
-                 lhacode = [ 12 ])
+                 lhacode = [ 11 ])
 
 sina = Parameter(name = 'sina',
                  nature = 'external',
@@ -119,7 +111,7 @@ sina = Parameter(name = 'sina',
                  value = 0.2,
                  texname = '\\text{sina}',
                  lhablock = 'NPINPUTS',
-                 lhacode = [ 13 ])
+                 lhacode = [ 12 ])
 
 aEWM1 = Parameter(name = 'aEWM1',
                   nature = 'external',
@@ -172,7 +164,7 @@ ymtau = Parameter(name = 'ymtau',
 vevD = Parameter(name = 'vevD',
                  nature = 'external',
                  type = 'real',
-                 value = 300.,
+                 value = 1000.,
                  texname = '\\text{vevD}',
                  lhablock = 'FRBlock',
                  lhacode = [ 1 ])
@@ -387,12 +379,6 @@ lam2 = Parameter(name = 'lam2',
                  value = '(cosa**2*MSd**2)/(2.*vevD**2) + (MH**2*sina**2)/(2.*vevD**2)',
                  texname = '\\text{lam2}')
 
-GGS = Parameter(name = 'GGS',
-                nature = 'internal',
-                type = 'real',
-                value = '-(G**2*ysQQ*cmath.sqrt(ffabs2(MSd**2/(4.*MQloop**2))))/(12.*cmath.pi**2*MQloop*cmath.sqrt(2))',
-                texname = 'G_S')
-
 sw2 = Parameter(name = 'sw2',
                 nature = 'internal',
                 type = 'real',
@@ -432,7 +418,7 @@ vev = Parameter(name = 'vev',
 GGH = Parameter(name = 'GGH',
                 nature = 'internal',
                 type = 'real',
-                value = '-(G**2*cmath.sqrt(ffabs2(MH**2/(4.*MT**2))))/(12.*cmath.pi**2*vev)',
+                value = '-(G**2*cmath.sqrt(( ((6*MT**2)/MH**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**4)**2 if abs(MH**2/MT**2)/4.<1. else (36*MT**8*((cmath.pi**2*(-1 + MH**2/(4.*MT**2)) + MH**2/MT**2)**2 + 2*(cmath.pi**2*(-1 + MH**2/(4.*MT**2)) - MH**2/MT**2)*(-1 + MH**2/(4.*MT**2))*cmath.log((1 + 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2))/(1 - 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2)))**2 + (-1 + MH**2/(4.*MT**2))**2*cmath.log((1 + 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2))/(1 - 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2)))**4))/MH**8 )))/(12.*cmath.pi**2*vev)',
                 texname = 'G_H')
 
 lam1 = Parameter(name = 'lam1',
@@ -464,6 +450,12 @@ ytau = Parameter(name = 'ytau',
                  type = 'real',
                  value = '(ymtau*cmath.sqrt(2))/vev',
                  texname = '\\text{ytau}')
+
+GGS = Parameter(name = 'GGS',
+                nature = 'internal',
+                type = 'real',
+                value = '-(G**2*sina*cmath.sqrt(( ((6*MT**2)/MSd**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**4)**2 if abs(MSd**2/MT**2)/4.<1. else (36*MT**8*((cmath.pi**2*(-1 + MSd**2/(4.*MT**2)) + MSd**2/MT**2)**2 + 2*(cmath.pi**2*(-1 + MSd**2/(4.*MT**2)) - MSd**2/MT**2)*(-1 + MSd**2/(4.*MT**2))*cmath.log((1 + 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2))/(1 - 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2)))**2 + (-1 + MSd**2/(4.*MT**2))**2*cmath.log((1 + 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2))/(1 - 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2)))**4))/MSd**8 )))/(12.*cmath.pi**2*vev)',
+                texname = 'G_S')
 
 mu2h = Parameter(name = 'mu2h',
                  nature = 'internal',
