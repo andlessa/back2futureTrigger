@@ -1,4 +1,4 @@
-import model ../../models/DipoleDM/DipoleDM_minimal_UFO
+import model ../../models/DipoleDM/DipoleDM_UFO
 generate p p > sd
 output ../../pp2Sd
 done

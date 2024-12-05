@@ -1,7 +1,7 @@
 # back2futureTrigger
 
 
-## Dipole DM Model (J. Zurita)
+## Simple Dipole DM Model (J. Zurita)
 
 The BSM Lagrangian implemented [here](./models/DipoleDM/DipoleDM.fr) is based on this expression (see [this note](./model_building_BTTF.pdf) for more details)
 
