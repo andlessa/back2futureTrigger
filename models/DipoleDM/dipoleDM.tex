@@ -161,14 +161,14 @@ In addition to the Lagragian in \cref{eq:lagAll}, the effective $h-G-G$ and $S-G
 where $F(x)$ is the effective loop function.
 \subsection*{Model Parameters}
 
-The model parameters are given in Table~\cref{tab:parameters} as well as their naming convention in the UFO model and their default values. The $C_{\gamma \chi\chi}$ and $C_{H \chi\chi}$ matrices are assumed to be real and symmetric.
+The model parameters are given in \cref{tab:parameters} as well as their naming convention in the UFO model and their default values. The $C_{\gamma \chi\chi}$ and $C_{H \chi\chi}$ matrices are assumed to be real and symmetric.
 
 
 \begin{table}[h!]   \centering
 	\rowcolors{2}{gray!10}{white}
 	\vspace{0.2cm}
 	\caption{Model parameters, their respective names in the UFO model and default values.\label{tab:parameters}}
-	\begin{tabular}{p{2cm}|p{4.5cm}|p{4.5cm}}
+	\begin{tabular}{p{2cm}|p{3cm}|p{3cm}}
 		\toprule
 		\textbf{Parameter} & \textbf{UFO name} & \textbf{Default Value}\\ \toprule 
 		$\Lambda$  & LambdaUV & 5 TeV\\
@@ -195,7 +195,7 @@ The relevant Feynman rules for the BSM particles are given in \cref{tab:feynmanR
 \begin{table}[h!]   \centering
     \rowcolors{2}{gray!10}{white}
     \vspace{0.2cm}
-        \caption{Feynman rules for the relevant interactions. \label{tab:feynmanRules}}
+        \caption{Feynman rules for the relevant interactions in the full model. \label{tab:feynmanRules}}
     \begin{tabular}{p{2cm}|p{8.5cm}}
       \toprule
       \textbf{Interaction} & \textbf{Vertex term}\\ \toprule 
@@ -210,6 +210,7 @@ The relevant Feynman rules for the BSM particles are given in \cref{tab:feynmanR
     \end{tabular}
 \end{table}
 
+\newpage
 \section{Minimal Dipole Model (\textsc{\small DipoleDM\_minimal\_UFO})}
 
 The minimal scenario assumes that $\chi_0$ only couples through the effective operators and these have zero entries in the diagonal:
@@ -223,13 +224,23 @@ With the above assumptions the Lagrangian simplifies to:
 	\mathcal{L}_{\rm dipole} &= \frac{\left(C_{\gamma \chi \chi}\right)_{01}}{\Lambda} \overline{\chi}_0 \sigma^{\mu\nu} \chi_1 F_{\mu\nu} + h.c. \,,\\
 	\mathcal{L}_{H\chi} &= \frac{\left(C_{H \chi \chi}\right)_{01}}{\Lambda} \overline{\chi}_0 \chi_1 |H|^2 + h.c. \,.
 \end{align}
-resulting in the following vertices:
-\begin{align}
-& \chi_1\,\chi_1\,h  : \frac{i}{\sqrt{2}} (y_{\chi})_{11} \sin\alpha,\;\;
-S\,\chi_1\,\chi_1  : -\frac{i}{\sqrt{2}} (y_{\chi})_{11} \cos\alpha \\    
-& \chi_1\,\chi_0\,h  : -i \frac{v}{\Lambda} (C_{H\chi\chi})_{01} \cos\alpha,\;\; S\,\chi_1\,\chi_0 :  -i \frac{v}{\Lambda} (C_{H\chi\chi})_{01} \sin\alpha \\
-& \chi_1\,\chi_0\, A^\mu  : -i \frac{1}{\Lambda} (C_{\gamma\chi\chi})_{01} (\gamma^\mu \slashed{p} - \slashed{p} \gamma^\mu)
-\end{align}
+resulting in the vertices given in \cref{tab:feynmanRules2}.
+
+\begin{table}[h!]   \centering
+	\rowcolors{2}{gray!10}{white}
+	\vspace{0.2cm}
+	\caption{Feynman rules for the relevant interactions in the {\bf minimal} model. \label{tab:feynmanRules2}}
+	\begin{tabular}{p{2cm}|p{4.5cm}}
+		\toprule
+		\textbf{Interaction} & \textbf{Vertex term (Minimal)}\\ \toprule 
+		$ \chi_1\,\chi_1\,h$ & $\frac{i}{\sqrt{2}} (y_{\chi})_{11} \sin\alpha$\\
+		$S\,\chi_1\,\chi_1$  & $-\frac{i}{\sqrt{2}} (y_{\chi})_{11} \cos\alpha $\\
+		$\chi_1\,\chi_0\,h$  & $-i \frac{v}{\Lambda} (C_{H\chi\chi})_{01} \cos\alpha$\\
+		$S\,\chi_1\,\chi_0$ &  $-i \frac{v}{\Lambda} (C_{H\chi\chi})_{01} \sin\alpha$\\
+		$\chi_1\,\chi_0\, A^\mu$  & $-i \frac{1}{\Lambda} (C_{\gamma\chi\chi})_{01} (\gamma^\mu \slashed{p} - \slashed{p} \gamma^\mu)$\\
+		\bottomrule        
+	\end{tabular}
+\end{table}
 
 %\clearpage
 %\bibliographystyle{JHEP}
