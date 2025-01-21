@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 11 Dec 2024 13:28:59
+# Date: Tue 21 Jan 2025 09:08:41
 
 
 from object_library import all_lorentz, Lorentz
@@ -54,15 +54,7 @@ FFV2 = Lorentz(name = 'FFV2',
 
 FFV3 = Lorentz(name = 'FFV3',
                spins = [ 2, 2, 3 ],
-               structure = 'Gamma(3,2,-1)*ProjM(-1,1) - 2*Gamma(3,2,-1)*ProjP(-1,1)')
-
-FFV4 = Lorentz(name = 'FFV4',
-               spins = [ 2, 2, 3 ],
-               structure = 'Gamma(3,2,-1)*ProjM(-1,1) + 2*Gamma(3,2,-1)*ProjP(-1,1)')
-
-FFV5 = Lorentz(name = 'FFV5',
-               spins = [ 2, 2, 3 ],
-               structure = 'Gamma(3,2,-1)*ProjM(-1,1) + 4*Gamma(3,2,-1)*ProjP(-1,1)')
+               structure = 'Gamma(3,2,-1)*ProjP(-1,1)')
 
 VSS1 = Lorentz(name = 'VSS1',
                spins = [ 3, 1, 1 ],

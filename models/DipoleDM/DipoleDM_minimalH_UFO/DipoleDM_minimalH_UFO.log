@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Wed 11 Dec 2024 13:28:26
+# Date: Tue 21 Jan 2025 09:07:23
 
 
 # 
@@ -60,15 +60,15 @@
 # Lorentz structure definitions
 #
 
-   * 29 lorentz structures written.
+   * 27 lorentz structures written.
    * lorentz.py written.
 #
 # Coupling definitions
 #
 
-   >>>> Non positive interaction order QED found for coupling GC_83.
-   >>>> Non positive interaction order QED found for coupling GC_87.
-   * 130 couplings written.
+   >>>> Non positive interaction order QED found for coupling GC_84.
+   >>>> Non positive interaction order QED found for coupling GC_88.
+   * 131 couplings written.
    * couplings.py written.
 #
 # Coupling order definitions

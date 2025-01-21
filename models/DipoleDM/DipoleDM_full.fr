@@ -279,7 +279,7 @@ F[16] == {
          SelfConjugate-> False,
          Mass->{Mchi, {M0,  425.0}, {M1,  500.0}},  
          Width->{{w0,0.0},{w1,1.7*10^(-4)}},
-         PDG->{5000022,5000023},
+         PDG->{4000022,4000023},
          PropagatorLabel->{"chi0","chi1"},
          PropagatorType->Straight,
          ParticleName     -> {"~chi0","~chi1"},

@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 12.1.0 for Linux x86 (64-bit) (March 18, 2020)
-# Date: Thu 5 Dec 2024 16:21:06
+# Date: Tue 21 Jan 2025 09:22:47
 
 
 
@@ -207,7 +207,7 @@ M0 = Parameter(name = 'M0',
                value = 425.,
                texname = '\\text{M0}',
                lhablock = 'MASS',
-               lhacode = [ 5000022 ])
+               lhacode = [ 4000022 ])
 
 M1 = Parameter(name = 'M1',
                nature = 'external',
@@ -215,7 +215,7 @@ M1 = Parameter(name = 'M1',
                value = 500.,
                texname = '\\text{M1}',
                lhablock = 'MASS',
-               lhacode = [ 5000023 ])
+               lhacode = [ 4000023 ])
 
 MSd = Parameter(name = 'MSd',
                 nature = 'external',
@@ -263,7 +263,7 @@ w0 = Parameter(name = 'w0',
                value = 0.,
                texname = '\\text{w0}',
                lhablock = 'DECAY',
-               lhacode = [ 5000022 ])
+               lhacode = [ 4000022 ])
 
 w1 = Parameter(name = 'w1',
                nature = 'external',
@@ -271,7 +271,7 @@ w1 = Parameter(name = 'w1',
                value = 0.00017,
                texname = '\\text{w1}',
                lhablock = 'DECAY',
-               lhacode = [ 5000023 ])
+               lhacode = [ 4000023 ])
 
 WS = Parameter(name = 'WS',
                nature = 'external',
