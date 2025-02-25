@@ -417,7 +417,7 @@ def recover_MG_DH1(px, py, pz, E, MASS, pdg):
 # Computation of the kinematics variable for LLP1 (velocities, beta, gamma, pT the transverse momenta, eta the pseudo-rapidity).
 #########################################################################################
 
-def kinematics_MG_DH1(MG_px_DH1,MG_py_DH1,MG_pz_DH1,MG_E_DH1 ):
+def kinematics_MG_DH(MG_px_DH1,MG_py_DH1,MG_pz_DH1,MG_E_DH1):
 
     MG_vx_DH1 = (MG_px_DH1*c**2)/MG_E_DH1 #compute the velocities in each direction
     MG_vy_DH1 = (MG_py_DH1*c**2)/MG_E_DH1
@@ -467,28 +467,12 @@ def recover_MG_DH2(px, py, pz, E, MASS, pdg):
 
     return MG_px_DH2, MG_py_DH2,MG_pz_DH2,MG_E_DH2,MG_mass_DH2,MG_pdg_DH2_1
 
-#########################################################################################
-# Computation of the kinematics variable for LLP2 (velocities, beta, gamma, pT the transverse momenta, eta the pseudo-rapidity).
-#########################################################################################
-
-def kinemamtics_MG_DH2(MG_px_DH2,MG_py_DH2,MG_pz_DH2,MG_E_DH2):
-
-    MG_vx_DH2 = (MG_px_DH2*c**2)/MG_E_DH2 #compute the velocities in each direction
-    MG_vy_DH2 = (MG_py_DH2*c**2)/MG_E_DH2
-    MG_vz_DH2 = (MG_pz_DH2*c**2)/MG_E_DH2
-    MG_beta_DH2 = np.sqrt(MG_vx_DH2**2 + MG_vy_DH2**2 + MG_vz_DH2**2)/c # compute beta
-    MG_gamma_DH2 = 1/(np.sqrt(1-MG_beta_DH2**2)) # compute gamma
-
-    MG_pT_DH2 = np.sqrt(MG_px_DH2**2 + MG_py_DH2**2)*c # compute the transverse momenta
-    MG_eta_DH2 = np.arctanh(MG_pz_DH2/(np.sqrt(MG_px_DH2**2 + MG_py_DH2**2 + MG_pz_DH2**2))) # compute the pseudorapidity
-
-    return MG_pT_DH2,MG_eta_DH2, MG_gamma_DH2
 
 #########################################################################################
 # Decay lenght computation for LLP1.
 #########################################################################################
 
-def decaylenght_MG_DH1(MG_px_DH1, MG_py_DH1, MG_pz_DH1, E_DH1, MG_gamma_DH1, tauN):
+def decaylenght_MG_DH(MG_px_DH1, MG_py_DH1, MG_pz_DH1, E_DH1, MG_gamma_DH1, tauN):
 
     MG_Lx_tot_DH1 = []
     MG_Ly_tot_DH1 = []
@@ -516,37 +500,6 @@ def decaylenght_MG_DH1(MG_px_DH1, MG_py_DH1, MG_pz_DH1, E_DH1, MG_gamma_DH1, tau
 
     return MG_Lxy_tot_DH1, MG_Lz_tot_DH1
 
-#########################################################################################
-# Decay lenght computation for LLP2.
-#########################################################################################
-
-def decaylenght_MG_DH2(MG_px_DH2, MG_py_DH2, MG_pz_DH2, E_DH2, MG_gamma_DH2, tauN):
-
-    MG_Lx_tot_DH2 = []
-    MG_Ly_tot_DH2 = []
-    MG_Lz_tot_DH2 = []
-    MG_Lxy_tot_DH2 = []
-
-    for ctau in range(len(tauN)):
-
-        MG_Lx_DH2 = []
-        MG_Ly_DH2 = []
-        MG_Lz_DH2 = []
-        MG_Lxy_DH2 = []
-
-        for i in range(len(MG_gamma_DH2)):
-            MG_lt = lifetime(tauN[ctau]) # set the mean lifetime
-            MG_Lx_DH2.append((MG_px_DH2[i]/E_DH2[i])*c**2 * MG_lt * MG_gamma_DH2[i]) # compute the decay lenght in x,y,z
-            MG_Ly_DH2.append((MG_py_DH2[i]/E_DH2[i])*c**2 * MG_lt * MG_gamma_DH2[i])
-            MG_Lz_DH2.append((abs(MG_pz_DH2[i])/E_DH2[i])*c**2 * MG_lt  * MG_gamma_DH2[i] )
-            MG_Lxy_DH2.append(np.sqrt((MG_Lx_DH2[i])**2 + (MG_Ly_DH2[i])**2)) # compute the transverse decay lenght
-
-        MG_Lx_tot_DH2.append(MG_Lx_DH2)
-        MG_Ly_tot_DH2.append(MG_Ly_DH2)
-        MG_Lz_tot_DH2.append(MG_Lz_DH2)
-        MG_Lxy_tot_DH2.append(MG_Lxy_DH2)
-
-    return MG_Lxy_tot_DH2, MG_Lz_tot_DH2
 
 #########################################################################################
 # Computation of the efficiency with the map from the data obtained with MG for the high-ET samples (mH <= 400GeV).
