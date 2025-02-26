@@ -91,12 +91,15 @@ def getEfficiencies(hepmcFile,tauList,
         return None
     
     # Total efficiencies (for each tau value)
-    total_effs = {"high-ET" : np.zeros(len(tauList)),
-                  "low-ET" : np.zeros(len(tauList))}
+    effsDict = {"high-ET" : np.zeros(len(tauList)),
+                "low-ET" : np.zeros(len(tauList)),
+                "Nevents" : 0}
     
     # Get next event
     event = f.read()
+    nevt = 0
     while event is not None:
+        effsDict["Nevents"] += 1
         # Extract necessary data from event
         eventDict = getDataFrom(event,llps=llps,invisibles=invisibles)
         if len(eventDict) != 2:
@@ -148,11 +151,15 @@ def getEfficiencies(hepmcFile,tauList,
 
         # Add event efficiency to total efficiencies 
         # #for the given selection (for each tau value)
-        total_effs[sr] += np.array(evt_effs)
+        effsDict[sr] += np.array(evt_effs)
         # Get next event
         event = f.read()
 
-    return total_effs
+    # Divide the total efficiency by the number of events:
+    effsDict["high-ET"] = effsDict["high-ET"]/effsDict['Nevents']
+    effsDict["low-ET"] = effsDict["low-ET"]/effsDict['Nevents']
+
+    return effsDict
 
 
 
@@ -180,11 +187,11 @@ if __name__ == "__main__":
     tauList = np.geomspace(args.tmin,args.tmax,args.ntau)
     effs = getEfficiencies(args.inputfile,tauList=tauList)
 
-    data = np.array(zip(tauList,effs['sr-low'],effs['sr-high']))
+    data = np.array(list(zip(tauList,effs['low-ET'],effs['high-ET'])))
 
     if args.outputfile is None:
         outputFile = args.inputfile.split('.hepmc')[0]+'_effs.csv'
     else:
         outputFile = args.outputfile
-    np.savetxt(outputFile, data, header=f'# Input file: {args.inputfile}\n #tau(m),eff(low),eff(high)')
+    np.savetxt(outputFile, data, header=f'Input file: {args.inputfile}\nNumber of events: {effs['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',delimiter=',',fmt='%1.3e')
     

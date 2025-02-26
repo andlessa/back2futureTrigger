@@ -723,4 +723,3 @@ def plt_cross_Low(eff_lowETX , tauN, mass_phi, mass_s, branch_HEP_limit, factor,
     plt.legend( fontsize = 10, loc=3)
     plt.savefig(os.path.join(plotDir,f"Cross_section_mH{mass_phi}_mS{mass_s}.png"))
     plt.close()
-

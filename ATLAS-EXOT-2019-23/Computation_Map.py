@@ -26,15 +26,15 @@ hep.style.use("ATLAS") # Define a style for the plots
 fileDict = {
             # (1000,275) : "./Script_mH1000_mS275/Events/run_01/tag_1_pythia8_events.hepmc.gz",
             # (1000,275) : "./Script_mH1000_mS275/Events/run_02/highStats_pythia8_events.hepmc.gz",
-            # (1000,275) : "./Script_mH1000_mS275_lhapdf/Events/run_01/tag_1_pythia8_events.hepmc.gz",
-            (1000,475) : "./Script_mH1000_mS475_lhapdf/Events/run_01/tag_1_pythia8_events.hepmc.gz",
+            (1000,275) : "./Script_mH1000_mS275_lhapdf/Events/run_01/tag_1_pythia8_events.hepmc.gz",
+            # (1000,475) : "./Script_mH1000_mS475_lhapdf/Events/run_01/tag_1_pythia8_events.hepmc.gz",
             }
 
 mg5fileDict = {
             # (1000,275) : './Script_mH1000_mS275/Events/run_01/unweighted_events.lhe.gz',
             # (1000,275) : "./Script_mH1000_mS275/Events/run_02/unweighted_events.lhe.gz",
-            # (1000,275) : "./Script_mH1000_mS275_lhapdf/Events/run_01/unweighted_events.lhe.gz",
-            (1000,475) : './Script_mH1000_mS475_lhapdf/Events/run_01/unweighted_events.lhe.gz',
+            (1000,275) : "./Script_mH1000_mS275_lhapdf/Events/run_01/unweighted_events.lhe.gz",
+            # (1000,475) : './Script_mH1000_mS475_lhapdf/Events/run_01/unweighted_events.lhe.gz',
             }
 
 fileHEPDict = {(1000,275) : "./ATLAS_data/HEPData-ins2043503-v3-Figure_2e_of_Aux._Mat._1000_275.root",
@@ -58,7 +58,7 @@ Branch_HEP_limit = {(1000,275) : "Figure 6f of Aux. Mat./Graph1D_y2;1",
 c = 3e8# Light velocity in m/s
 
 
-massPairs = [(1000,475)]
+massPairs = [(1000,275)]
 HEP_Lifetime = 95
 factor = 1
 
@@ -110,12 +110,6 @@ for mPhi,mS in massPairs:
         MG_eff_highETX = cmfp.eff_map_MG_high(MG_pT_DH1, MG_eta_DH1,MG_Lxy_tot_DH1, MG_Lz_tot_DH1, MG_pdg_DH1_1, MG_pT_DH2, MG_eta_DH2, MG_Lxy_tot_DH2, MG_Lz_tot_DH2, MG_pdg_DH2_1, tauN, nevts_mg5,  mPhi, mS) # Compute the efficiency from MG
         MG_Data_Eff_High = np.column_stack(MG_eff_highETX)
         np.savetxt(os.path.join(os.path.dirname(mg5fileDict[(mPhi,mS)]),f'Efficiencies_Text_{mPhi}_{mS}.txt'), MG_Data_Eff_High)
-
-
-        print('PDG=',abs(pdg_tot_DH1))
-        print(type(abs(pdg_tot_DH1)))
-        import sys
-        sys.exit()
         eff_highETX = cmfp.eff_map_High(pT_DH1, eta_DH1, Lxy_tot_DH1, Lz_tot_DH1, abs(pdg_tot_DH1), pT_DH2, eta_DH2, Lxy_tot_DH2, Lz_tot_DH2, abs(pdg_tot_DH2), tauN, nevts_pythia,  mPhi, mS) # Compute the efficiency from Pythia
         Data_Eff_High = np.column_stack(eff_highETX)
         plotDir = os.path.dirname(fileDict[(mPhi,mS)])
