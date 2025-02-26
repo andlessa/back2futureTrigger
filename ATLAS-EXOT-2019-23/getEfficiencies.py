@@ -96,7 +96,6 @@ def getEfficiencies(hepmcFile,tauList,
     
     # Get next event
     event = f.read()
-    nevt = 0
     while event is not None:
         effsDict["Nevents"] += 1
         # Extract necessary data from event
@@ -155,6 +154,7 @@ def getEfficiencies(hepmcFile,tauList,
         # Get next event
         event = f.read()
 
+    f.close()
     # Divide the total efficiency by the number of events:
     effsDict["high-ET"] = effsDict["high-ET"]/effsDict['Nevents']
     effsDict["low-ET"] = effsDict["low-ET"]/effsDict['Nevents']
