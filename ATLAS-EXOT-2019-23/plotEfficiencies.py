@@ -174,5 +174,7 @@ if __name__ == "__main__":
 
     if args.effPlot is not None:
         plotEffs(args.inputfile,args.mPhi,args.mS,outFile=args.effPlot,sr=args.signalregion)
+        logger.info(f"Efficiency plot saved to {args.effPlot}")
     if args.xsecPlot is not None:
         plotXsecLimit(args.inputfile,args.mPhi,args.mS,outFile=args.xsecPlot,sr=args.signalregion)
+        logger.info(f"Cross-section limit plot saved to {args.xsecPlot}")
