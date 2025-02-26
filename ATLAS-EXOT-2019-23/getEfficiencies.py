@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
 
-import sys
-import os
-sys.path.append('./MG5')
-
+import os, time
 import numpy as np
-import mplhep as hep
 import readMapNew as rmN
 import pyhepmc
 import random
 import logging
+
 c = 3e8
 
 FORMAT = '%(levelname)s: %(message)s at %(asctime)s'
 logging.basicConfig(format=FORMAT,datefmt='%m/%d/%Y %I:%M:%S %p')
-logger = logging.getLogger()
-logger.setLevel(level = logging.DEBUG)    
+logger = logging.getLogger()   
 
 
 random.seed(123)
@@ -47,11 +43,13 @@ def getDataFrom(event,llps=[35],invisibles=[12,14,16]):
     vertexDict = getLLPdecays(event,llps=llps)
     eventDict = {}
     if len(vertexDict) != 2:
+        logger.error(f"{len(vertexDict)} LLP decay vertices found (can only deal with 2 decay vertices)")
         raise ValueError(f"{len(vertexDict)} LLP decay vertices found (can only deal with 2 decay vertices)")
     for ivertex,vertex in vertexDict.items():
         visible_particles = [p for p in vertex.particles_out 
                                 if abs(p.pid) not in invisibles]
         if len(visible_particles) != 2:
+            logger.error(f"{len(visible_particles)} visible particles found in LLP decay (can only deal with 2 particles)")
             raise ValueError(f"{len(visible_particles)} visible particles found in LLP decay (can only deal with 2 particles)")
         p_visible = pyhepmc.FourVector(0.,0.,0.,0.)
         for p in visible_particles:
@@ -103,6 +101,7 @@ def getEfficiencies(hepmcFile,tauList,
         # Extract necessary data from event
         eventDict = getDataFrom(event,llps=llps,invisibles=invisibles)
         if len(eventDict) != 2:
+            logger.error(f"{len(eventDict)} LLP decay vertices found (can only deal with 2 decay vertices)")
             raise ValueError(f"{len(eventDict)} LLP decay vertices found (can only deal with 2 decay vertices)")
         llpList = [d['parent'] for d in eventDict.values()]
         visList = [d['visible'] for d in eventDict.values()]
@@ -184,7 +183,18 @@ if __name__ == "__main__":
     
 
     args = ap.parse_args()
+
+    level = args.verbose
+    levels = { "debug": logging.DEBUG, "info": logging.INFO,
+               "warn": logging.WARNING,
+               "warning": logging.WARNING, "error": logging.ERROR }
+    if level in levels:       
+        logger.setLevel(level = levels[level])
+
     tauList = np.geomspace(args.tmin,args.tmax,args.ntau)
+
+
+    t0 = time.time()
     effs = getEfficiencies(args.inputfile,tauList=tauList)
 
     data = np.array(list(zip(tauList,effs['low-ET'],effs['high-ET'])))
@@ -193,5 +203,7 @@ if __name__ == "__main__":
         outputFile = args.inputfile.split('.hepmc')[0]+'_effs.csv'
     else:
         outputFile = args.outputfile
+    logger.info(f'Efficiencies saved to {outputFile}')
     np.savetxt(outputFile, data, header=f'Input file: {args.inputfile}\nNumber of events: {effs['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',delimiter=',',fmt='%1.3e')
     
+    logger.info("\n\nDone in %3.2f min" %((time.time()-t0)/60.))
