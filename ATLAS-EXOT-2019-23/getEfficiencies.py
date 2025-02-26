@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-import os, time
+import os, time, sys
 import numpy as np
 import readMapNew as rmN
 import pyhepmc
 import random
 import logging
+import configparser
 
 c = 3e8
 
@@ -172,12 +173,8 @@ if __name__ == "__main__":
             help='path to the HepMC file.')
     ap.add_argument('-o', '--outputfile',default=None,
             help='output file name (where efficiencies will be stored). If not set will use inputfile name.')
-    ap.add_argument('-ti', '--tmin', default = 0.1,
-            help='minimum c*tau to be considered (in meters) [0.1].')
-    ap.add_argument('-tf', '--tmax', default = 100.0,
-            help='maximum c*tau to be considered (in meters) [100.0].')
-    ap.add_argument('-nt', '--ntau', default = 95,
-            help='number of c*tau points to be considered [95].')
+    ap.add_argument('-p', '--parfile',default='parameters.ini',
+            help='parameters file name, where additional options are defined [parameters.ini].')
     ap.add_argument('-v', '--verbose', default='info',
             help='verbose level (debug, info, warning or error). Default is info')
     
@@ -191,11 +188,39 @@ if __name__ == "__main__":
     if level in levels:       
         logger.setLevel(level = levels[level])
 
-    tauList = np.geomspace(args.tmin,args.tmax,args.ntau)
 
+
+    parser = configparser.ConfigParser(inline_comment_prefixes="#")   
+    ret = parser.read(args.parfile)
+    if ret == []:
+        logger.error(f"No such file or directory: {args.parfile}")
+        sys.exit()
+
+    
+    try:
+        tauList = parser.get("options","ctau_values")
+        tauList = eval(tauList)
+    except:
+        logger.error("Error getting list of ctau values")
+        tauList = np.geomspace(args.tmin,args.tmax,args.ntau)
+
+    try:
+        llpPDGs = parser.get("model","llp_pdgs").split(',')
+        llpPDGs = [int(pdg) for pdg in llpPDGs]
+    except:
+        logger.error("Error getting list of LLP PDG values")
+        llpPDGs = [35]
+
+    try:
+        invisiblePDGs = parser.get("model","invisible_pdgs").split(',')
+        invisiblePDGs = [int(pdg) for pdg in invisiblePDGs]
+    except:
+        logger.error("Error getting list of LLP PDG values")
+        invisiblePDGs = [12,14,16]
 
     t0 = time.time()
-    effs = getEfficiencies(args.inputfile,tauList=tauList)
+    effs = getEfficiencies(args.inputfile,tauList=tauList,
+                           llps=llpPDGs,invisibles=invisiblePDGs)
 
     data = np.array(list(zip(tauList,effs['low-ET'],effs['high-ET'])))
 
