@@ -6,8 +6,8 @@ import numpy as np
 # to use: pip install pyyaml numpy
 # and configure the map names you downlaoded from HEPdata below 
 mapFileNames={
-  "high-ET": "HEPData-ins2043503-v3-Figure_11_of_Aux._Mat..yaml",
-  "low-ET": "HEPData-ins2043503-v3-Figure_12_of_Aux._Mat..yaml",
+  "high-ET": "ATLAS_data/HEPData-ins2043503-v3-Figure_11_of_Aux._Mat..yaml",
+  "low-ET": "ATLAS_data/HEPData-ins2043503-v3-Figure_12_of_Aux._Mat..yaml",
   }
 
 mapFileIndexRefs = {} #new!
