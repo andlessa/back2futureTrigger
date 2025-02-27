@@ -46,14 +46,27 @@ def getDataFrom(event,llps=[35],invisibles=[12,14,16]):
     vertexDict = getLLPdecays(event,llps=llps)
     eventDict = {}
     if len(vertexDict) != 2:
-        logger.error(f"{len(vertexDict)} LLP decay vertices found (can only deal with 2 decay vertices)")
-        raise ValueError(f"{len(vertexDict)} LLP decay vertices found (can only deal with 2 decay vertices)")
+        erroMsg = f"{len(vertexDict)} LLP decay vertices found (can only handle 2 decay vertices)"
+        logger.error(erroMsg)
+        raise ValueError(erroMsg)
     for ivertex,vertex in vertexDict.items():
         visible_particles = [p for p in vertex.particles_out 
                                 if abs(p.pid) not in invisibles]
+        # In case the LLP decays to a single visible particle (e.g. higgs), replace it
+        # by its visible decays (e.g. higgs -> b bar)
+        if len(visible_particles) == 1:
+            p = visible_particles[0]
+            if len(p.children) != 2:
+                erroMsg = f"Single visible particle from LLP decay with {len(p.children)} daughters (can only handle 2)"
+                logger.error(erroMsg)
+                raise ValueError(erroMsg)
+            else:
+                visible_particles = [d for d in p.children
+                                     if abs(d.pid) not in invisibles]
         if len(visible_particles) != 2:
-            logger.error(f"{len(visible_particles)} visible particles found in LLP decay (can only deal with 2 particles)")
-            raise ValueError(f"{len(visible_particles)} visible particles found in LLP decay (can only deal with 2 particles)")
+            errorMsg = f"{len(visible_particles)} visible particles found in LLP decay (can only handle 2 particles)"
+            logger.error(errorMsg)
+            raise ValueError(errorMsg)
         p_visible = pyhepmc.FourVector(0.,0.,0.,0.)
         for p in visible_particles:
             p_visible = p_visible + p.momentum
@@ -237,8 +250,8 @@ if __name__ == "__main__":
 
     # Split input files by distinct models and get recast data for
     # the set of files from the same model:
-    ncpus = parser.get("options","ncpus")
-    inputFileList = args.inputFile
+    ncpus = int(parser.get("options","ncpus"))
+    inputFileList = args.inputfile
     ncpus = min(ncpus,len(inputFileList))
     pool = multiprocessing.Pool(processes=ncpus)
     children = []
