@@ -7,6 +7,8 @@ import pyhepmc
 import random
 import logging
 import configparser
+import multiprocessing
+import progressbar as P
 
 c = 3e8
 
@@ -158,10 +160,24 @@ def getEfficiencies(hepmcFile,tauList,
     # Divide the total efficiency by the number of events:
     effsDict["high-ET"] = effsDict["high-ET"]/effsDict['Nevents']
     effsDict["low-ET"] = effsDict["low-ET"]/effsDict['Nevents']
+    # Store ctau list
+    effsDict['ctau'] = tauList[:]
+    # Store input file name
+    effsDict['hepmcFile'] = hepmcFile
 
     return effsDict
 
+def saveOutput(effsDict):
+        
+    tauList = effsDict['ctau']
+    data = np.array(list(zip(tauList,effsDict['low-ET'],
+                                effsDict['high-ET'])))
 
+    outputFile = effsDict['hepmcFile'].split('.hepmc')[0]+'_effs.csv'
+    np.savetxt(outputFile, data, 
+                header=f'Input file: {effsDict['hepmcFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
+                delimiter=',',fmt='%1.3e')
+    
 
 
 if __name__ == "__main__":
@@ -169,10 +185,8 @@ if __name__ == "__main__":
     import argparse    
     ap = argparse.ArgumentParser( description=
             "Compute the efficiencies for a given input HepMC file" )
-    ap.add_argument('-f', '--inputfile',
-            help='path to the HepMC file.')
-    ap.add_argument('-o', '--outputfile',default=None,
-            help='output file name (where efficiencies will be stored). If not set will use inputfile name.')
+    ap.add_argument('-f', '--inputfile',nargs='+',
+            help='path to the HepMC file(s).')
     ap.add_argument('-p', '--parfile',default='parameters.ini',
             help='parameters file name, where additional options are defined [parameters.ini].')
     ap.add_argument('-v', '--verbose', default='info',
@@ -219,16 +233,29 @@ if __name__ == "__main__":
         invisiblePDGs = [12,14,16]
 
     t0 = time.time()
-    effs = getEfficiencies(args.inputfile,tauList=tauList,
-                           llps=llpPDGs,invisibles=invisiblePDGs)
 
-    data = np.array(list(zip(tauList,effs['low-ET'],effs['high-ET'])))
 
-    if args.outputfile is None:
-        outputFile = args.inputfile.split('.hepmc')[0]+'_effs.csv'
-    else:
-        outputFile = args.outputfile
-    logger.info(f'Efficiencies saved to {outputFile}')
-    np.savetxt(outputFile, data, header=f'Input file: {args.inputfile}\nNumber of events: {effs['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',delimiter=',',fmt='%1.3e')
-    
+    # Split input files by distinct models and get recast data for
+    # the set of files from the same model:
+    ncpus = parser.get("options","ncpus")
+    inputFileList = args.inputFile
+    ncpus = min(ncpus,len(inputFileList))
+    pool = multiprocessing.Pool(processes=ncpus)
+    children = []
+    for inputfile in inputFileList:
+        p = pool.apply_async(getEfficiencies, args=(inputfile,tauList,
+                           llpPDGs,invisiblePDGs,),callback=saveOutput)
+        children.append(p)
+
+    nfiles = len(inputFileList)
+    progressbar = P.ProgressBar(widgets=[f"Reading {nfiles} HepMC files", 
+                                P.Percentage(),P.Bar(marker=P.RotatingMarker()), P.ETA()])
+    progressbar.maxval = nfiles
+    progressbar.start()
+    ndone = 0
+    for p in children: 
+        p.get()
+        ndone += 1
+        progressbar.update(ndone)
+        
     logger.info("\n\nDone in %3.2f min" %((time.time()-t0)/60.))
