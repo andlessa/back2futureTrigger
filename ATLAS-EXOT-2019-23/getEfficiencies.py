@@ -151,8 +151,8 @@ def getEfficiencies(hepmcFile,tauList,
             # raise ValueError(errorMsg)
             continue
 
-        # if not passHTmissCut(eventDict):
-            # continue
+        if not passHTmissCut(eventDict):
+            continue
         
         llpList = [d['parent'] for d in eventDict.values()]
         visList = [d['visible'] for d in eventDict.values()]
@@ -217,13 +217,13 @@ def getEfficiencies(hepmcFile,tauList,
 
     return effsDict
 
-def saveOutput(effsDict):
+def saveOutput(effsDict,outputFile):
         
     tauList = effsDict['ctau']
     data = np.array(list(zip(tauList,effsDict['low-ET'],
                                 effsDict['high-ET'])))
 
-    outputFile = effsDict['hepmcFile'].split('.hepmc')[0]+'_effs.csv'
+    
     np.savetxt(outputFile, data, 
                 header=f'Input file: {effsDict['hepmcFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
                 delimiter=',',fmt='%1.3e')
@@ -237,8 +237,8 @@ if __name__ == "__main__":
             "Compute the efficiencies for a given input HepMC file" )
     ap.add_argument('-f', '--inputfile',nargs='+',
             help='path to the HepMC file(s).')
-    ap.add_argument('-p', '--parfile',default='parameters.ini',
-            help='parameters file name, where additional options are defined [parameters.ini].')
+    ap.add_argument('-p', '--parfile',default='parameters_getEff.ini',
+            help='parameters file name, where additional options are defined [parameters_getEff.ini].')
     ap.add_argument('-v', '--verbose', default='info',
             help='verbose level (debug, info, warning or error). Default is info')
     
@@ -294,7 +294,7 @@ if __name__ == "__main__":
     children = []
     for inputfile in inputFileList:
         p = pool.apply_async(getEfficiencies, args=(inputfile,tauList,
-                           llpPDGs,invisiblePDGs,),callback=saveOutput)
+                           llpPDGs,invisiblePDGs,))
         children.append(p)
 
     nfiles = len(inputFileList)
@@ -304,7 +304,10 @@ if __name__ == "__main__":
     progressbar.start()
     ndone = 0
     for p in children: 
-        p.get()
+        effsDict = p.get()
+        outFile = effsDict['hepmcFile'].split('.hepmc')[0]
+        outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
+        saveOutput(effsDict,outFile)
         ndone += 1
         progressbar.update(ndone)
         
