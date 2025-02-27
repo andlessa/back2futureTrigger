@@ -52,6 +52,8 @@ def getDataFrom(event,llps=[35],invisibles=[12,14,16]):
     for ivertex,vertex in vertexDict.items():
         visible_particles = [p for p in vertex.particles_out 
                                 if abs(p.pid) not in invisibles]
+        invisible_particles = [p for p in vertex.particles_out 
+                                if abs(p.pid) in invisibles]
         # In case the LLP decays to a single visible particle (e.g. higgs), replace it
         # by its visible decays (e.g. higgs -> b bar)
         if len(visible_particles) == 1:
@@ -68,12 +70,20 @@ def getDataFrom(event,llps=[35],invisibles=[12,14,16]):
             logger.error(errorMsg)
             raise ValueError(errorMsg)
         p_visible = pyhepmc.FourVector(0.,0.,0.,0.)
+        p_invisible = pyhepmc.FourVector(0.,0.,0.,0.)
         for p in visible_particles:
             p_visible = p_visible + p.momentum
+        for p in invisible_particles:
+            p_invisible = p_invisible + p.momentum
 
         visParticle = pyhepmc.GenParticle(momentum = p_visible, pid = ivertex)
+        invisParticle = pyhepmc.GenParticle(momentum = p_invisible, pid = ivertex)
         eventDict[ivertex] = {'visible' : visParticle, 
-                              'parent' : vertex.particles_in[0]}
+                              'invisible' : invisParticle,
+                              'parent' : vertex.particles_in[0],
+                              'visiblePDGs' : [p.pid for p in visible_particles],
+                              'invisiblePDGs' : [p.pid for p in invisible_particles],
+                              }
 
     return eventDict
 
@@ -89,6 +99,26 @@ def getDecayLength(genParticle,tau):
     L_vec = (genParticle.momentum/genParticle.momentum.e)*c*lt*gamma
 
     return L_vec.pt(),abs(L_vec.pz)
+
+def passHTmissCut(eventDict):
+
+    # Compute HT as the scalar sum of the visible pT out 
+    # of each LLP decay
+    HT = 0.0
+    for vertex in eventDict.values():
+        HT += vertex['visible'].momentum.pt()
+
+    # Compute HTmiss as the total invisible pT from both decays
+    pMiss = pyhepmc.FourVector(0.,0.,0.,0.)
+    for vertex in eventDict.values():
+        pMiss = pMiss + vertex['invisible'].momentum
+    HTmiss = pMiss.pt()
+
+    if (not HT) or HTmiss/HT > 0.6:
+        return False
+    
+    return True
+
 
 def getEfficiencies(hepmcFile,tauList,
                     llps=[35],invisibles=[12,14,16]):
@@ -116,13 +146,17 @@ def getEfficiencies(hepmcFile,tauList,
         # Extract necessary data from event
         eventDict = getDataFrom(event,llps=llps,invisibles=invisibles)
         if len(eventDict) != 2:
-            logger.error(f"{len(eventDict)} LLP decay vertices found (can only deal with 2 decay vertices)")
-            raise ValueError(f"{len(eventDict)} LLP decay vertices found (can only deal with 2 decay vertices)")
+            errorMsg = f"{len(eventDict)} LLP decay vertices found (can only handle 2 decay vertices)"
+            logger.error(errorMsg)
+            # raise ValueError(errorMsg)
+            continue
+
+        # if not passHTmissCut(eventDict):
+            # continue
+        
         llpList = [d['parent'] for d in eventDict.values()]
         visList = [d['visible'] for d in eventDict.values()]
-        # llp_mass = llpList[0].generated_mass
-        # if any(llp.generated_mass != llp_mass for llp in llpList):
-        #     raise ValueError(f"Can not deal with distinct masses found for LLPs.")
+        visPDGList = [d['visiblePDGs'] for d in eventDict.values()]
         
         # Get total momentum of LLP pair (equals momentum of parent)
         pTot = llpList[0].momentum + llpList[1].momentum
@@ -135,20 +169,23 @@ def getEfficiencies(hepmcFile,tauList,
         p1 = visList[0].momentum        
         p1_pt = p1.pt()
         p1_eta = p1.eta()
-        p1_pdgs = set([abs(c.pid) for c in llpList[0].children 
-                   if abs(c.pid) not in invisibles])
+        p1_pdgs = set([abs(c.pid) for c in visPDGList[0]])
         if len(p1_pdgs) != 1:
-            raise ValueError(f'Can not handle decays to distinct pair of fermions (e.g. {p1_pdgs})')
+            errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p1_pdgs})'
+            logger.error(errorMsg)
+            # raise ValueError(errorMsg)
+            continue
         else:
             p1_pdgs = list(p1_pdgs)[0]
         
         p2 = visList[1].momentum
         p2_pt = p2.pt()
         p2_eta = p2.eta()
-        p2_pdgs = set([abs(c.pid) for c in llpList[1].children 
-                   if abs(c.pid) not in invisibles])
+        p2_pdgs = set([abs(c.pid) for c in visPDGList[1]])
         if len(p2_pdgs) != 1:
-            raise ValueError(f'Can not handle decays to distinct pair of fermions (e.g. {p2_pdgs})')
+            errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p2_pdgs})'
+            # raise ValueError(errorMsg)
+            continue
         else:
             p2_pdgs = list(p2_pdgs)[0]
         
