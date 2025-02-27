@@ -169,7 +169,7 @@ def getEfficiencies(hepmcFile,tauList,
         p1 = visList[0].momentum        
         p1_pt = p1.pt()
         p1_eta = p1.eta()
-        p1_pdgs = set([abs(c.pid) for c in visPDGList[0]])
+        p1_pdgs = set([abs(pdg) for pdg in visPDGList[0]])
         if len(p1_pdgs) != 1:
             errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p1_pdgs})'
             logger.error(errorMsg)
@@ -181,7 +181,7 @@ def getEfficiencies(hepmcFile,tauList,
         p2 = visList[1].momentum
         p2_pt = p2.pt()
         p2_eta = p2.eta()
-        p2_pdgs = set([abs(c.pid) for c in visPDGList[1]])
+        p2_pdgs = set([abs(pdg) for pdg in visPDGList[1]])
         if len(p2_pdgs) != 1:
             errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p2_pdgs})'
             # raise ValueError(errorMsg)
