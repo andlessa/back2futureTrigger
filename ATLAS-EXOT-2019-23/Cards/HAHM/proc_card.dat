@@ -33,7 +33,7 @@ set default_unset_couplings 99
 set max_t_for_channel 99
 set zerowidth_tchannel True
 set nlo_mixed_expansion True
-import model UFOs/HAHM_MG5model_v3/HAHM_variableMW_v3_UFO
+import model ../../UFOs/HAHM_MG5model_v3/HAHM_variableMW_v3_UFO
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
 define l+ = e+ mu+
