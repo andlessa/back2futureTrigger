@@ -119,6 +119,70 @@ def passHTmissCut(eventDict):
     
     return True
 
+def getEffFor(event,tauList,llps,invisibles):
+
+
+    evt_effs = {"low-ET" : np.zeros(len(tauList)),
+                "high-ET"  : np.zeros(len(tauList))}
+    # Extract necessary data from event
+    eventDict = getDataFrom(event,llps=llps,invisibles=invisibles)
+    if len(eventDict) != 2:
+        errorMsg = f"{len(eventDict)} LLP decay vertices found (can only handle 2 decay vertices)"
+        logger.error(errorMsg)
+        # raise ValueError(errorMsg)
+        return evt_effs # return zero effs
+
+    if not passHTmissCut(eventDict):
+        return evt_effs # return zero effs
+    
+    llpList = [d['parent'] for d in eventDict.values()]
+    visList = [d['visible'] for d in eventDict.values()]
+    visPDGList = [d['visiblePDGs'] for d in eventDict.values()]
+    
+    # Get total momentum of LLP pair (equals momentum of parent)
+    pTot = llpList[0].momentum + llpList[1].momentum
+    if pTot.m() >= 400:
+        sr = "high-ET"
+    else:
+        sr = "low-ET"
+
+    
+    p1 = visList[0].momentum        
+    p1_pt = p1.pt()
+    p1_eta = p1.eta()
+    p1_pdgs = set([abs(pdg) for pdg in visPDGList[0]])
+    if len(p1_pdgs) != 1:
+        errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p1_pdgs})'
+        logger.error(errorMsg)
+        # raise ValueError(errorMsg)
+        return evt_effs # return zero effs
+    else:
+        p1_pdgs = list(p1_pdgs)[0]
+    
+    p2 = visList[1].momentum
+    p2_pt = p2.pt()
+    p2_eta = p2.eta()
+    p2_pdgs = set([abs(pdg) for pdg in visPDGList[1]])
+    if len(p2_pdgs) != 1:
+        errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p2_pdgs})'
+        # raise ValueError(errorMsg)
+        return evt_effs # return zero effs
+    else:
+        p2_pdgs = list(p2_pdgs)[0]
+    
+    
+    
+    for i,tau in enumerate(tauList):
+        L1xy,L1z = getDecayLength(llpList[0],tau)
+        L2xy,L2z = getDecayLength(llpList[1],tau)
+
+        eff = rmN.queryMapFromKinematics(p1_pt,p1_eta,L1xy,L1z,p1_pdgs,
+                                            p2_pt,p2_eta,L2xy,L2z,p2_pdgs,
+                                            selection = sr)
+        evt_effs[sr][i] = eff
+        
+    return evt_effs
+
 
 def getEfficiencies(hepmcFile,tauList,
                     llps=[35],invisibles=[12,14,16]):
@@ -140,72 +204,16 @@ def getEfficiencies(hepmcFile,tauList,
                 "Nevents" : 0}
     
     # Get next event
-    event = 0
+    event = f.read()
     while event is not None:
-        # Get next event
-        event = f.read()        
-        effsDict["Nevents"] += 1
-        # Extract necessary data from event
-        eventDict = getDataFrom(event,llps=llps,invisibles=invisibles)
-        if len(eventDict) != 2:
-            errorMsg = f"{len(eventDict)} LLP decay vertices found (can only handle 2 decay vertices)"
-            logger.error(errorMsg)
-            # raise ValueError(errorMsg)
-            continue
-
-        if not passHTmissCut(eventDict):
-            continue
+       evt_effs = getEffFor(event,tauList,llps,invisibles)
+       # Add event efficiency to total efficiencies 
+       # #for the given selection (for each tau value)
+       for sr in evt_effs:
+        effsDict[sr] += np.array(evt_effs[sr])
         
-        llpList = [d['parent'] for d in eventDict.values()]
-        visList = [d['visible'] for d in eventDict.values()]
-        visPDGList = [d['visiblePDGs'] for d in eventDict.values()]
+       event  = f.read()
         
-        # Get total momentum of LLP pair (equals momentum of parent)
-        pTot = llpList[0].momentum + llpList[1].momentum
-        if pTot.m() >= 400:
-            sr = "high-ET"
-        else:
-            sr = "low-ET"
-
-        
-        p1 = visList[0].momentum        
-        p1_pt = p1.pt()
-        p1_eta = p1.eta()
-        p1_pdgs = set([abs(pdg) for pdg in visPDGList[0]])
-        if len(p1_pdgs) != 1:
-            errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p1_pdgs})'
-            logger.error(errorMsg)
-            # raise ValueError(errorMsg)
-            continue
-        else:
-            p1_pdgs = list(p1_pdgs)[0]
-        
-        p2 = visList[1].momentum
-        p2_pt = p2.pt()
-        p2_eta = p2.eta()
-        p2_pdgs = set([abs(pdg) for pdg in visPDGList[1]])
-        if len(p2_pdgs) != 1:
-            errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p2_pdgs})'
-            # raise ValueError(errorMsg)
-            continue
-        else:
-            p2_pdgs = list(p2_pdgs)[0]
-        
-        
-        evt_effs = []
-        for tau in tauList:
-            L1xy,L1z = getDecayLength(llpList[0],tau)
-            L2xy,L2z = getDecayLength(llpList[1],tau)
-
-            eff = rmN.queryMapFromKinematics(p1_pt,p1_eta,L1xy,L1z,p1_pdgs,
-                                             p2_pt,p2_eta,L2xy,L2z,p2_pdgs,
-                                             selection = sr)
-            evt_effs.append(eff)
-
-        # Add event efficiency to total efficiencies 
-        # #for the given selection (for each tau value)
-        effsDict[sr] += np.array(evt_effs)
-
     f.close()
     # Divide the total efficiency by the number of events:
     effsDict["high-ET"] = effsDict["high-ET"]/effsDict['Nevents']
