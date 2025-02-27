@@ -63,7 +63,7 @@ def generateProcess(parser):
                                 cwd=mg5Folder)
          
     output,errorMsg = run.communicate()
-    logger.debug('MG5 process error:\n %s \n' %errorMsg)
+    logger.debug('MG5 process error:\n %s \n' %errorMsg.decode())
     logger.debug('MG5 process output:\n %s \n' %output)
     logger.info("Finished process generation")
 
@@ -284,10 +284,6 @@ def main(parfile,verbose):
     now = datetime.datetime.now()
     children = []
     for irun,newParser in enumerate(parserList):
-        parserDict = newParser.toDict(raw=False)
-        print(parserDict)
-        continue
-
         processFolder = newParser.get('MadGraphPars','processFolder')
         processFolder = os.path.abspath(processFolder)
         if processFolder[-1] == '/':
