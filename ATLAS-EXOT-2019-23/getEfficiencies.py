@@ -206,13 +206,14 @@ def getEfficiencies(hepmcFile,tauList,
     # Get next event
     event = f.read()
     while event is not None:
-       evt_effs = getEffFor(event,tauList,llps,invisibles)
-       # Add event efficiency to total efficiencies 
-       # #for the given selection (for each tau value)
-       for sr in evt_effs:
-        effsDict[sr] += np.array(evt_effs[sr])
+        effsDict['Nevents'] += 1
+        evt_effs = getEffFor(event,tauList,llps,invisibles)
+        # Add event efficiency to total efficiencies 
+        # #for the given selection (for each tau value)
+        for sr in evt_effs:
+            effsDict[sr] += np.array(evt_effs[sr])
         
-       event  = f.read()
+        event  = f.read()
         
     f.close()
     # Divide the total efficiency by the number of events:
