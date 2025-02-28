@@ -48,11 +48,8 @@ if echo "$answer" | grep -iq "^y" ;then
 fi
 
 echo -n "Install Delphes (y/n)? "
-repo=https://github.com/delphes/delphes
-URL=http://cp3.irmp.ucl.ac.be/downloads/$delphes
 read answer
 if echo "$answer" | grep -iq "^y" ;then
-
 # Check if pythia8 has been installed under MadGraph5
   pythiaDir=$homeDIR/MG5/HEPTools/pythia8 
   if [ ! -d "$pythiaDir" ]; then
@@ -60,7 +57,6 @@ if echo "$answer" | grep -iq "^y" ;then
     exit
   fi
   echo "[installer] Installing DelphesLLP";
-  cp ../../Delphes_LLP/DelphesLLP.tar.gz ./
   tar -zxf DelphesLLP.tar.gz;
   cd DelphesLLP;
   export PYTHIA8=$pythiaDir;
@@ -71,6 +67,6 @@ if echo "$answer" | grep -iq "^y" ;then
 fi
 
 echo "\n[installer] For running Delphes the following env variables should be set:\n\n export LD_LIBRARY_PATH=$homeDIR/MG5/HEPTools/pythia8/lib"
-echo "\nand for reading Delphes produced ROOT files:\n\n export ROOT_INCLUDE_PATH=$homeDIR/DelphesHSCP/external\n"
+echo "\nand for reading Delphes produced ROOT files:\n\n export ROOT_INCLUDE_PATH=$homeDIR/DelphesLLP/external\n"
 echo "\n\n or run source setenv.sh\n\n"
 cd $currentDIR
