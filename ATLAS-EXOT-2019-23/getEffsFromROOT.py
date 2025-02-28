@@ -332,7 +332,7 @@ if __name__ == "__main__":
         effsDict = getEfficiencies(inputFileList[0],tauList,
                                   llpPDGs,invisiblePDGs,applyHTcut)
         outFile = effsDict['inputFile'].split('.root')[0]
-        outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
+        outFile = outFile + output_suffix +'_effs.csv'
         saveOutput(effsDict,outFile)
     else:
         pool = multiprocessing.Pool(processes=ncpus)
@@ -343,7 +343,7 @@ if __name__ == "__main__":
             children.append(p)
 
         nfiles = len(inputFileList)
-        progressbar = P.ProgressBar(widgets=[f"Reading {nfiles} HepMC files", 
+        progressbar = P.ProgressBar(widgets=[f"Reading {nfiles} files", 
                                     P.Percentage(),P.Bar(marker=P.RotatingMarker()), P.ETA()])
         progressbar.maxval = nfiles
         progressbar.start()
@@ -351,7 +351,7 @@ if __name__ == "__main__":
         for p in children: 
             effsDict = p.get()
             outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
-            outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
+            outFile = outFile + output_suffix +'_effs.csv'
             saveOutput(effsDict,outFile)
             ndone += 1
             progressbar.update(ndone)

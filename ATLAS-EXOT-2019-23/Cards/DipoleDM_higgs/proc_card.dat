@@ -1,5 +1,0 @@
-import model ../../../models/DipoleDM/DipoleDM_minimalH_UFO
-generate p p > sd > ~chi1 ~chi1bar QED==0
-output ../../pp2chi1chi1_minimalH
-done
-done
