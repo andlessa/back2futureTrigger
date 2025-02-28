@@ -126,7 +126,7 @@ def passHTmissCut(eventDict):
     
     return True
 
-def getEffFor(tree,tauList,llps,invisibles):
+def getEffFor(tree,tauList,llps,invisibles,applyHTcut):
 
 
     evt_effs = {"low-ET" : np.zeros(len(tauList)),
@@ -139,7 +139,7 @@ def getEffFor(tree,tauList,llps,invisibles):
         # raise ValueError(errorMsg)
         return evt_effs # return zero effs
 
-    if not passHTmissCut(eventDict):
+    if applyHTcut and (not passHTmissCut(eventDict)):
         return evt_effs # return zero effs
     
     llpList = [d['parent'] for d in eventDict.values()]
@@ -198,7 +198,7 @@ def getEffFor(tree,tauList,llps,invisibles):
 
 
 def getEfficiencies(rootFile,tauList,
-                    llps=[35],invisibles=[12,14,16]):
+                    llps=[35],invisibles=[12,14,16],applyHTcut=True):
 
     # Load hepmc File
     if not os.path.isfile(rootFile):
@@ -222,7 +222,7 @@ def getEfficiencies(rootFile,tauList,
     for ievt in range(nevts):
         tree.GetEntry(ievt)   
         effsDict['Nevents'] += 1
-        evt_effs = getEffFor(tree,tauList,llps,invisibles)
+        evt_effs = getEffFor(tree,tauList,llps,invisibles,applyHTcut)
         # Add event efficiency to total efficiencies 
         # #for the given selection (for each tau value)
         for sr in evt_effs:
@@ -306,6 +306,11 @@ if __name__ == "__main__":
 
     t0 = time.time()
 
+    # Check whether to apply the HTmiss cut
+    if parser.has_option("options","applyHTcut"):
+        applyHTcut = bool(parser.get("options","applyHTcut"))
+    else:
+        applyHTcut = True
 
     # Split input files by distinct models and get recast data for
     # the set of files from the same model:
@@ -314,7 +319,7 @@ if __name__ == "__main__":
     ncpus = min(ncpus,len(inputFileList))
     if ncpus == 1:
         effsDict = getEfficiencies(inputFileList[0],tauList,
-                                  llpPDGs,invisiblePDGs,)
+                                  llpPDGs,invisiblePDGs,applyHTcut)
         outFile = effsDict['rootFile'].split('.root')[0]
         outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
         saveOutput(effsDict,outFile)
@@ -323,7 +328,7 @@ if __name__ == "__main__":
         children = []
         for inputfile in inputFileList:
             p = pool.apply_async(getEfficiencies, args=(inputfile,tauList,
-                            llpPDGs,invisiblePDGs,))
+                            llpPDGs,invisiblePDGs,applyHTcut,))
             children.append(p)
 
         nfiles = len(inputFileList)
