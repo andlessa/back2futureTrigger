@@ -308,7 +308,7 @@ if __name__ == "__main__":
 
     # Check whether to apply the HTmiss cut
     if parser.has_option("options","applyHTcut"):
-        applyHTcut = bool(parser.get("options","applyHTcut"))
+        applyHTcut = parser.getboolean("options","applyHTcut")
     else:
         applyHTcut = True
 
