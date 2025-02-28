@@ -5,7 +5,7 @@ The recast code and results are based on [arXiv:2412.13976](https://arxiv.org/pd
 provied in [HepDATA](https://www.hepdata.net/record/ins2043503) and the [code developed by Louie Corpe](https://github.com/llprecasting/recastingCodes/tree/main/DisplacedJets/ATLAS-EXOT-2019-23).
 
 
-Validation of the results can be found in the [validation folder][./validation]
+Validation of the results can be found in the [validation folder](./validation)
 
 
 ## Results for the DipoleDM Model:
