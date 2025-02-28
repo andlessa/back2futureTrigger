@@ -206,7 +206,7 @@ def getEfficiencies(rootFile,tauList,
         return None
     
     try:
-        f = ROOT.TFile('./DelphesLLP/test.root','read')
+        f = ROOT.TFile(rootFile,'read')
         tree = f.Get("Delphes")
     except:
         logger.error(f"Error reading {rootFile}")
@@ -247,7 +247,7 @@ def saveOutput(effsDict,outputFile):
 
     
     np.savetxt(outputFile, data, 
-                header=f'Input file: {effsDict['hepmcFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
+                header=f'Input file: {effsDict['rootFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
                 delimiter=',',fmt='%1.3e')
     
 
@@ -312,25 +312,32 @@ if __name__ == "__main__":
     ncpus = int(parser.get("options","ncpus"))
     inputFileList = args.inputfile
     ncpus = min(ncpus,len(inputFileList))
-    pool = multiprocessing.Pool(processes=ncpus)
-    children = []
-    for inputfile in inputFileList:
-        p = pool.apply_async(getEfficiencies, args=(inputfile,tauList,
-                           llpPDGs,invisiblePDGs,))
-        children.append(p)
-
-    nfiles = len(inputFileList)
-    progressbar = P.ProgressBar(widgets=[f"Reading {nfiles} HepMC files", 
-                                P.Percentage(),P.Bar(marker=P.RotatingMarker()), P.ETA()])
-    progressbar.maxval = nfiles
-    progressbar.start()
-    ndone = 0
-    for p in children: 
-        effsDict = p.get()
+    if ncpus == 1:
+        effsDict = getEfficiencies(inputFileList[0],tauList,
+                                  llpPDGs,invisiblePDGs,)
         outFile = effsDict['rootFile'].split('.root')[0]
         outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
         saveOutput(effsDict,outFile)
-        ndone += 1
-        progressbar.update(ndone)
+    else:
+        pool = multiprocessing.Pool(processes=ncpus)
+        children = []
+        for inputfile in inputFileList:
+            p = pool.apply_async(getEfficiencies, args=(inputfile,tauList,
+                            llpPDGs,invisiblePDGs,))
+            children.append(p)
+
+        nfiles = len(inputFileList)
+        progressbar = P.ProgressBar(widgets=[f"Reading {nfiles} HepMC files", 
+                                    P.Percentage(),P.Bar(marker=P.RotatingMarker()), P.ETA()])
+        progressbar.maxval = nfiles
+        progressbar.start()
+        ndone = 0
+        for p in children: 
+            effsDict = p.get()
+            outFile = effsDict['rootFile'].split('.root')[0]
+            outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
+            saveOutput(effsDict,outFile)
+            ndone += 1
+            progressbar.update(ndone)
         
     logger.info("\n\nDone in %3.2f min" %((time.time()-t0)/60.))
