@@ -119,7 +119,7 @@ def passHTmissCut(eventDict):
     
     return True
 
-def getEffFor(event,tauList,llps,invisibles):
+def getEffFor(event,tauList,llps,invisibles,applyHTcut):
 
 
     evt_effs = {"low-ET" : np.zeros(len(tauList)),
@@ -132,7 +132,7 @@ def getEffFor(event,tauList,llps,invisibles):
         # raise ValueError(errorMsg)
         return evt_effs # return zero effs
 
-    if not passHTmissCut(eventDict):
+    if applyHTcut and (not passHTmissCut(eventDict)):
         return evt_effs # return zero effs
     
     llpList = [d['parent'] for d in eventDict.values()]
@@ -184,18 +184,18 @@ def getEffFor(event,tauList,llps,invisibles):
     return evt_effs
 
 
-def getEfficiencies(hepmcFile,tauList,
-                    llps=[35],invisibles=[12,14,16]):
+def getEfficiencies(inputFile,tauList,
+                    llps=[35],invisibles=[12,14,16],applyHTcut=True):
 
     # Load hepmc File
-    if not os.path.isfile(hepmcFile):
-        logger.error(f"File {hepmcFile} not found")
+    if not os.path.isfile(inputFile):
+        logger.error(f"File {inputFile} not found")
         return None
     
     try:
-        f = pyhepmc.open(hepmcFile) # Open HEPMC file
+        f = pyhepmc.open(inputFile) # Open HEPMC file
     except:
-        logger.error(f"Error reading {hepmcFile}")
+        logger.error(f"Error reading {inputFile}")
         return None
     
     # Total efficiencies (for each tau value)
@@ -207,7 +207,7 @@ def getEfficiencies(hepmcFile,tauList,
     event = f.read()
     while event is not None:
         effsDict['Nevents'] += 1
-        evt_effs = getEffFor(event,tauList,llps,invisibles)
+        evt_effs = getEffFor(event,tauList,llps,invisibles,applyHTcut)
         # Add event efficiency to total efficiencies 
         # #for the given selection (for each tau value)
         for sr in evt_effs:
@@ -222,7 +222,7 @@ def getEfficiencies(hepmcFile,tauList,
     # Store ctau list
     effsDict['ctau'] = tauList[:]
     # Store input file name
-    effsDict['hepmcFile'] = hepmcFile
+    effsDict['inputFile'] = inputFile
 
     return effsDict
 
@@ -234,7 +234,7 @@ def saveOutput(effsDict,outputFile):
 
     
     np.savetxt(outputFile, data, 
-                header=f'Input file: {effsDict['hepmcFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
+                header=f'Input file: {effsDict['inputFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
                 delimiter=',',fmt='%1.3e')
     
 
@@ -293,6 +293,22 @@ if __name__ == "__main__":
 
     t0 = time.time()
 
+    # Check whether to apply the HTmiss cut
+    if parser.has_option("options","applyHTcut"):
+        applyHTcut = bool(parser.get("options","applyHTcut"))
+    else:
+        applyHTcut = True
+
+    # Check for output file suffix
+    output_suffix = ""
+    if parser.has_option("options","output_suffix"):
+        output_suffix = parser.get("options","output_suffix")
+    
+    if not output_suffix:
+        if applyHTcut:
+            output_suffix = "_HTcut"
+        else:
+            output_suffix = "_noHTcut"
 
     # Split input files by distinct models and get recast data for
     # the set of files from the same model:
@@ -303,7 +319,7 @@ if __name__ == "__main__":
     children = []
     for inputfile in inputFileList:
         p = pool.apply_async(getEfficiencies, args=(inputfile,tauList,
-                           llpPDGs,invisiblePDGs,))
+                           llpPDGs,invisiblePDGs,applyHTcut,))
         children.append(p)
 
     nfiles = len(inputFileList)
@@ -314,7 +330,7 @@ if __name__ == "__main__":
     ndone = 0
     for p in children: 
         effsDict = p.get()
-        outFile = effsDict['hepmcFile'].split('.hepmc')[0]
+        outFile = effsDict['inputFile'].split('.hepmc')[0]
         outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
         saveOutput(effsDict,outFile)
         ndone += 1

@@ -197,19 +197,19 @@ def getEffFor(tree,tauList,llps,invisibles,applyHTcut):
     return evt_effs
 
 
-def getEfficiencies(rootFile,tauList,
+def getEfficiencies(inputFile,tauList,
                     llps=[35],invisibles=[12,14,16],applyHTcut=True):
 
     # Load hepmc File
-    if not os.path.isfile(rootFile):
-        logger.error(f"File {rootFile} not found")
+    if not os.path.isfile(inputFile):
+        logger.error(f"File {inputFile} not found")
         return None
     
     try:
-        f = ROOT.TFile(rootFile,'read')
+        f = ROOT.TFile(inputFile,'read')
         tree = f.Get("Delphes")
     except:
-        logger.error(f"Error reading {rootFile}")
+        logger.error(f"Error reading {inputFile}")
         return None
     
     # Total efficiencies (for each tau value)
@@ -235,7 +235,7 @@ def getEfficiencies(rootFile,tauList,
     # Store ctau list
     effsDict['ctau'] = tauList[:]
     # Store input file name
-    effsDict['rootFile'] = rootFile
+    effsDict['inputFile'] = inputFile
 
     return effsDict
 
@@ -247,7 +247,7 @@ def saveOutput(effsDict,outputFile):
 
     
     np.savetxt(outputFile, data, 
-                header=f'Input file: {effsDict['rootFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
+                header=f'Input file: {effsDict['inputFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
                 delimiter=',',fmt='%1.3e')
     
 
@@ -312,6 +312,17 @@ if __name__ == "__main__":
     else:
         applyHTcut = True
 
+    # Check for output file suffix
+    output_suffix = ""
+    if parser.has_option("options","output_suffix"):
+        output_suffix = parser.get("options","output_suffix")
+    
+    if not output_suffix:
+        if applyHTcut:
+            output_suffix = "_HTcut"
+        else:
+            output_suffix = "_noHTcut"
+
     # Split input files by distinct models and get recast data for
     # the set of files from the same model:
     ncpus = int(parser.get("options","ncpus"))
@@ -320,7 +331,7 @@ if __name__ == "__main__":
     if ncpus == 1:
         effsDict = getEfficiencies(inputFileList[0],tauList,
                                   llpPDGs,invisiblePDGs,applyHTcut)
-        outFile = effsDict['rootFile'].split('.root')[0]
+        outFile = effsDict['inputFile'].split('.root')[0]
         outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
         saveOutput(effsDict,outFile)
     else:
@@ -339,7 +350,7 @@ if __name__ == "__main__":
         ndone = 0
         for p in children: 
             effsDict = p.get()
-            outFile = effsDict['rootFile'].split('.root')[0]
+            outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
             outFile = outFile + parser.get("options","output_suffix") +'_effs.csv'
             saveOutput(effsDict,outFile)
             ndone += 1
