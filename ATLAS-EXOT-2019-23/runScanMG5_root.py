@@ -227,7 +227,7 @@ def runDelphesPythia8(parser,runInfo):
         f.write('Main:numberOfEvents   = %i\n' %nevts)
         f.write('Main:timesAllowErrors   = %i\n' %int(1e-2*nevts)) # Allow at most 1% of failures
         # Matching specific parameters:
-        if pars['matching']:        
+        if 'matching' in pars and pars['matching']:
             qcut = 1.5*parser["MadGraphSet"]['xqcut']
             njet = pars['njetmax']
             f.write('JetMatching:merge=on \n')

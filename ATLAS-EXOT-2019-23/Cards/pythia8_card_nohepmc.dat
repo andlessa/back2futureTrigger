@@ -15,8 +15,3 @@ Next:numberShowInfo = 1            ! print event information n times
 Next:numberShowProcess = 1         ! print process record n times
 Next:numberShowEvent = 1           ! print event record n times
 Tune:pp = 21 ! A14 tune with NNPDF2.3LO
-Beams:frameType = 4
-Beams:LHEF = ../legacy_code/unweighted_events_1000_275.lhe.gz
-Beams:setProductionScalesFromLHEF = on
-!Main:numberOfEvents = 1000
-
