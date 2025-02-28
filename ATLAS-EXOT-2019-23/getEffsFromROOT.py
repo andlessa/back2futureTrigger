@@ -65,12 +65,12 @@ def getDataFrom(tree,llps,invisibles):
             else:
                 visible_particles.append(p)
         # Only accept single decays to Higgs
-        if len(visible_particles) == 1 and abs(p.PID) != 25:
+        if len(visible_particles) == 1 and visible_particles[0].pid != 25:
             erroMsg = f"Single visible particle from LLP decay with {len(llp_daughters)} daughters (can only handle Higgs)"
             logger.error(erroMsg)
             raise ValueError(erroMsg)
-        elif len(visible_particles) != 2:
-            errorMsg = f"{len(visible_particles)} visible particles found in LLP decay (can only handle 2 particles)"
+        elif len(visible_particles) > 2:
+            errorMsg = f"{len(visible_particles)} visible particles found in LLP decay (can only handle up to 2 particles)"
             logger.error(errorMsg)
             raise ValueError(errorMsg)
         
