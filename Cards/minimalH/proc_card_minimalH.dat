@@ -1,0 +1,9 @@
+import model ../../models/DipoleDM/DipoleDM_minimalH_UFO
+define p = g u c d s u~ c~ d~ s~
+define j = g u c d s u~ c~ d~ s~
+define l+ = e+ mu+
+define l- = e- mu-
+define vl = ve vm vt
+define vl~ = ve~ vm~ vt~
+generate p p > sd > ~chi1 ~chi1bar, (~chi1 > b b~ ~chi0), (~chi1bar > b b~ ~chi0bar)
+output ../../pp2chi0chi0_minimalH_scan
