@@ -7,15 +7,18 @@ import numpy as np
 def combineFiles(effFiles,outputFile):
 
     newData = None
+    nf = 0
     for effFile in effFiles:
         effData = np.genfromtxt(effFile,names=True,
                                 case_sensitive='lower',
                                 skip_header=2,delimiter=',')        
-       
+        nf += 1
         if newData is None:
             newData = np.array(effData,dtype=effData.dtype)
         else:
             newData = np.append(newData,effData,axis=0)
+        # print(nf,len(newData))
+    
 
     np.savetxt(outputFile,newData,delimiter=',',header=','.join(newData.dtype.names),fmt='%1.3e')
 
@@ -29,7 +32,7 @@ if __name__ == "__main__":
             help='list of csv files to be merged', default =[])
     
     ap.add_argument('-o', '--outputFile', required=False, help='output file.',
-                    default='atlas_exot_2019_23_effs.csv')
+                    default='b2tf_trigger_effs.csv')
 
 
     args = ap.parse_args()

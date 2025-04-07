@@ -150,8 +150,9 @@ def getEffFor(tree,tauList,llps,invisibles,applyHTcut):
     visList = [d['visible'] for d in eventDict.values()]
     visPDGList = [d['visiblePDGs'] for d in eventDict.values()]
     
-    # Get total momentum of LLP pair (equals momentum of parent)
-    pTot = llpList[0].momentum + llpList[1].momentum
+    # Get total momentum of all visible daughters
+    # (equals visible momenta of  LLPs parent)
+    pTot = visList[0].momentum + visList[1].momentum
     if pTot.m() >= 400:
         sr = "high-ET"
     else:
@@ -193,10 +194,11 @@ def getEffFor(tree,tauList,llps,invisibles,applyHTcut):
         L1xy,L1z = getDecayLength(llpList[0],tau)
         L2xy,L2z = getDecayLength(llpList[1],tau)
 
-        eff = rmN.queryMapFromKinematics(p1_pt,p1_eta,L1xy,L1z,p1_pdgs,
+        for sr in ["low-ET","high-ET"]:
+            eff = rmN.queryMapFromKinematics(p1_pt,p1_eta,L1xy,L1z,p1_pdgs,
                                             p2_pt,p2_eta,L2xy,L2z,p2_pdgs,
                                             selection = sr)
-        evt_effs[sr][i] = eff
+            evt_effs[sr][i] = eff
         
     return evt_effs
 
@@ -254,14 +256,17 @@ def saveOutput(effsDict,outputFile):
     nevts = effsDict.pop('Nevents')
     inputFile = effsDict.pop('inputFile')
     
-    effsLow = effsDict.pop('low-ET')
-    effsHigh = effsDict.pop('high-ET')
-    # One of the SR efficiencies should be zero
-    # select the non-zero one
-    if sum(effsLow) > sum(effsHigh):
-        effsDict['eff'] = effsLow
-    else:
-        effsDict['eff'] = effsHigh
+    # effsLow = effsDict.pop('low-ET')
+    # effsHigh = effsDict.pop('high-ET')
+    # # One of the SR efficiencies should be zero
+    # # select the non-zero one
+    # if sum(effsLow) > sum(effsHigh):
+    #     effsDict['eff'] = effsLow
+    # else:
+    #     effsDict['eff'] = effsHigh
+    effsDict['eff_low-ET'] =  effsDict.pop('low-ET')
+    effsDict['eff_high-ET'] =  effsDict.pop('high-ET')
+    
 
     # Get column labels and data
     columns = []
@@ -311,7 +316,7 @@ if __name__ == "__main__":
     pythiaDir = os.path.abspath('../MG5/HEPTools/pythia8/lib')
     delphesDir = os.path.abspath('../DelphesLLP/external')
     if pythiaDir not in LDPATH or delphesDir not in ROOTINC:
-        print('Enviroment variables not properly set. Run source setenv.sh first.')
+        print('\n\nEnviroment variables not properly set. Run source setenv.sh first.\n\n')
         sys.exit()
 
 

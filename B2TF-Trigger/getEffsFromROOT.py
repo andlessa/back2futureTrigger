@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 
 import os, time, sys
+sys.path.append('../')
 import numpy as np
 import pyhepmc
 import random
 import logging
 import configparser
+import subprocess
 import multiprocessing
+import itertools
 import progressbar as P
+from helper import getModelDict
 delphesDir = os.path.abspath("../DelphesLLP")
 os.environ['ROOT_INCLUDE_PATH'] = os.path.join(delphesDir,"external")
 
@@ -141,11 +145,13 @@ def passEnergyCut(j1,j2):
 
 
     # Get HT for onTime event:
-    ETonTime = j1.momentum.pt()
+    ETonTime = j1.momentum.pt()*(j1.momentum.e/j1.momentum.p3mod())
+    # ETonTime = np.sqrt(j1.momentum.pt()**2 + j1.momentum.m()**2)
     if not (40.0 < ETonTime < 100.0):
         return False
         # Get HT for delayed event:
-    ETdelayed= j2.momentum.pt()
+    ETdelayed= j2.momentum.pt()*(j2.momentum.e/j2.momentum.p3mod())
+    # ETdelayed = np.sqrt(j2.momentum.pt()**2 + j2.momentum.m()**2)
     if not (40.0 < ETdelayed):
         return False
 
@@ -272,23 +278,37 @@ def getEfficiencies(inputFile,tauList,
     # Store input file name
     effsDict['inputFile'] = inputFile
 
-    ntotal = evts_cutFlow['Total']
-    print(evts_cutFlow)
-    for key in evts_cutFlow:
-        print(key,f'{evts_cutFlow[key]/ntotal:1.2e}')
+    # Get model information
+    modelDict = getModelDict(inputFile,verbose=False)
+    effsDict.update(modelDict)
 
     return effsDict
 
 def saveOutput(effsDict,outputFile):
         
-    tauList = effsDict['ctau']
-    data = np.array(list(zip(tauList,effsDict['Trigger'],effsDict['TriggerErr'])))
+     # Extract info for comments
+    nevts = effsDict.pop('Nevents')
+    inputFile = effsDict.pop('inputFile')
 
     
-    np.savetxt(outputFile, data, 
-                header=f'Input file: {effsDict['inputFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(Trigger),effErr',
-                delimiter=',',fmt='%1.3e')
+    effsDict['eff'] = effsDict.pop('Trigger')
+    effsDict['effError'] = effsDict.pop('TriggerErr')
     
+    # Get column labels and data
+    columns = []
+    columnsLabels = []
+    for key,val in effsDict.items():
+        columnsLabels.append(key)
+        if isinstance(val,(float,int)):
+            columns.append(itertools.repeat(val))
+        else:
+            columns.append(val)
+    data = np.array(list(zip(*columns)))
+    header = ','.join(columnsLabels)
+    
+    np.savetxt(outputFile, data, 
+                header=f'Input file: {inputFile}\nNumber of events: {nevts}\n{header}',
+                delimiter=',',fmt='%1.3e')
 
 
 if __name__ == "__main__":
@@ -314,6 +334,15 @@ if __name__ == "__main__":
         logger.setLevel(level = levels[level])
 
 
+
+    # First make sure the correct env variables have been set:
+    LDPATH = subprocess.check_output('echo $LD_LIBRARY_PATH',shell=True,text=True)
+    ROOTINC = subprocess.check_output('echo $ROOT_INCLUDE_PATH',shell=True,text=True)
+    pythiaDir = os.path.abspath('../MG5/HEPTools/pythia8/lib')
+    delphesDir = os.path.abspath('../DelphesLLP/external')
+    if pythiaDir not in LDPATH or delphesDir not in ROOTINC:
+        print('\n\nEnviroment variables not properly set. Run source setenv.sh first.\n\n')
+        sys.exit()
 
     parser = configparser.ConfigParser(inline_comment_prefixes="#")   
     ret = parser.read(args.parfile)
