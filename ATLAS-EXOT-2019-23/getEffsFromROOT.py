@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 
 import os, time, sys
+sys.path.append('../')
 import numpy as np
 import readMapNew as rmN
 import pyhepmc
 import random
 import logging
 import configparser
+import subprocess
 import multiprocessing
+import itertools
+from helper import getModelDict
 import progressbar as P
 delphesDir = os.path.abspath("../DelphesLLP")
 os.environ['ROOT_INCLUDE_PATH'] = os.path.join(delphesDir,"external")
@@ -237,17 +241,42 @@ def getEfficiencies(inputFile,tauList,
     # Store input file name
     effsDict['inputFile'] = inputFile
 
+    # Get model information
+    modelDict = getModelDict(inputFile,verbose=False)
+    effsDict.update(modelDict)
+
     return effsDict
 
 def saveOutput(effsDict,outputFile):
-        
-    tauList = effsDict['ctau']
-    data = np.array(list(zip(tauList,effsDict['low-ET'],
-                                effsDict['high-ET'])))
+    
 
+    # Extract info for comments
+    nevts = effsDict.pop('Nevents')
+    inputFile = effsDict.pop('inputFile')
+    
+    effsLow = effsDict.pop('low-ET')
+    effsHigh = effsDict.pop('high-ET')
+    # One of the SR efficiencies should be zero
+    # select the non-zero one
+    if sum(effsLow) > sum(effsHigh):
+        effsDict['eff'] = effsLow
+    else:
+        effsDict['eff'] = effsHigh
+
+    # Get column labels and data
+    columns = []
+    columnsLabels = []
+    for key,val in effsDict.items():
+        columnsLabels.append(key)
+        if isinstance(val,(float,int)):
+            columns.append(itertools.repeat(val))
+        else:
+            columns.append(val)
+    data = np.array(list(zip(*columns)))
+    header = ','.join(columnsLabels)
     
     np.savetxt(outputFile, data, 
-                header=f'Input file: {effsDict['inputFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
+                header=f'Input file: {inputFile}\nNumber of events: {nevts}\n{header}',
                 delimiter=',',fmt='%1.3e')
     
 
@@ -273,6 +302,17 @@ if __name__ == "__main__":
                "warning": logging.WARNING, "error": logging.ERROR }
     if level in levels:       
         logger.setLevel(level = levels[level])
+
+
+
+    # First make sure the correct env variables have been set:
+    LDPATH = subprocess.check_output('echo $LD_LIBRARY_PATH',shell=True,text=True)
+    ROOTINC = subprocess.check_output('echo $ROOT_INCLUDE_PATH',shell=True,text=True)
+    pythiaDir = os.path.abspath('../MG5/HEPTools/pythia8/lib')
+    delphesDir = os.path.abspath('../DelphesLLP/external')
+    if pythiaDir not in LDPATH or delphesDir not in ROOTINC:
+        print('Enviroment variables not properly set. Run source setenv.sh first.')
+        sys.exit()
 
 
 
@@ -332,7 +372,7 @@ if __name__ == "__main__":
         effsDict = getEfficiencies(inputFileList[0],tauList,
                                   llpPDGs,invisiblePDGs,applyHTcut)
         outFile = effsDict['inputFile'].split('.root')[0]
-        outFile = outFile + output_suffix +'_altas_exot_2019_23_effs.csv'
+        outFile = outFile + output_suffix +'_atlas_exot_2019_23_effs.csv'
         saveOutput(effsDict,outFile)
     else:
         pool = multiprocessing.Pool(processes=ncpus)
@@ -351,7 +391,7 @@ if __name__ == "__main__":
         for p in children: 
             effsDict = p.get()
             outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
-            outFile = outFile + output_suffix +'_altas_exot_2019_23_effs.csv'
+            outFile = outFile + output_suffix +'_atlas_exot_2019_23_effs.csv'
             saveOutput(effsDict,outFile)
             ndone += 1
             progressbar.update(ndone)
