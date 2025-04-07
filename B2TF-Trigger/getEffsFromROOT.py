@@ -2,7 +2,6 @@
 
 import os, time, sys
 import numpy as np
-import readMapNew as rmN
 import pyhepmc
 import random
 import logging
@@ -94,43 +93,91 @@ def getDataFrom(tree,llps,invisibles):
 
     return eventDict
 
-def lifetime(avgtau = 4.3):
-    avgtau = avgtau / c
-    t = random.random()
-    return -1.0 * avgtau * np.log(t)
-
-def getDecayLength(genParticle,tau):
-    
-    lt = lifetime(tau) # set mean lifetime
+def decayTime(genParticle,tau0):
     gamma = genParticle.momentum.e/genParticle.momentum.m()
-    L_vec = (genParticle.momentum/genParticle.momentum.e)*c*lt*gamma
+    tau = tau0*gamma / c
+    t = random.random()
+    tdecay = (-tau*np.log(t))*1e9 # Time in nano seconds
+
+    return tdecay
+
+def getDecayLength(genParticle,tdecay):
+    
+    beta = (genParticle.momentum/genParticle.momentum.e)
+    L_vec = beta*c*(1e-9*tdecay) # convert decay time to seconds
 
     return L_vec.pt(),abs(L_vec.pz)
 
-def passHTmissCut(eventDict):
+def passTimingCut(t1ns,t2ns):
+    """
+    Require that the first and second decays to take place
+    in the intervals 0 < t1 < 10ns and 25ns < t2 < 35ns
+    """
 
-    # Compute HT as the scalar sum of the visible pT out 
-    # of each LLP decay
-    HT = 0.0
-    for vertex in eventDict.values():
-        HT += vertex['visible'].momentum.pt()
-
-    # Compute HTmiss as the total invisible pT from both decays
-    pMiss = pyhepmc.FourVector(0.,0.,0.,0.)
-    for vertex in eventDict.values():
-        pMiss = pMiss + vertex['invisible'].momentum
-    HTmiss = pMiss.pt()
-
-    if (not HT) or HTmiss/HT > 0.6:
+    t_onTime = min(t1ns,t2ns)
+    t_delayed = max(t1ns,t2ns)
+    if not (0.0 < t_onTime < 10.0):
+        return False
+    if not (25.0 < t_delayed > 35.0):
         return False
     
     return True
 
-def getEffFor(tree,tauList,llps,invisibles,applyHTcut):
+def passDecayLengthCut(r1,r2):
+    """
+    Require that both decays take place within R < 4m.
+    """
+
+    if r1 > 4.0 or r2 > 4.0:
+        return False
+    
+    return True
+
+def passEnergyCut(j1,j2):
+    """
+    Apply the transverse energy cuts for the on-time visible
+    decay (j1) and delayed visible decay (j2)
+    """
 
 
-    evt_effs = {"low-ET" : np.zeros(len(tauList)),
-                "high-ET"  : np.zeros(len(tauList))}
+    # Get HT for onTime event:
+    ETonTime = j1.momentum.pt()
+    if not (40.0 < ETonTime < 100.0):
+        return False
+        # Get HT for delayed event:
+    ETdelayed= j2.momentum.pt()
+    if not (40.0 < ETdelayed):
+        return False
+
+    return True
+
+def passAngleCuts(j1,j2):
+    """
+    Apply the deltaPhi and deltaEta cuts between the on-time visible
+    decay (j1) and delayed visible decay (j2)
+    """
+
+    dphi = pyhepmc.delta_phi(j1.momentum,j2.momentum)
+    if abs(dphi) < np.pi -1.0:
+        return False
+    deta = pyhepmc.delta_eta(j1.momentum,j2.momentum)
+    if abs(deta) > 3.2:
+        return False
+    
+    return True
+
+
+
+def getEffFor(tree,tauList,llps,invisibles):
+
+
+    evt_effs = np.zeros(len(tauList))
+    evt_cutFlow = {'Total' : np.zeros(len(tauList)),
+                    'TimingCut' : np.zeros(len(tauList)),
+                    'DecayLengthCut' : np.zeros(len(tauList)),
+                   'EnergyCut' : np.zeros(len(tauList)),
+                   'AngleCuts' : np.zeros(len(tauList))}
+
     # Extract necessary data from event
     eventDict = getDataFrom(tree,llps=llps,invisibles=invisibles)
     if len(eventDict) != 2:
@@ -138,67 +185,49 @@ def getEffFor(tree,tauList,llps,invisibles,applyHTcut):
         logger.error(errorMsg)
         # raise ValueError(errorMsg)
         return evt_effs # return zero effs
-
-    if applyHTcut and (not passHTmissCut(eventDict)):
-        return evt_effs # return zero effs
     
-    llpList = [d['parent'] for d in eventDict.values()]
-    visList = [d['visible'] for d in eventDict.values()]
-    visPDGList = [d['visiblePDGs'] for d in eventDict.values()]
-    
-    # Get total momentum of LLP pair (equals momentum of parent)
-    pTot = llpList[0].momentum + llpList[1].momentum
-    if pTot.m() >= 400:
-        sr = "high-ET"
-    else:
-        sr = "low-ET"
-
-    
-    p1 = visList[0].momentum        
-    p1_pt = p1.pt()
-    p1_eta = p1.eta()
-    p1_pdgs = set([abs(pdg) for pdg in visPDGList[0]])
-    if p1_pdgs == set([25]): # Special treatment to decay to Higgs (replace it by bottom)
-        p1_pdgs = set([5])
-
-    if len(p1_pdgs) != 1:
-        errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p1_pdgs})'
-        logger.error(errorMsg)
-        # raise ValueError(errorMsg)
-        return evt_effs # return zero effs
-    else:
-        p1_pdgs = list(p1_pdgs)[0]
-    
-    p2 = visList[1].momentum
-    p2_pt = p2.pt()
-    p2_eta = p2.eta()
-    p2_pdgs = set([abs(pdg) for pdg in visPDGList[1]])
-    if p2_pdgs == set([25]): # Special treatment to decay to Higgs (replace it by bottom)
-        p2_pdgs = set([5])
-
-    if len(p2_pdgs) != 1:
-        errorMsg = f'Can not handle decays to distinct pair of fermions (e.g. {p2_pdgs})'
-        # raise ValueError(errorMsg)
-        return evt_effs # return zero effs
-    else:
-        p2_pdgs = list(p2_pdgs)[0]
-    
-    
-    
+    # Loop over tau values and compute the decay
+    # and time positions:
     for i,tau in enumerate(tauList):
-        L1xy,L1z = getDecayLength(llpList[0],tau)
-        L2xy,L2z = getDecayLength(llpList[1],tau)
 
-        eff = rmN.queryMapFromKinematics(p1_pt,p1_eta,L1xy,L1z,p1_pdgs,
-                                            p2_pt,p2_eta,L2xy,L2z,p2_pdgs,
-                                            selection = sr)
-        evt_effs[sr][i] = eff
+        evt_cutFlow['Total'][i] += 1
+
+        t1_decay = decayTime(eventDict[0]['parent'],tau)
+        t2_decay = decayTime(eventDict[1]['parent'],tau)
+        if not passTimingCut(t1_decay,t2_decay):
+            continue
+        evt_cutFlow['TimingCut'][i] += 1
+        L1xy,_ = getDecayLength(eventDict[0]['parent'],t1_decay)
+        L2xy,_ = getDecayLength(eventDict[1]['parent'],t2_decay)
+    
+        if not passDecayLengthCut(L1xy,L2xy):
+            continue
+        evt_cutFlow['DecayLengthCut'][i] += 1
+        # Get visible particles for the on-time decay:
+        if t1_decay < t2_decay:
+            eventOnTimeDict = eventDict[0]
+            eventDelayedDict = eventDict[1]
+        else:
+            eventOnTimeDict = eventDict[1]
+            eventDelayedDict = eventDict[0]
+
+        j1 = eventOnTimeDict['visible']
+        j2 = eventDelayedDict['visible']
+
+
+        if not passEnergyCut(j1,j2):
+            continue
+        evt_cutFlow['EnergyCut'][i] += 1
+        if not passAngleCuts(j1,j2):
+            continue
+        evt_cutFlow['AngleCuts'][i] += 1
+        evt_effs[i] += 1.0
         
-    return evt_effs
+    return evt_effs,evt_cutFlow
 
 
 def getEfficiencies(inputFile,tauList,
-                    llps=[35],invisibles=[12,14,16],applyHTcut=True):
+                    llps=[35],invisibles=[12,14,16]):
 
     # Load hepmc File
     if not os.path.isfile(inputFile):
@@ -213,41 +242,51 @@ def getEfficiencies(inputFile,tauList,
         return None
     
     # Total efficiencies (for each tau value)
-    effsDict = {"high-ET" : np.zeros(len(tauList)),
-                "low-ET" : np.zeros(len(tauList)),
+    effsDict = {"Trigger" : np.zeros(len(tauList)),
                 "Nevents" : 0}
+    
+    evts_cutFlow = {'Total' : np.zeros(len(tauList)),
+                    'TimingCut' : np.zeros(len(tauList)),
+                    'DecayLengthCut' : np.zeros(len(tauList)),
+                   'EnergyCut' : np.zeros(len(tauList)),
+                   'AngleCuts' : np.zeros(len(tauList))}
     
     
     nevts = tree.GetEntries()
     for ievt in range(nevts):
         tree.GetEntry(ievt)   
         effsDict['Nevents'] += 1
-        evt_effs = getEffFor(tree,tauList,llps,invisibles,applyHTcut)
+        evt_effs,evt_cutFlow = getEffFor(tree,tauList,llps,invisibles)
         # Add event efficiency to total efficiencies 
         # #for the given selection (for each tau value)
-        for sr in evt_effs:
-            effsDict[sr] += np.array(evt_effs[sr])
+        effsDict['Trigger'] += np.array(evt_effs)
+        for key in evts_cutFlow:
+            evts_cutFlow[key] += evt_cutFlow[key]
         
     f.Close()
     # Divide the total efficiency by the number of events:
-    effsDict["high-ET"] = effsDict["high-ET"]/effsDict['Nevents']
-    effsDict["low-ET"] = effsDict["low-ET"]/effsDict['Nevents']
+    effsDict["TriggerErr"] = np.sqrt(effsDict["Trigger"])/effsDict['Nevents']
+    effsDict["Trigger"] = effsDict["Trigger"]/effsDict['Nevents']
     # Store ctau list
     effsDict['ctau'] = tauList[:]
     # Store input file name
     effsDict['inputFile'] = inputFile
+
+    ntotal = evts_cutFlow['Total']
+    print(evts_cutFlow)
+    for key in evts_cutFlow:
+        print(key,f'{evts_cutFlow[key]/ntotal:1.2e}')
 
     return effsDict
 
 def saveOutput(effsDict,outputFile):
         
     tauList = effsDict['ctau']
-    data = np.array(list(zip(tauList,effsDict['low-ET'],
-                                effsDict['high-ET'])))
+    data = np.array(list(zip(tauList,effsDict['Trigger'],effsDict['TriggerErr'])))
 
     
     np.savetxt(outputFile, data, 
-                header=f'Input file: {effsDict['inputFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(low-ET),eff(high-ET)',
+                header=f'Input file: {effsDict['inputFile']}\nNumber of events: {effsDict['Nevents']}\nctau(m),eff(Trigger),effErr',
                 delimiter=',',fmt='%1.3e')
     
 
@@ -306,22 +345,12 @@ if __name__ == "__main__":
 
     t0 = time.time()
 
-    # Check whether to apply the HTmiss cut
-    if parser.has_option("options","applyHTcut"):
-        applyHTcut = parser.getboolean("options","applyHTcut")
-    else:
-        applyHTcut = True
 
     # Check for output file suffix
     output_suffix = ""
     if parser.has_option("options","output_suffix"):
         output_suffix = parser.get("options","output_suffix")
-    
-    if not output_suffix:
-        if applyHTcut:
-            output_suffix = "_HTcut"
-        else:
-            output_suffix = "_noHTcut"
+   
 
     # Split input files by distinct models and get recast data for
     # the set of files from the same model:
@@ -330,16 +359,16 @@ if __name__ == "__main__":
     ncpus = min(ncpus,len(inputFileList))
     if ncpus == 1:
         effsDict = getEfficiencies(inputFileList[0],tauList,
-                                  llpPDGs,invisiblePDGs,applyHTcut)
+                                  llpPDGs,invisiblePDGs)
         outFile = effsDict['inputFile'].split('.root')[0]
-        outFile = outFile + output_suffix +'_altas_exot_2019_23_effs.csv'
+        outFile = outFile + output_suffix  +'_b2tf_effs.csv'
         saveOutput(effsDict,outFile)
     else:
         pool = multiprocessing.Pool(processes=ncpus)
         children = []
         for inputfile in inputFileList:
             p = pool.apply_async(getEfficiencies, args=(inputfile,tauList,
-                            llpPDGs,invisiblePDGs,applyHTcut,))
+                            llpPDGs,invisiblePDGs))
             children.append(p)
 
         nfiles = len(inputFileList)
@@ -351,7 +380,7 @@ if __name__ == "__main__":
         for p in children: 
             effsDict = p.get()
             outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
-            outFile = outFile + output_suffix +'_altas_exot_2019_23_effs.csv'
+            outFile = outFile + output_suffix +'_b2tf_effs.csv'
             saveOutput(effsDict,outFile)
             ndone += 1
             progressbar.update(ndone)
