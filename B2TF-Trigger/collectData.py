@@ -17,7 +17,7 @@ def combineFiles(effFiles,outputFile):
             newData = np.array(effData,dtype=effData.dtype)
         else:
             newData = np.append(newData,effData,axis=0)
-        # print(nf,len(newData))
+        # print(nf,effFile)
     
 
     np.savetxt(outputFile,newData,delimiter=',',header=','.join(newData.dtype.names),fmt='%1.3e')

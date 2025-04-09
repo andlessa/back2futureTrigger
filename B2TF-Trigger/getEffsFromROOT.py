@@ -122,7 +122,7 @@ def passTimingCut(t1ns,t2ns):
     t_delayed = max(t1ns,t2ns)
     if not (0.0 < t_onTime < 10.0):
         return False
-    if not (25.0 < t_delayed > 35.0):
+    if not (25.0 < t_delayed < 35.0):
         return False
     
     return True
