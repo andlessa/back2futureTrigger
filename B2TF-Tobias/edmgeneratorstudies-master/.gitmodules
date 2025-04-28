@@ -1,0 +1,6 @@
+[submodule "l1-calo-llp-validation"]
+	path = l1-calo-llp-validation
+	url = ssh://git@gitlab.cern.ch:7999/toheintz/l1-calo-llp-validation.git
+[submodule "MadGraphModels"]
+	path = MadGraphModels
+	url = ssh://git@gitlab.cern.ch:7999/toheintz/MadGraphModels.git

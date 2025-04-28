@@ -1,0 +1,6 @@
+[submodule "l1-calo-llp-validation"]
+	path = l1-calo-llp-validation
+	url = https://:@gitlab.cern.ch:8443/gbird/l1-calo-llp-validation.git
+[submodule "MyAnalysis"]
+	path = MyAnalysis
+	url = https://:@gitlab.cern.ch:8443/toheintz/MyAnalysis.git
