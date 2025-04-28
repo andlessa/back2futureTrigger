@@ -32,6 +32,7 @@ logger = logging.getLogger()
 
 
 random.seed(123)
+ 
 
 def getDataFrom(tree,llps,invisibles):
 
@@ -49,12 +50,19 @@ def getDataFrom(tree,llps,invisibles):
 
     llpParticles = tree.llpParticles
     llpDaughters = tree.llpDirectDaughters
-    eventDict = {}
+
     if len(llpParticles) != 2:
         erroMsg = f"{len(llps)} LLP decay vertices found (can only handle 2 decay vertices)"
         logger.error(erroMsg)
         raise ValueError(erroMsg)
+
+    # Build list of LLPs, visible and invisible LLP daughters as pyhepmc GenParticles
+    llps = []
+    invisibleLists = [[] for i in range(len(llpParticles))]
+    visibleLists = [[] for i in range(len(llpParticles))]
     for illp,llp in enumerate(llpParticles):
+        llp_momentum = pyhepmc.FourVector(llp.Px,llp.Py,llp.Pz,llp.E)
+        llps.append(pyhepmc.GenParticle(momentum = llp_momentum, pid = llp.PID))
         # Select set of daughters from the current llp particle
         llp_daughters = [d for d in llpDaughters if d.M1 == illp]
         visible_particles = []
@@ -76,24 +84,49 @@ def getDataFrom(tree,llps,invisibles):
             errorMsg = f"{len(visible_particles)} visible particles found in LLP decay (can only handle up to 2 particles)"
             logger.error(errorMsg)
             raise ValueError(errorMsg)
-        
+       
+        # Store particles
+        invisibleLists[illp] = invisible_particles
+        visibleLists[illp] = visible_particles
+
+    
+    # Convert jets to pyhepmc particle
+    jets = tree.GenJet
+    jets_hepmc = []
+    for j in jets:
+        j_e = np.sqrt(j.Mass**2 + (j.PT*np.cosh(j.Eta))**2)
+        j_px = j.PT*np.cos(j.Phi)
+        j_py = j.PT*np.sin(j.Phi)
+        j_pz = j.PT*np.sinh(j.Eta)
+        p = pyhepmc.FourVector(j_px,j_py,j_pz,j_e)
+        jets_hepmc.append(pyhepmc.GenParticle(momentum = p))
+    # Group jets according to the clusters of visible particles
+    jetClusters = getJetClusters(jets_hepmc,visibleLists)   
+
+    eventDict = {}
+    for illp,llp in enumerate(llpParticles):
         p_visible = pyhepmc.FourVector(0.,0.,0.,0.)
         p_invisible = pyhepmc.FourVector(0.,0.,0.,0.)
-        for p in visible_particles:
+        p_cluster = pyhepmc.FourVector(0.,0.,0.,0.)
+        for p in visibleLists[illp]:
             p_visible = p_visible + p.momentum
-        for p in invisible_particles:
+        for p in invisibleLists[illp]:
             p_invisible = p_invisible + p.momentum
+        for j in jetClusters[illp]:
+            p_cluster = p_cluster + j.momentum
 
         visParticle = pyhepmc.GenParticle(momentum = p_visible, pid = illp)
         invisParticle = pyhepmc.GenParticle(momentum = p_invisible, pid = illp)
+        clusterParticle = pyhepmc.GenParticle(momentum = p_cluster, pid = illp)
         llp_momentum = pyhepmc.FourVector(llp.Px,llp.Py,llp.Pz,llp.E)
         llpParticle = pyhepmc.GenParticle(momentum = llp_momentum, pid = llp.PID)
-        eventDict[illp] = {'visible' : visParticle, 
-                              'invisible' : invisParticle,
-                              'parent' : llpParticle,
-                              'visiblePDGs' : [p.pid for p in visible_particles],
-                              'invisiblePDGs' : [p.pid for p in invisible_particles],
-                              }
+        eventDict[illp] = { 'visible' : visParticle, 
+                            'invisible' : invisParticle,
+                            'cluster' : clusterParticle,
+                            'parent' : llpParticle,
+                            'visiblePDGs' : [p.pid for p in visible_particles],
+                            'invisiblePDGs' : [p.pid for p in invisible_particles],
+                          }
 
     return eventDict
 
@@ -127,12 +160,35 @@ def passTimingCut(t1ns,t2ns):
     
     return True
 
+def getJetClusters(jets,visibleLists):
+    """
+    Loop over jets, select the jets closest to the cluster of visible
+    particles
+    """
+
+    jetClusters = [[] for i in range(len(visibleLists))]
+    # Assign jets to the bb pairs
+    for j in jets:
+        # Computes the distance for each b-quark pair
+        dRpair = [min([pyhepmc.delta_r_eta(j.momentum,p.momentum) 
+                       for p in particles]) 
+                      for particles in visibleLists]
+        # Find the closest pair
+        iPair = np.argmin(dRpair)
+        dRmin = dRpair[iPair]        
+        if dRmin > 0.4:
+            continue
+        jetClusters[iPair].append(j)
+
+    return jetClusters
+
+
 def passDecayLengthCut(r1,r2):
     """
     Require that both decays take place within R < 4m.
     """
 
-    if r1 > 4.0 or r2 > 4.0:
+    if (r1 > 4.0) or (r2 > 4.0):
         return False
     
     return True
@@ -166,12 +222,12 @@ def passAngleCuts(j1,j2):
     dphi = pyhepmc.delta_phi(j1.momentum,j2.momentum)
     if abs(dphi) < np.pi -1.0:
         return False
-    deta = pyhepmc.delta_eta(j1.momentum,j2.momentum)
-    if abs(deta) > 3.2:
+    if abs(j1.momentum.eta()) > 3.2:
+        return False
+    if abs(j2.momentum.eta()) > 3.2:
         return False
     
     return True
-
 
 
 def getEffFor(tree,tauList,llps,invisibles):
@@ -194,17 +250,27 @@ def getEffFor(tree,tauList,llps,invisibles):
     
     # Loop over tau values and compute the decay
     # and time positions:
+    tau_0 = tauList[0]
+    t1_decay_0 = decayTime(eventDict[0]['parent'],tau_0)
+    t2_decay_0 = decayTime(eventDict[1]['parent'],tau_0)
+    L1xy_0,_ = getDecayLength(eventDict[0]['parent'],t1_decay_0)
+    L2xy_0,_ = getDecayLength(eventDict[1]['parent'],t2_decay_0)
     for i,tau in enumerate(tauList):
 
         evt_cutFlow['Total'][i] += 1
 
-        t1_decay = decayTime(eventDict[0]['parent'],tau)
-        t2_decay = decayTime(eventDict[1]['parent'],tau)
+        ratio = tau/tau_0
+        # t1_decay = decayTime(eventDict[0]['parent'],tau)
+        # t2_decay = decayTime(eventDict[1]['parent'],tau)
+        t1_decay = t1_decay_0*ratio
+        t2_decay = t2_decay_0*ratio
         if not passTimingCut(t1_decay,t2_decay):
             continue
         evt_cutFlow['TimingCut'][i] += 1
-        L1xy,_ = getDecayLength(eventDict[0]['parent'],t1_decay)
-        L2xy,_ = getDecayLength(eventDict[1]['parent'],t2_decay)
+        # L1xy,_ = getDecayLength(eventDict[0]['parent'],t1_decay)
+        # L2xy,_ = getDecayLength(eventDict[1]['parent'],t2_decay)
+        L1xy = L1xy_0*ratio
+        L2xy = L2xy_0*ratio
     
         if not passDecayLengthCut(L1xy,L2xy):
             continue
@@ -219,12 +285,15 @@ def getEffFor(tree,tauList,llps,invisibles):
 
         j1 = eventOnTimeDict['visible']
         j2 = eventDelayedDict['visible']
-
+        c1 = eventOnTimeDict['cluster']
+        c2 = eventDelayedDict['cluster']
 
         if not passEnergyCut(j1,j2):
             continue
         evt_cutFlow['EnergyCut'][i] += 1
-        if not passAngleCuts(j1,j2):
+        # if not passAngleCuts(j1,j2):
+            # continue
+        if not passAngleCuts(c1,c2):
             continue
         evt_cutFlow['AngleCuts'][i] += 1
         evt_effs[i] += 1.0
@@ -233,7 +302,7 @@ def getEffFor(tree,tauList,llps,invisibles):
 
 
 def getEfficiencies(inputFile,tauList,
-                    llps=[35],invisibles=[12,14,16]):
+                    llps=[4000023],invisibles=[4000022]):
 
     # Load hepmc File
     if not os.path.isfile(inputFile):
