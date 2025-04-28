@@ -182,7 +182,6 @@ def getJetClusters(jets,visibleLists):
 
     return jetClusters
 
-
 def passDecayLengthCut(r1,r2):
     """
     Require that both decays take place within R < 4m.
@@ -213,15 +212,12 @@ def passEnergyCut(j1,j2):
 
     return True
 
-def passAngleCuts(j1,j2):
+def passEtaCut(j1,j2):
     """
-    Apply the deltaPhi and deltaEta cuts between the on-time visible
+    Apply the eta cut between the on-time visible
     decay (j1) and delayed visible decay (j2)
     """
 
-    dphi = pyhepmc.delta_phi(j1.momentum,j2.momentum)
-    if abs(dphi) < np.pi -1.0:
-        return False
     if abs(j1.momentum.eta()) > 3.2:
         return False
     if abs(j2.momentum.eta()) > 3.2:
@@ -229,16 +225,31 @@ def passAngleCuts(j1,j2):
     
     return True
 
+def passDelaPhiCut(j1,j2):
+    """
+    Apply the deltaPhi cut between the on-time visible
+    decay (j1) and delayed visible decay (j2)
+    """
+
+    dphi = pyhepmc.delta_phi(j1.momentum,j2.momentum)
+    if abs(dphi) < np.pi -1.0:
+        return False
+    
+    return True
+
+
+
 
 def getEffFor(tree,tauList,llps,invisibles):
 
-
     evt_effs = np.zeros(len(tauList))
-    evt_cutFlow = {'Total' : np.zeros(len(tauList)),
-                    'TimingCut' : np.zeros(len(tauList)),
-                    'DecayLengthCut' : np.zeros(len(tauList)),
-                   'EnergyCut' : np.zeros(len(tauList)),
-                   'AngleCuts' : np.zeros(len(tauList))}
+    evt_cutFlow = {'All' : np.zeros(len(tauList)),
+                    'Eta cut' : np.zeros(len(tauList)),
+                    'Energy theshold' : np.zeros(len(tauList)),
+                    'Delta Phi' : np.zeros(len(tauList)),              
+                    'Decay Position' : np.zeros(len(tauList)),
+                    'Decay Time' : np.zeros(len(tauList)),
+                   }
 
     # Extract necessary data from event
     eventDict = getDataFrom(tree,llps=llps,invisibles=invisibles)
@@ -257,24 +268,16 @@ def getEffFor(tree,tauList,llps,invisibles):
     L2xy_0,_ = getDecayLength(eventDict[1]['parent'],t2_decay_0)
     for i,tau in enumerate(tauList):
 
-        evt_cutFlow['Total'][i] += 1
-
         ratio = tau/tau_0
         # t1_decay = decayTime(eventDict[0]['parent'],tau)
         # t2_decay = decayTime(eventDict[1]['parent'],tau)
         t1_decay = t1_decay_0*ratio
         t2_decay = t2_decay_0*ratio
-        if not passTimingCut(t1_decay,t2_decay):
-            continue
-        evt_cutFlow['TimingCut'][i] += 1
         # L1xy,_ = getDecayLength(eventDict[0]['parent'],t1_decay)
         # L2xy,_ = getDecayLength(eventDict[1]['parent'],t2_decay)
         L1xy = L1xy_0*ratio
         L2xy = L2xy_0*ratio
     
-        if not passDecayLengthCut(L1xy,L2xy):
-            continue
-        evt_cutFlow['DecayLengthCut'][i] += 1
         # Get visible particles for the on-time decay:
         if t1_decay < t2_decay:
             eventOnTimeDict = eventDict[0]
@@ -288,18 +291,31 @@ def getEffFor(tree,tauList,llps,invisibles):
         c1 = eventOnTimeDict['cluster']
         c2 = eventDelayedDict['cluster']
 
+        evt_cutFlow['All'][i] += 1
+
+        if not passEtaCut(c1,c2): # Use jet clusters
+            continue
+        evt_cutFlow['Eta cut'][i] += 1
+
         if not passEnergyCut(j1,j2):
             continue
-        evt_cutFlow['EnergyCut'][i] += 1
-        # if not passAngleCuts(j1,j2):
-            # continue
-        if not passAngleCuts(c1,c2):
+        evt_cutFlow['Energy theshold'][i] += 1
+
+        if not passDelaPhiCut(c1,c2): # Use jet clusters
             continue
-        evt_cutFlow['AngleCuts'][i] += 1
+        evt_cutFlow['Delta Phi'][i] += 1
+
+        if not passDecayLengthCut(L1xy,L2xy):
+            continue
+        evt_cutFlow['Decay Position'][i] += 1
+
+        if not passTimingCut(t1_decay,t2_decay):
+            continue
+        evt_cutFlow['Decay Time'][i] += 1
+
         evt_effs[i] += 1.0
         
     return evt_effs,evt_cutFlow
-
 
 def getEfficiencies(inputFile,tauList,
                     llps=[4000023],invisibles=[4000022]):
@@ -320,11 +336,13 @@ def getEfficiencies(inputFile,tauList,
     effsDict = {"Trigger" : np.zeros(len(tauList)),
                 "Nevents" : 0}
     
-    evts_cutFlow = {'Total' : np.zeros(len(tauList)),
-                    'TimingCut' : np.zeros(len(tauList)),
-                    'DecayLengthCut' : np.zeros(len(tauList)),
-                   'EnergyCut' : np.zeros(len(tauList)),
-                   'AngleCuts' : np.zeros(len(tauList))}
+    evts_cutFlow = {'All' : np.zeros(len(tauList)),
+                    'Eta cut' : np.zeros(len(tauList)),
+                    'Energy theshold' : np.zeros(len(tauList)),
+                    'Delta Phi' : np.zeros(len(tauList)),              
+                    'Decay Position' : np.zeros(len(tauList)),
+                    'Decay Time' : np.zeros(len(tauList)),
+                   }
     
     
     nevts = tree.GetEntries()
@@ -339,9 +357,11 @@ def getEfficiencies(inputFile,tauList,
             evts_cutFlow[key] += evt_cutFlow[key]
         
     f.Close()
+
     # Divide the total efficiency by the number of events:
     effsDict["TriggerErr"] = np.sqrt(effsDict["Trigger"])/effsDict['Nevents']
     effsDict["Trigger"] = effsDict["Trigger"]/effsDict['Nevents']
+
     # Store ctau list
     effsDict['ctau'] = tauList[:]
     # Store input file name
@@ -350,10 +370,12 @@ def getEfficiencies(inputFile,tauList,
     # Get model information
     modelDict = getModelDict(inputFile,verbose=False)
     effsDict.update(modelDict)
+    evts_cutFlow.update(modelDict)
 
-    return effsDict
+    return effsDict,evts_cutFlow
 
-def saveOutput(effsDict,outputFile):
+def saveOutput(effsDict,outputFile,
+               evts_cutFlow=None,cutFile=None):
         
      # Extract info for comments
     nevts = effsDict.pop('Nevents')
@@ -379,6 +401,21 @@ def saveOutput(effsDict,outputFile):
                 header=f'Input file: {inputFile}\nNumber of events: {nevts}\n{header}',
                 delimiter=',',fmt='%1.3e')
 
+    # Save cutflow (if defined)
+    # Get column labels and data
+    columns = []
+    columnsLabels = []
+    for key,val in evts_cutFlow.items():
+        columnsLabels.append(key)
+        if isinstance(val,(float,int)):
+            columns.append(itertools.repeat(val))
+        else:
+            columns.append(val)
+    data = np.array(list(zip(*columns)))
+    header = ','.join(columnsLabels)
+    np.savetxt(cutFile, data, 
+                header=f'Input file: {inputFile}\nNumber of events: {nevts}\n{header}',
+                delimiter=',',fmt='%1.3e')
 
 if __name__ == "__main__":
     
@@ -456,11 +493,14 @@ if __name__ == "__main__":
     inputFileList = args.inputfile
     ncpus = min(ncpus,len(inputFileList))
     if ncpus == 1:
-        effsDict = getEfficiencies(inputFileList[0],tauList,
-                                  llpPDGs,invisiblePDGs)
+        effsDict,evts_cutFlow = getEfficiencies(inputFileList[0],
+                                                tauList,
+                                                llpPDGs,
+                                                invisiblePDGs)
         outFile = effsDict['inputFile'].split('.root')[0]
-        outFile = outFile + output_suffix  +'_b2tf_effs.csv'
-        saveOutput(effsDict,outFile)
+        effFile = outFile + output_suffix  +'_b2tf_effs.csv'
+        cutFile = outFile + output_suffix +'_b2tf_cutFlow.csv'
+        saveOutput(effsDict,effFile,evts_cutFlow,cutFile)
     else:
         pool = multiprocessing.Pool(processes=ncpus)
         children = []
@@ -476,10 +516,11 @@ if __name__ == "__main__":
         progressbar.start()
         ndone = 0
         for p in children: 
-            effsDict = p.get()
+            effsDict,evts_cutFlow = p.get()
             outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
-            outFile = outFile + output_suffix +'_b2tf_effs.csv'
-            saveOutput(effsDict,outFile)
+            effFile = outFile + output_suffix +'_b2tf_effs.csv'
+            cutFile = outFile + output_suffix +'_b2tf_cutFlow.csv'
+            saveOutput(effsDict,effFile,evts_cutFlow,cutFile)
             ndone += 1
             progressbar.update(ndone)
         
