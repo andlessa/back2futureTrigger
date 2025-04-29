@@ -4,81 +4,32 @@
 
 set ExecutionPath {
 
-  LLPFilter
-  OnTimeLLPFilter
-  DelayedLLPFilter
+  JetFilter
+  GenJetFinder
+  ScalarHT
   DMFilter
   DMMissingET
-  JetFilter
-  JetFilterOnTime
-  JetFilterDelayed
-  GenJetFinder
-  GenJetFinderOnTime
-  GenJetFinderDelayed
-  ScalarHT
+
+
+  LLPFilter
+  LLPFilterA
+  LLPFilterB
+  
+  JetFilterAOnTime
+  JetFilterADelayed
+  GenJetFinderAOnTime
+  GenJetFinderADelayed
+  
+  JetFilterBOnTime
+  JetFilterBDelayed  
+  GenJetFinderBOnTime
+  GenJetFinderBDelayed
+  
   
   TreeWriter
 }
 
-#####################
-# LLP Filter
-#####################
 
-module BSMFilter LLPFilter {
-
-  set InputArray Delphes/allParticles
-  set OutputArray bsmParticles
-  set MothersArray mothers
-  set FinalDaughtersArray finalDaughters  
-  set DirectDaughtersArray directDaughters
-  set PTMin 0.0
-  set massMin 0.0
-  
-  # Select chi1
-  add PdgCode {4000023}
-  add PdgCode {-4000023}
-}
-
-#####################
-# OnTimeLLPFilter Filter
-# Since the S decay is always chi1-chibar symmetric, we can use chi1 as the on-Time particle
-#####################
-
-module BSMFilter OnTimeLLPFilter {
-
-  set InputArray Delphes/allParticles
-  set OutputArray bsmParticles
-  set MothersArray mothers
-  set FinalDaughtersArray finalDaughters  
-  set DirectDaughtersArray directDaughters
-  set StableOthersArray stableOthers
-  set PTMin 0.0
-  set massMin 0.0
-  
-  # Select chi1
-  add PdgCode {4000023}
-}
-
-
-#####################
-# DelayedLLPFilter Filter
-# Since we assume anti-chi1 to be delayed, all of its decays correspond to the delayed (N) event record
-#####################
-
-module BSMFilter DelayedLLPFilter {
-
-  set InputArray Delphes/allParticles
-  set OutputArray bsmParticles
-  set MothersArray mothers
-  set FinalDaughtersArray finalDaughters  
-  set DirectDaughtersArray directDaughters
-  set StableOthersArray stableOthers
-  set PTMin 0.0
-  set massMin 0.0
-  
-  # Select anti-chi1
-  add PdgCode {-4000023}
-}
 
 #####################
 # Jet Filter for all stable particles
@@ -108,62 +59,32 @@ module PdgCodeFilter JetFilter {
 
 }
 
-
 #####################
-# Jet Filter for particles OnTime (N-1 event record)
-# (make use of all stable particles NOT coming from the delayed LLP)
+# MC truth jet finder - all particles
 #####################
 
-module PdgCodeFilter JetFilterOnTime {
+module FastJetFinder GenJetFinder {
+  set InputArray JetFilter/filteredParticles
 
-  set InputArray DelayedLLPFilter/stableOthers
-  set OutputArray filteredParticles
+  set OutputArray jets
 
-  set PTMin 0.0
-  # Exclude neutrinos
-  add PdgCode {12}
-  add PdgCode {14}
-  add PdgCode {16}
-  add PdgCode {-12}
-  add PdgCode {-14}
-  add PdgCode {-16}
-  # Exclude muons
-  # add PdgCode {13}
-  # add PdgCode {-13}
-  # Exclude neutralinos and sbottoms
-  add PdgCode {4000022}
-  add PdgCode {4000023}
-  add PdgCode {-4000022}
-  add PdgCode {-4000023}
+  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
+  set JetAlgorithm 6
+  set ParameterR 0.6
+
+  set JetPTMin 20.0
 }
 
-#####################
-# Jet Filter for particles Delayed (N event record)
-# (make use of all stable particles coming from the delayed LLP)
-#####################
+##################
+# Scalar HT merger
+##################
 
-module PdgCodeFilter JetFilterDelayed {
-
-  set InputArray DelayedLLPFilter/finalDaughters
-  set OutputArray filteredParticles
-
-  set PTMin 0.0
-  # Exclude neutrinos
-  add PdgCode {12}
-  add PdgCode {14}
-  add PdgCode {16}
-  add PdgCode {-12}
-  add PdgCode {-14}
-  add PdgCode {-16}
-  # Exclude muons
-  # add PdgCode {13}
-  # add PdgCode {-13}
-  # Exclude neutralinos and sbottoms
-  add PdgCode {4000022}
-  add PdgCode {4000023}
-  add PdgCode {-4000022}
-  add PdgCode {-4000023}
+module Merger ScalarHT {
+# add InputArray InputArray
+  add InputArray GenJetFinder/jets
+  set EnergyOutputArray energy
 }
+
 
 #####################
 # Dark Matter Filter
@@ -187,66 +108,6 @@ module PdgCodeFilter DMFilter {
 }
 
 
-#####################
-# MC truth jet finder - all particles
-#####################
-
-module FastJetFinder GenJetFinder {
-  set InputArray JetFilter/filteredParticles
-
-  set OutputArray jets
-
-  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
-  set JetAlgorithm 6
-  set ParameterR 0.6
-
-  set JetPTMin 20.0
-}
-
-#####################
-# MC truth jet finder - OnTime particles (N-1 event record)
-#####################
-
-module FastJetFinder GenJetFinderOnTime {
-  set InputArray JetFilterOnTime/filteredParticles
-
-  set OutputArray jets
-
-  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
-  set JetAlgorithm 6
-  set ParameterR 0.6
-
-  set JetPTMin 20.0
-}
-
-#####################
-# MC truth jet finder - Delayed particles (N event record)
-#####################
-
-module FastJetFinder GenJetFinderDelayed {
-  set InputArray JetFilterDelayed/filteredParticles
-
-  set OutputArray jets
-
-  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
-  set JetAlgorithm 6
-  set ParameterR 0.6
-
-  set JetPTMin 20.0
-}
-
-
-##################
-# Scalar HT merger
-##################
-
-module Merger ScalarHT {
-# add InputArray InputArray
-  add InputArray GenJetFinder/jets
-  set EnergyOutputArray energy
-}
-
-
 ###############################
 # Dark Matter Missing ET merger
 ###############################
@@ -254,6 +115,250 @@ module Merger ScalarHT {
 module Merger DMMissingET {
   add InputArray DMFilter/dmParticles
   set MomentumOutputArray momentum
+}
+
+
+#####################
+# LLP Filter
+#####################
+
+module BSMFilter LLPFilter {
+
+  set InputArray Delphes/allParticles
+  set OutputArray bsmParticles
+  set MothersArray mothers
+  set FinalDaughtersArray finalDaughters  
+  set DirectDaughtersArray directDaughters
+  set PTMin 0.0
+  set massMin 0.0
+  
+  # Select chi1
+  add PdgCode {4000023}
+  add PdgCode {-4000023}
+}
+
+#####################
+# LLPFilterA Filter
+# Filter chi1, its decays and everything else
+#####################
+
+module BSMFilter LLPFilterA {
+
+  set InputArray Delphes/allParticles
+  set OutputArray bsmParticles
+  set MothersArray mothers
+  set FinalDaughtersArray finalDaughters  
+  set DirectDaughtersArray directDaughters
+  set StableOthersArray stableOthers
+  set PTMin 0.0
+  set massMin 0.0
+  
+  # Select chi1
+  add PdgCode {4000023}
+}
+
+
+#####################
+# LLPFilterB Filter
+# Filter anti-chi1, its decays and everything else
+#####################
+
+module BSMFilter LLPFilterB {
+
+  set InputArray Delphes/allParticles
+  set OutputArray bsmParticles
+  set MothersArray mothers
+  set FinalDaughtersArray finalDaughters  
+  set DirectDaughtersArray directDaughters
+  set StableOthersArray stableOthers
+  set PTMin 0.0
+  set massMin 0.0
+  
+  # Select chi1
+  add PdgCode {4000023}
+}
+
+
+
+#########################################################
+#### CASE A: chi1 is on-time and anti-chi1 is delayed ###
+#########################################################
+# Filter for on-time jets
+# (make use of all stable particles NOT coming from the anti-chi1)
+#####################
+
+module PdgCodeFilter JetFilterAOnTime {
+
+  set InputArray LLPFilterB/stableOthers
+  set OutputArray filteredParticles
+
+  set PTMin 0.0
+  # Exclude neutrinos
+  add PdgCode {12}
+  add PdgCode {14}
+  add PdgCode {16}
+  add PdgCode {-12}
+  add PdgCode {-14}
+  add PdgCode {-16}
+  # Exclude muons
+  # add PdgCode {13}
+  # add PdgCode {-13}
+  # Exclude neutralinos and sbottoms
+  add PdgCode {4000022}
+  add PdgCode {4000023}
+  add PdgCode {-4000022}
+  add PdgCode {-4000023}
+}
+
+#####################
+# Filter for delayed jets if chi1 is on-time and anti-chi1 is delayed
+# (make use of all stable particles coming from the anti-chi1)
+#####################
+
+module PdgCodeFilter JetFilterADelayed {
+
+  set InputArray LLPFilterB/finalDaughters
+  set OutputArray filteredParticles
+
+  set PTMin 0.0
+  # Exclude neutrinos
+  add PdgCode {12}
+  add PdgCode {14}
+  add PdgCode {16}
+  add PdgCode {-12}
+  add PdgCode {-14}
+  add PdgCode {-16}
+  # Exclude muons
+  # add PdgCode {13}
+  # add PdgCode {-13}
+  # Exclude neutralinos and sbottoms
+  add PdgCode {4000022}
+  add PdgCode {4000023}
+  add PdgCode {-4000022}
+  add PdgCode {-4000023}
+}
+
+
+#####################
+# MC truth jet finder for on-time jets if chi1 is on-time and anti-chi1 is delayed
+#####################
+
+module FastJetFinder GenJetFinderAOnTime {
+  set InputArray JetFilterAOnTime/filteredParticles
+
+  set OutputArray jets
+
+  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
+  set JetAlgorithm 6
+  set ParameterR 0.6
+
+  set JetPTMin 20.0
+}
+
+#####################
+# MC truth jet finder for delayed jets if chi1 is on-time and anti-chi1 is delayed
+#####################
+
+module FastJetFinder GenJetFinderADelayed {
+  set InputArray JetFilterADelayed/filteredParticles
+
+  set OutputArray jets
+
+  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
+  set JetAlgorithm 6
+  set ParameterR 0.6
+
+  set JetPTMin 20.0
+}
+
+#########################################################
+#### CASE B: chi1 is delayed and anti-chi1 is on-time ###
+#########################################################
+# Filter for on-time jets if anti-chi1 is on-time and chi1 is delayed
+# (make use of all stable particles NOT coming from the chi1)
+#####################
+
+module PdgCodeFilter JetFilterBOnTime {
+
+  set InputArray LLPFilterA/stableOthers
+  set OutputArray filteredParticles
+
+  set PTMin 0.0
+  # Exclude neutrinos
+  add PdgCode {12}
+  add PdgCode {14}
+  add PdgCode {16}
+  add PdgCode {-12}
+  add PdgCode {-14}
+  add PdgCode {-16}
+  # Exclude muons
+  # add PdgCode {13}
+  # add PdgCode {-13}
+  # Exclude neutralinos and sbottoms
+  add PdgCode {4000022}
+  add PdgCode {4000023}
+  add PdgCode {-4000022}
+  add PdgCode {-4000023}
+}
+
+#####################
+# Filter for delayed jets if anti-chi1 is on-time and chi1 is delayed
+# (make use of all stable particles coming from the chi1)
+#####################
+
+module PdgCodeFilter JetFilterBDelayed {
+
+  set InputArray LLPFilterA/finalDaughters
+  set OutputArray filteredParticles
+
+  set PTMin 0.0
+  # Exclude neutrinos
+  add PdgCode {12}
+  add PdgCode {14}
+  add PdgCode {16}
+  add PdgCode {-12}
+  add PdgCode {-14}
+  add PdgCode {-16}
+  # Exclude muons
+  # add PdgCode {13}
+  # add PdgCode {-13}
+  # Exclude neutralinos and sbottoms
+  add PdgCode {4000022}
+  add PdgCode {4000023}
+  add PdgCode {-4000022}
+  add PdgCode {-4000023}
+}
+
+#####################
+# MC truth jet finder for on-time jets if anti-chi1 is on-time and chi1 is delayed
+#####################
+
+module FastJetFinder GenJetFinderBOnTime {
+  set InputArray JetFilterBOnTime/filteredParticles
+
+  set OutputArray jets
+
+  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
+  set JetAlgorithm 6
+  set ParameterR 0.6
+
+  set JetPTMin 20.0
+}
+
+#####################
+# MC truth jet finder for delayed jets if anti-chi1 is on-time and chi1 is delayed
+#####################
+
+module FastJetFinder GenJetFinderBDelayed {
+  set InputArray JetFilterBDelayed/filteredParticles
+
+  set OutputArray jets
+
+  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
+  set JetAlgorithm 6
+  set ParameterR 0.6
+
+  set JetPTMin 20.0
 }
 
 
@@ -271,24 +376,20 @@ module TreeWriter TreeWriter {
   add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
   add Branch LLPFilter/mothers llpMothers GenParticle
 
-  add Branch OnTimeLLPFilter/bsmParticles llpParticlesOnTime GenParticle
-  add Branch OnTimeLLPFilter/directDaughters llpDirectDaughtersOnTime GenParticle
-#  add Branch OnTimeLLPFilter/mothers llpMothersOnTime GenParticle
-#  add Branch OnTimeLLPFilter/finalDaughters llpFinalOnTime GenParticle  
-#  add Branch OnTimeLLPFilter/stableOthers llpOthersOnTime GenParticle
+  add Branch LLPFilterA/bsmParticles llpParticlesA GenParticle
+  add Branch LLPFilterA/directDaughters llpDirectDaughtersA GenParticle
+  add Branch LLPFilterB/bsmParticles llpParticlesB GenParticle
+  add Branch LLPFilterB/directDaughters llpDirectDaughtersB GenParticle
 
-
-  add Branch DelayedLLPFilter/bsmParticles llpParticlesDelayed GenParticle
-  add Branch DelayedLLPFilter/directDaughters llpDirectDaughtersDelayed GenParticle  
-#  add Branch DelayedLLPFilter/mothers llpMothersDelayed GenParticle
-#  add Branch DelayedLLPFilter/finalDaughters llpFinalDelayed GenParticle  
-#  add Branch DelayedLLPFilter/stableOthers llpOthersDelayed GenParticle
 
   add Branch DMFilter/dmParticles dmParticles GenParticle
   add Branch DMMissingET/momentum DMMissingET MissingET    
   add Branch GenJetFinder/jets GenJet Jet
-  add Branch GenJetFinderOnTime/jets GenJetOnTime Jet  
-  add Branch GenJetFinderDelayed/jets GenJetDelayed Jet
+  add Branch GenJetFinderAOnTime/jets GenJetAOnTime Jet  
+  add Branch GenJetFinderADelayed/jets GenJetADelayed Jet
+  add Branch GenJetFinderBOnTime/jets GenJetBOnTime Jet  
+  add Branch GenJetFinderBDelayed/jets GenJetBDelayed Jet
+  
   add Branch ScalarHT/energy ScalarHT ScalarHT
 
 }

@@ -147,12 +147,12 @@ def passTimingCut(t_onTime,t_delayed):
     return True
 
 
-def passDecayLengthCut(r1,r2):
+def passDecayLengthCut(r):
     """
-    Require that both decays take place within R < 4m.
+    Require that the decay takes place within R < 4m.
     """
 
-    if (r1 > 4.0) or (r2 > 4.0):
+    if (r > 4.0):
         return False
     
     return True
@@ -222,45 +222,67 @@ def getEffFor(tree,tauList,llps,invisibles):
                    }
 
     # Extract necessary data from event
-    eventDict_ontime = getDataFrom(tree.llpParticlesOnTime,
-                                   tree.llpDirectDaughtersOnTime,
+    eventDictA = getDataFrom(tree.llpParticlesA,
+                                   tree.llpDirectDaughtersA,
                                     llp_PDGs=llps,invisible_PDGs=invisibles)
-    eventDict_delayed = getDataFrom(tree.llpParticlesDelayed,
-                                   tree.llpDirectDaughtersDelayed,
+    eventDictB = getDataFrom(tree.llpParticlesB,
+                                   tree.llpDirectDaughtersB,
                                     llp_PDGs=llps,invisible_PDGs=invisibles)
     
-    # Get on-time and delayed jets
-    jets_ontime = getJetsFrom(tree.GenJetOnTime)
-    jets_delayed = getJetsFrom(tree.GenJetDelayed)
+    nA = len(eventDictA)
+    nB = len(eventDictB) 
+    if nA != 1:
+        errorMsg = f"{nA} on time LLP decay vertices found (can only handle 1 on-time decay)"
+        logger.error(errorMsg)
+        # raise ValueError(errorMsg)
+        return evt_effs # return zero effs
+    if nB != 1:
+        errorMsg = f"{nB} delayed LLP decay vertices found (can only handle 1 delayed decay)"
+        logger.error(errorMsg)
+        # raise ValueError(errorMsg)
+        return evt_effs # return zero effs    
+    
 
-    nOnTime = len(eventDict_ontime)
-    nDelayed = len(eventDict_delayed) 
-    if nOnTime != 1:
-        errorMsg = f"{nOnTime} on time LLP decay vertices found (can only handle 1 on-time decay)"
-        logger.error(errorMsg)
-        # raise ValueError(errorMsg)
-        return evt_effs # return zero effs
-    if nDelayed != 1:
-        errorMsg = f"{nDelayed} delayed LLP decay vertices found (can only handle 1 delayed decay)"
-        logger.error(errorMsg)
-        # raise ValueError(errorMsg)
-        return evt_effs # return zero effs
-    
+    jetsA_ontime = getJetsFrom(tree.GenJetAOnTime)
+    jetsA_delayed = getJetsFrom(tree.GenJetADelayed)
+    jetsB_ontime = getJetsFrom(tree.GenJetBOnTime)
+    jetsB_delayed = getJetsFrom(tree.GenJetBDelayed)
+
     # Loop over tau values and compute the decay
     # and time positions:
     tau_0 = tauList[0]
-    t0_decay_onime = decayTime(eventDict_ontime[0]['parent'],tau_0)
-    t0_decay_delayed = decayTime(eventDict_delayed[0]['parent'],tau_0)
-    L0xy_ontime,_ = getDecayLength(eventDict_ontime[0]['parent'],t0_decay_onime)
-    L0xy_delayed,_ = getDecayLength(eventDict_delayed[0]['parent'],t0_decay_delayed)
+    tA_decay_0 = decayTime(eventDictA[0]['parent'],tau_0)
+    tB_decay_0 = decayTime(eventDictB[0]['parent'],tau_0)
+    LAxy_0,_ = getDecayLength(eventDictA[0]['parent'],tA_decay_0)
+    LBxy_0,_ = getDecayLength(eventDictB[0]['parent'],tB_decay_0)
+
     for i,tau in enumerate(tauList):
 
         ratio = tau/tau_0
         # The decay time and position scale with tau/tau0
-        t_decay_ontime = t0_decay_onime*ratio
-        t_decay_delayed = t0_decay_delayed*ratio
-        Lxy_ontime = L0xy_ontime*ratio
-        Lxy_delayed = L0xy_delayed*ratio
+        tA_decay = tA_decay_0*ratio
+        tB_decay = tB_decay_0*ratio
+        LAxy = LAxy_0*ratio
+        LBxy = LBxy_0*ratio
+
+        # If particle A decays before B,
+        # then we have *case A*: A is on-time and B delayed
+        # otherwise we have *case B*: B is on-time and A delayed
+        if tA_decay < tB_decay:
+            Lxy_ontime = LAxy
+            Lxy_delayed = LBxy
+            t_decay_ontime = tA_decay
+            t_decay_delayed = tB_decay
+            jets_ontime = jetsA_ontime
+            jets_delayed = jetsA_delayed
+        else:
+            Lxy_ontime = LBxy
+            Lxy_delayed = LAxy
+            t_decay_ontime = tB_decay
+            t_decay_delayed = tA_decay
+            jets_ontime = jetsB_ontime
+            jets_delayed = jetsB_delayed
+    
    
         evt_cutFlow['All'][i] += 1
 
@@ -286,7 +308,7 @@ def getEffFor(tree,tauList,llps,invisibles):
         if getJetET(jets_ontime[0]) > 100.0:
             continue
 
-        evt_cutFlow['ETmax(N-1) < 100 GeV'][i] += 1*2
+        evt_cutFlow['ETmax(N-1) < 100 GeV'][i] += 1
 
         # Keep only the hardest
         j_ontime = jets_ontime[0]
@@ -294,21 +316,24 @@ def getEffFor(tree,tauList,llps,invisibles):
 
         if not passEnergyCut(j_ontime,j_delayed):
             continue
-        evt_cutFlow['Energy theshold'][i] += 1*2
+        evt_cutFlow['Energy theshold'][i] += 1
 
         if not passDelaPhiCut(j_ontime,j_delayed):
             continue
-        evt_cutFlow['Delta Phi'][i] += 1*2
+        evt_cutFlow['Delta Phi'][i] += 1
 
-        if not passDecayLengthCut(Lxy_ontime,Lxy_delayed):
+        if not passDecayLengthCut(Lxy_ontime):
             continue
-        evt_cutFlow['Decay Position'][i] += 1*2
+        if not passDecayLengthCut(Lxy_delayed):
+            continue
+
+        evt_cutFlow['Decay Position'][i] += 1
 
         if not passTimingCut(t_decay_ontime,t_decay_delayed):
             continue
-        evt_cutFlow['Decay Time'][i] += 1*2
+        evt_cutFlow['Decay Time'][i] += 1
 
-        evt_effs[i] += 1.0*2 # The 2 factor accounts for the symmetric case, where chi1 is delayed and anti-chi is ontime
+        evt_effs[i] += 1.0
         
     return evt_effs,evt_cutFlow
 
