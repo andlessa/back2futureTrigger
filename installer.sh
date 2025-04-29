@@ -57,10 +57,6 @@ if echo "$answer" | grep -iq "^y" ;then
     exit
   fi
   echo "[installer] Installing DelphesLLP";
-  if [ ! -f "DelphesLLP.tar.gz" ]; then
-    echo "DelphesLLP.tar.gz should be first downloaded from https://github.com/llprecasting/recastingCodes/tree/main/Delphes_LLP"
-    exit
-  fi
   
   tar -zxf DelphesLLP.tar.gz;
   cd DelphesLLP;
