@@ -201,8 +201,8 @@ module PdgCodeFilter JetFilterAOnTime {
   add PdgCode {-14}
   add PdgCode {-16}
   # Exclude muons
-  # add PdgCode {13}
-  # add PdgCode {-13}
+  add PdgCode {13}
+  add PdgCode {-13}
   # Exclude neutralinos and sbottoms
   add PdgCode {4000022}
   add PdgCode {4000023}
@@ -229,8 +229,8 @@ module PdgCodeFilter JetFilterADelayed {
   add PdgCode {-14}
   add PdgCode {-16}
   # Exclude muons
-  # add PdgCode {13}
-  # add PdgCode {-13}
+  add PdgCode {13}
+  add PdgCode {-13}
   # Exclude neutralinos and sbottoms
   add PdgCode {4000022}
   add PdgCode {4000023}
@@ -292,8 +292,8 @@ module PdgCodeFilter JetFilterBOnTime {
   add PdgCode {-14}
   add PdgCode {-16}
   # Exclude muons
-  # add PdgCode {13}
-  # add PdgCode {-13}
+  add PdgCode {13}
+  add PdgCode {-13}
   # Exclude neutralinos and sbottoms
   add PdgCode {4000022}
   add PdgCode {4000023}
@@ -320,8 +320,8 @@ module PdgCodeFilter JetFilterBDelayed {
   add PdgCode {-14}
   add PdgCode {-16}
   # Exclude muons
-  # add PdgCode {13}
-  # add PdgCode {-13}
+  add PdgCode {13}
+  add PdgCode {-13}
   # Exclude neutralinos and sbottoms
   add PdgCode {4000022}
   add PdgCode {4000023}
