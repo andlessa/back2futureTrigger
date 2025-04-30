@@ -231,16 +231,21 @@ def getEffFor(tree,tauList,llps,invisibles):
     
     nA = len(eventDictA)
     nB = len(eventDictB) 
-    if nA != 1:
-        errorMsg = f"{nA} on time LLP decay vertices found (can only handle 1 on-time decay)"
+    if nA > 1:
+        errorMsg = f"{nA} on time LLP decay vertices found (can only handle up to 1 on-time decay)"
         logger.error(errorMsg)
         # raise ValueError(errorMsg)
         return evt_effs # return zero effs
-    if nB != 1:
-        errorMsg = f"{nB} delayed LLP decay vertices found (can only handle 1 delayed decay)"
+    if nB > 1:
+        errorMsg = f"{nB} delayed LLP decay vertices found (can only handle up to 1 delayed decay)"
         logger.error(errorMsg)
         # raise ValueError(errorMsg)
-        return evt_effs # return zero effs    
+        return evt_effs # return zero effs
+    if not (1 <= nA+nB <= 2):
+        errorMsg = f"{nA+nB} delayed LLP decay vertices found (can only handle 1 or 2 decays)"
+        logger.error(errorMsg)
+        # raise ValueError(errorMsg)
+        return evt_effs # return zero effs
     
 
     jetsA_ontime = getJetsFrom(tree.GenJetAOnTime)
@@ -251,38 +256,60 @@ def getEffFor(tree,tauList,llps,invisibles):
     # Loop over tau values and compute the decay
     # and time positions:
     tau_0 = tauList[0]
-    tA_decay_0 = decayTime(eventDictA[0]['parent'],tau_0)
-    tB_decay_0 = decayTime(eventDictB[0]['parent'],tau_0)
-    LAxy_0,_ = getDecayLength(eventDictA[0]['parent'],tA_decay_0)
-    LBxy_0,_ = getDecayLength(eventDictB[0]['parent'],tB_decay_0)
+    
+    
+    if nA == 0: # There are no particles of type A, so B must be the delayed particle:
+        # on-time decay = "A", delayed decay = B
+        tB_decay_0 = decayTime(eventDictB[0]['parent'],tau_0)
+        LBxy_0,_ = getDecayLength(eventDictB[0]['parent'],tB_decay_0)
+        Lxy_ontime_0 = 0.0
+        Lxy_delayed_0 = LBxy_0
+        t_decay_ontime_0 = 0.0
+        t_decay_delayed_0 = tB_decay_0
+        jets_ontime = jetsA_ontime
+        jets_delayed = jetsA_delayed
+    elif nB == 0: # There are no particles of type B, so A must be the delayed particle:
+        # on-time decay = "B", delayed decay = A
+        tA_decay_0 = decayTime(eventDictA[0]['parent'],tau_0)
+        LAxy_0,_ = getDecayLength(eventDictA[0]['parent'],tA_decay_0)
+        Lxy_ontime_0 = 0.0
+        Lxy_delayed_0 = LAxy_0
+        t_decay_ontime_0 = 0.0
+        t_decay_delayed_0 = tA_decay_0
+        jets_ontime = jetsB_ontime
+        jets_delayed = jetsB_delayed
+    else:        
+        # If particle A decays before B,
+        # then we have *case A*: A is on-time and B delayed
+        # otherwise we have *case B*: B is on-time and A delayed
+        tA_decay_0 = decayTime(eventDictA[0]['parent'],tau_0)
+        tB_decay_0 = decayTime(eventDictB[0]['parent'],tau_0)
+        LAxy_0,_ = getDecayLength(eventDictA[0]['parent'],tA_decay_0)
+        LBxy_0,_ = getDecayLength(eventDictB[0]['parent'],tB_decay_0)
+        if tA_decay_0 < tB_decay_0:
+            Lxy_ontime_0 = LAxy_0
+            Lxy_delayed_0 = LBxy_0
+            t_decay_ontime_0 = tA_decay_0
+            t_decay_delayed_0 = tB_decay_0
+            jets_ontime = jetsA_ontime
+            jets_delayed = jetsA_delayed
+        else:
+            Lxy_ontime_0 = LBxy_0
+            Lxy_delayed_0 = LAxy_0
+            t_decay_ontime_0 = tB_decay_0
+            t_decay_delayed_0 = tA_decay_0
+            jets_ontime = jetsB_ontime
+            jets_delayed = jetsB_delayed
 
     for i,tau in enumerate(tauList):
 
         ratio = tau/tau_0
         # The decay time and position scale with tau/tau0
-        tA_decay = tA_decay_0*ratio
-        tB_decay = tB_decay_0*ratio
-        LAxy = LAxy_0*ratio
-        LBxy = LBxy_0*ratio
-
-        # If particle A decays before B,
-        # then we have *case A*: A is on-time and B delayed
-        # otherwise we have *case B*: B is on-time and A delayed
-        if tA_decay < tB_decay:
-            Lxy_ontime = LAxy
-            Lxy_delayed = LBxy
-            t_decay_ontime = tA_decay
-            t_decay_delayed = tB_decay
-            jets_ontime = jetsA_ontime
-            jets_delayed = jetsA_delayed
-        else:
-            Lxy_ontime = LBxy
-            Lxy_delayed = LAxy
-            t_decay_ontime = tB_decay
-            t_decay_delayed = tA_decay
-            jets_ontime = jetsB_ontime
-            jets_delayed = jetsB_delayed
-    
+        t_decay_ontime = t_decay_ontime_0*ratio
+        t_decay_delayed = t_decay_delayed_0*ratio
+        Lxy_ontime = Lxy_ontime_0*ratio
+        Lxy_delayed = Lxy_delayed_0*ratio
+            
    
         evt_cutFlow['All'][i] += 1
 

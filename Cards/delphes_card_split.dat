@@ -174,8 +174,8 @@ module BSMFilter LLPFilterB {
   set PTMin 0.0
   set massMin 0.0
   
-  # Select chi1
-  add PdgCode {4000023}
+  # Select anti-chi1
+  add PdgCode {-4000023}
 }
 
 
@@ -378,8 +378,13 @@ module TreeWriter TreeWriter {
 
   add Branch LLPFilterA/bsmParticles llpParticlesA GenParticle
   add Branch LLPFilterA/directDaughters llpDirectDaughtersA GenParticle
+#  add Branch LLPFilterA/finalDaughters llpFinalA GenParticle
+#  add Branch LLPFilterA/stableOthers llpOthersA GenParticle
+  
   add Branch LLPFilterB/bsmParticles llpParticlesB GenParticle
   add Branch LLPFilterB/directDaughters llpDirectDaughtersB GenParticle
+#  add Branch LLPFilterB/finalDaughters llpFinalB GenParticle
+#  add Branch LLPFilterB/stableOthers llpOthersB GenParticle
 
 
   add Branch DMFilter/dmParticles dmParticles GenParticle
