@@ -385,8 +385,10 @@ def getEfficiencies(inputFile,tauList,
 
     # Store ctau list
     effsDict['ctau'] = tauList[:]
+    evts_cutFlow['ctau'] = tauList[:]
     # Store input file name
     effsDict['inputFile'] = inputFile
+    
 
     # Get model information
     modelDict = getModelDict(inputFile,verbose=False)
@@ -540,7 +542,7 @@ if __name__ == "__main__":
             effsDict,evts_cutFlow = p.get()
             outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
             effFile = outFile + output_suffix +'_b2tf_effs_v2.csv'
-            cutFile = outFile + output_suffix +'_b2tf_cutFlow)v2.csv'
+            cutFile = outFile + output_suffix +'_b2tf_cutFlow_v2.csv'
             saveOutput(effsDict,effFile,evts_cutFlow,cutFile)
             ndone += 1
             progressbar.update(ndone)

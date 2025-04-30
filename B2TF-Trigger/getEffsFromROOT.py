@@ -364,8 +364,10 @@ def getEfficiencies(inputFile,tauList,
 
     # Store ctau list
     effsDict['ctau'] = tauList[:]
+    evts_cutFlow['ctau'] = tauList[:]
     # Store input file name
     effsDict['inputFile'] = inputFile
+    
 
     # Get model information
     modelDict = getModelDict(inputFile,verbose=False)
