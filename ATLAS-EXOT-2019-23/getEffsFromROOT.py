@@ -221,6 +221,8 @@ def getEfficiencies(inputFile,tauList,
     # Total efficiencies (for each tau value)
     effsDict = {"high-ET" : np.zeros(len(tauList)),
                 "low-ET" : np.zeros(len(tauList)),
+                "high-ET_Error" : np.zeros(len(tauList)),
+                "low-ET_Error" : np.zeros(len(tauList)),
                 "Nevents" : 0}
     
     
@@ -233,11 +235,21 @@ def getEfficiencies(inputFile,tauList,
         # #for the given selection (for each tau value)
         for sr in evt_effs:
             effsDict[sr] += np.array(evt_effs[sr])
+            effsDict[sr+'_Error'] += np.array(evt_effs[sr])**2
         
     f.Close()
+
+    # Take the sqrt of the errors**2:
+    for key in effsDict:
+        if '_Error' in key:
+            effsDict[key] = np.sqrt(effsDict[key])
+
     # Divide the total efficiency by the number of events:
     effsDict["high-ET"] = effsDict["high-ET"]/effsDict['Nevents']
     effsDict["low-ET"] = effsDict["low-ET"]/effsDict['Nevents']
+    effsDict["high-ET_Error"] = effsDict["high-ET_Error"]/effsDict['Nevents']
+    effsDict["low-ET_Error"] = effsDict["low-ET_Error"]/effsDict['Nevents']
+
     # Store ctau list
     effsDict['ctau'] = tauList[:]
     # Store input file name
@@ -266,6 +278,8 @@ def saveOutput(effsDict,outputFile):
     #     effsDict['eff'] = effsHigh
     effsDict['eff_low-ET'] =  effsDict.pop('low-ET')
     effsDict['eff_high-ET'] =  effsDict.pop('high-ET')
+    effsDict['eff_low-ET_Error'] =  effsDict.pop('low-ET_Error')
+    effsDict['eff_high-ET_Error'] =  effsDict.pop('high-ET_Error')
     
 
     # Get column labels and data
