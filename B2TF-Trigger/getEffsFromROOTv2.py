@@ -139,9 +139,9 @@ def passTimingCut(t_onTime,t_delayed):
     in the intervals 0 < t1 < 10ns and 25ns < t2 < 35ns
     """
 
-    if not (0.0 < t_onTime < 10.0):
+    if not (0.0 <= t_onTime <= 10.0):
         return False
-    if not (25.0 < t_delayed < 35.0):
+    if not (25.0 <= t_delayed <= 35.0):
         return False
     
     return True
