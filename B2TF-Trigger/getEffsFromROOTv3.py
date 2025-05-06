@@ -31,8 +31,6 @@ logging.basicConfig(format=FORMAT,datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger()   
 
 
-random.seed(123)
- 
 
 def getDataFrom(llpParticles,llpDaughters,llp_PDGs,invisible_PDGs):
 
@@ -380,6 +378,11 @@ def getEffFor(eventRecords,tauList):
 
 def getEfficiencies(inputFile,tauList,
                     llps=[4000023],invisibles=[4000022]):
+
+
+    # Set the seed for each run, so the results independ on
+    # how many files are run or their ordering
+    random.seed(123)
 
     # Load hepmc File
     if not os.path.isfile(inputFile):
