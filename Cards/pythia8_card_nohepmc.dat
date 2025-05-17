@@ -16,8 +16,3 @@ Next:numberShowProcess = 1         ! print process record n times
 Next:numberShowEvent = 1           ! print event record n times
 Tune:pp = 21 ! A14 tune with NNPDF2.3LO
 
-JetMatching:qCut         = -1.0
-JetMatching:doShowerKt   = off
-JetMatching:nJetMax      = -1
-Merging:TMS              = -1.0
-Merging:nJetMax          = -1

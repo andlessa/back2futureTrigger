@@ -29,8 +29,8 @@ fi
 cd $homeDIR
 
 
-madgraph="MG5_aMC_v3.4.2.tar.gz"
-URL=https://launchpad.net/mg5amcnlo/3.0/3.4.x/+download/$madgraph
+madgraph="MG5_aMC_v3.6.2.tar.gz"
+URL=https://launchpad.net/mg5amcnlo/3.0/3.6.x/+download/$madgraph
 echo -n "Install MadGraph (y/n)? "
 read answer
 if echo "$answer" | grep -iq "^y" ;then

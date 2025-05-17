@@ -16,10 +16,4 @@ Next:numberShowProcess = 1         ! print process record n times
 Next:numberShowEvent = 1           ! print event record n times
 Tune:pp = 21 ! A14 tune with NNPDF2.3LO
 
-
-### Added lines:
-Beams:frameType = 4
-Beams:LHEF = /rundisk/lessa/pp2chi0chi0_minimalH_root_5fcdzzmw_run_15/Events/run_01/unweighted_events.lhe.gz
-Beams:setProductionScalesFromLHEF=on
-Main:numberOfEvents   = 25000
-Main:timesAllowErrors   = 250
+HEPMCoutput:file = hepmc
