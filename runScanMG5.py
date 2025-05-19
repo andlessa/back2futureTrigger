@@ -104,13 +104,14 @@ def getInfoFromOutput(outputStr):
                'cross-section (pb)' : xsec, 'Number of events' : int(nevts)}
     return runInfo
 
-def runMG5(parser,runPythia=False) -> Dict:
+def runMG5(parser,runPythia=False, runMadSpin=False) -> Dict:
     
     """
     Runs the madgraph event generation and Pythia, if runPythia = True.
     
     :param parser: Dictionary with parser sections.
     :param runPythia: If True, will run the MG5-Pythia interface.
+    :param runMadSpin: If True, will run the MadSpin.
     
     :return: Dictionary with run info. False if failed.
     """
@@ -161,6 +162,14 @@ def runMG5(parser,runPythia=False) -> Dict:
         if os.path.isfile(pars['pythia8card']):
             shutil.copyfile(pars['pythia8card'],pythia8File) 
 
+    if runMadSpin:
+        if not 'madspincard' in pars or not os.path.isfile(pars['madspincard']):
+            logger.error("MadSpin file not defined or not found.")
+            return {}
+        else:
+            madspinFile = os.path.join(runFolder,'Cards/madspin_card.dat')
+            shutil.copyfile(pars['madspincard'],madspinFile)   
+        
     #Generate commands file:       
     commandsFile = tempfile.mkstemp(suffix='.txt', prefix='MG5_commands_', dir=runFolder)
     os.close(commandsFile[0])
@@ -170,6 +179,10 @@ def runMG5(parser,runPythia=False) -> Dict:
     else:
         commandsFileF.write('shower=OFF\n')
     commandsFileF.write('detector=OFF\n')
+    if runMadSpin:
+        commandsFileF.write('madspin=ON\n')
+    else:
+        commandsFileF.write('madspin=OFF\n')
     commandsFileF.write('done\n')
     comms = parser["MadGraphSet"]
     # Set the MadGraph parameters defined in the ini file
@@ -194,8 +207,8 @@ def runMG5(parser,runPythia=False) -> Dict:
     runInfo = {}
     runInfo.update(pars)
 
-    logger.debug('MG5 event error:\n %s \n' %errorMsg)
-    logger.debug('MG5 event output:\n %s \n' %output)    
+    logger.debug('MG5 event error:\n %s \n' %errorMsg.decode())
+    logger.debug('MG5 event output:\n %s \n' %output.decode())
     # Get info from output
     runInfo.update(getInfoFromOutput(output))
 
@@ -309,6 +322,7 @@ def generateEvents(parser):
     run_delphespythia = False
     run_delphes = False
     run_madgraph = False
+    run_madspin = False
 
     if 'runMadGraph' in parser['options']:
         run_madgraph = parser["options"]["runMadGraph"]
@@ -318,14 +332,17 @@ def generateEvents(parser):
         run_delphes = parser["options"]["runDelphes"]
     if 'runDelphesPythia' in parser['options']:
         run_delphespythia = parser["options"]["runDelphesPythia"]
-    
+    if 'runMadSpin' in parser['options']:
+        run_madspin = parser["options"]["runMadSpin"]
+
     if run_pythia and run_delphespythia:
         logger.warning('Both runPythia and runDelphesPythia set to True. Setting runDelphesPythia to False')
         run_delphespythia = False
     
 
     if run_madgraph:
-        runInfo = runMG5(parser,runPythia=run_pythia)
+        runInfo = runMG5(parser,runPythia=run_pythia,
+                         runMadSpin=run_madspin)
         if run_delphes or run_delphespythia:
             runInfo = runDelphes(parser,runInfo,
                              runDelphesPythia=run_delphespythia)
