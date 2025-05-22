@@ -29,13 +29,17 @@ fi
 cd $homeDIR
 
 
-madgraph="MG5_aMC_v3.6.2.tar.gz"
-URL=https://launchpad.net/mg5amcnlo/3.0/3.6.x/+download/$madgraph
+#madgraph="MG5_aMC_v3.6.2.tar.gz"
+#URL=https://launchpad.net/mg5amcnlo/3.0/3.6.x/+download/$madgraph
+# Use github version with fix for printing intermediate particles
+madgraph="mg5amcnlo-3.6.3.zip"
 echo -n "Install MadGraph (y/n)? "
 read answer
 if echo "$answer" | grep -iq "^y" ;then
 	mkdir MG5;
-	echo "[installer] getting MadGraph5"; wget $URL 2>/dev/null || curl -O $URL; tar -zxf $madgraph -C MG5 --strip-components 1;
+	#echo "[installer] getting MadGraph5"; wget $URL 2>/dev/null || curl -O $URL; tar -zxf $madgraph -C MG5 --strip-components 1;
+	unzip $madgraph;
+	mv mg5amcnlo-3.6.3 MG5;
 	cd $homeDIR
 	cd ./MG5/bin;
 	echo "[installer] installing HepMC, LHAPDF6 and Pythia8 under MadGraph5"
