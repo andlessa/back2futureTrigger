@@ -47,6 +47,37 @@ class MCValAlg : public EL::AnaAlgorithm
 		std::vector<int> *m_scalar_status;
 		int m_scalar_N;
 
+		float m_L1_MET_Nminus1_met;
+		float m_L1_MET_Nminus1_mpt;
+		float m_L1_MET_Nminus1_px;
+		float m_L1_MET_Nminus1_py;
+		float m_L1_MET_Nminus1_pz;
+		float m_L1_MET_Nminus1_phi;
+		float m_L1_MET_Nminus1_eta;
+	
+		float m_truth_MET_Nminus1_mpt;
+		float m_truth_MET_Nminus1_met;
+
+		std::vector<float> *m_L1_jet_N_e;
+		std::vector<float> *m_L1_jet_N_et;
+                std::vector<float> *m_L1_jet_N_eta;
+                std::vector<float> *m_L1_jet_N_phi;
+                int m_L1_jet_N_N;
+
+                std::vector<float> *m_offline_jet_N_e;
+                std::vector<float> *m_offline_jet_N_et;
+                std::vector<float> *m_offline_jet_N_eta;
+                std::vector<float> *m_offline_jet_N_phi;
+                int m_offline_jet_N_N;
+
+		float m_L1_leadingJet_N_e; 
+                float m_L1_leadingJet_N_et; 
+                float m_L1_leadingJet_N_eta; 
+                float m_L1_leadingJet_N_phi; 
+                float m_L1_leading_delPhi; 
+		
+                std::vector<float> *m_L1_delPhi;
+		
 		std::vector<float> *m_higgs_pt;
 		std::vector<float> *m_higgs_eta;
 		std::vector<float> *m_higgs_phi;
@@ -140,6 +171,16 @@ class MCValAlg : public EL::AnaAlgorithm
 
 		std::vector<int> *m_truthParticles_pdgid;
 
+		std::vector<float> *m_nu_pt;
+		std::vector<float> *m_nu_px;
+		std::vector<float> *m_nu_py;
+		std::vector<float> *m_nu_e;
+                std::vector<float> *m_nu_eta;
+                std::vector<float> *m_nu_phi;
+                std::vector<float> *m_nu_m;
+                std::vector<int> *m_nu_pdgid;
+                std::vector<int> *m_nu_status;
+                int m_nu_N;
 
 		std::vector<float> *m_lep_pt;
 		std::vector<float> *m_lep_eta;
@@ -220,6 +261,11 @@ class MCValAlg : public EL::AnaAlgorithm
 
 
 		float m_llp1_pt;
+		float m_llp1_phi;
+		float m_llp1_e;
+		float m_llp1_px;
+		float m_llp1_py;
+		float m_llp1_pz;
 		float m_llp1_Lxy;
 		float m_llp1_Lz;
 		float m_llp1_t;
@@ -227,6 +273,10 @@ class MCValAlg : public EL::AnaAlgorithm
 		float m_llp1_ctau;
 		float m_llp1_boost;
 		float m_llp2_pt;
+		float m_llp2_e;
+		float m_llp2_phi;
+		float m_llp2_px;
+		float m_llp2_py;
 		float m_llp2_Lxy;
 		float m_llp2_Lz;
 		float m_llp2_t;
@@ -264,9 +314,16 @@ class MCValAlg : public EL::AnaAlgorithm
 		float m_pho_llp_del_R;
 		float m_pho_llp_del_t;
 		float m_chi0_llp1_pt;
+		float m_chi0_llp1_e;
+		float m_chi0_llp1_px;
+		float m_chi0_llp1_py;
 		float m_chi0_llp1_eta;
 		float m_chi0_llp1_phi;
 		float m_chi0_llp2_pt;
+		float m_chi0_llp2_e;
+		float m_chi0_llp2_px;
+		float m_chi0_llp2_py;
+		float m_chi0_llp2_pz;
 		float m_chi0_llp2_eta;
 		float m_chi0_llp2_phi;
 		float m_chi0_llp_del_phi;
