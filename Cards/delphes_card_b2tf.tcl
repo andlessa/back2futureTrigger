@@ -2,16 +2,19 @@
 # Order of execution of various modules
 #######################################
 
+#set MaxEvents 100
+
 set ExecutionPath {
 
   LLPFilter
   ParticlePropagator
+  TrackMerger
   
   CalorimeterOnTime
   MissingETOnTime
   
-  ECalDelayed
-  HCalDelayed
+  ECALDelayed
+  HCALDelayed
   CalorimeterDelayed
   
   FastJetFinderDelayed
@@ -48,7 +51,10 @@ module BSMFilter LLPFilter {
 module ParticlePropagator ParticlePropagator {
   set InputArray Delphes/stableParticles
 
-  set OutputArray stableParticles # Store all particles with rho < RadiusMax and/or |z| < HalfLengthMax
+  set OutputArray stableParticles
+  set ChargedHadronOutputArray chargedHadrons
+  set ElectronOutputArray electrons
+  set MuonOutputArray muons
 
   # radius of the magnetic field coverage, in m
   set Radius 1.4
@@ -66,6 +72,19 @@ module ParticlePropagator ParticlePropagator {
 }
 
 
+##############
+# Track merger
+##############
+
+module Merger TrackMerger {
+# add InputArray InputArray
+  add InputArray ParticlePropagator/chargedHadrons
+  add InputArray ParticlePropagator/electrons
+  add InputArray ParticlePropagator/muons
+  set OutputArray tracks
+}
+
+
 ####################################################
 #   Calorimeter - OnTime (N-1)
 #  Simulates a low granularity calorimeter (ECAL+HCAL)
@@ -74,12 +93,13 @@ module ParticlePropagator ParticlePropagator {
 
 module SimpleCalorimeterTiming CalorimeterOnTime {
   set ParticleInputArray ParticlePropagator/stableParticles
+  set TrackInputArray TrackMerger/tracks
 
   set TowerOutputArray calTowers
   set EFlowTrackOutputArray flowTracks
   set EFlowTowerOutputArray flowNeutrals
 
-  set IsEcal false
+  set IsECAL false
 
   set EnergyMin 0.5
   set EnergySignificanceMin 2.0
@@ -132,7 +152,7 @@ module SimpleCalorimeterTiming CalorimeterOnTime {
 
   # set ResolutionFormula {resolution formula as a function of eta and energy}
 
-  # set ECalResolutionFormula {resolution formula as a function of eta and energy}
+  # set ECALResolutionFormula {resolution formula as a function of eta and energy}
   # http://arxiv.org/pdf/physics/0608012v1 jinst8_08_s08003
   # http://villaolmo.mib.infn.it/ICATPP9th_2005/Calorimetry/Schram.p.pdf
   # http://www.physics.utoronto.ca/~krieger/procs/ComoProceedings.pdf
@@ -150,14 +170,15 @@ module SimpleCalorimeterTiming CalorimeterOnTime {
 #  for the HLT trigger
 ###################################
 
-module SimpleCalorimeterTiming ECalDelayed {
+module SimpleCalorimeterTiming ECALDelayed {
   set ParticleInputArray ParticlePropagator/stableParticles
+  set TrackInputArray TrackMerger/tracks
 
   set TowerOutputArray ecalTowers
   set EFlowTrackOutputArray eflowTracks
   set EFlowTowerOutputArray eflowNeutrals
 
-  set IsEcal true
+  set IsECAL true
 
   set EnergyMin 0.5
   set EnergySignificanceMin 2.0
@@ -242,7 +263,7 @@ module SimpleCalorimeterTiming ECalDelayed {
 
   # set ResolutionFormula {resolution formula as a function of eta and energy}
 
-  # set ECalResolutionFormula {resolution formula as a function of eta and energy}
+  # set ECALResolutionFormula {resolution formula as a function of eta and energy}
   # http://arxiv.org/pdf/physics/0608012v1 jinst8_08_s08003
   # http://villaolmo.mib.infn.it/ICATPP9th_2005/Calorimetry/Schram.p.pdf
   # http://www.physics.utoronto.ca/~krieger/procs/ComoProceedings.pdf
@@ -258,23 +279,26 @@ module SimpleCalorimeterTiming ECalDelayed {
 #  for the HLT trigger
 ###################################
 
-module SimpleCalorimeterTiming HCalDelayed {
+module SimpleCalorimeterTiming HCALDelayed {
   set ParticleInputArray ParticlePropagator/stableParticles
+  set TrackInputArray TrackMerger/tracks
 
   set TowerOutputArray hcalTowers
   set EFlowTrackOutputArray eflowTracks
   set EFlowTowerOutputArray eflowNeutrals
 
-  set IsEcal false
+  set IsECAL false
 
   set EnergyMin 0.5
   set EnergySignificanceMin 2.0
 
   set SmearTowerCenter true
   
-  set TReadoutMin 25e-9 # Min readout time in seconds
-  set TReadoutMax 35e-9 # Max readout time in seconds
+  # Calorimeter readout window  
+  set TReadoutMin 25e-9
+  set TReadoutMax 35e-9
   
+  # Calorimeter fiducial volume
   set Radius 2.0
   set RadiusMax 3.5
   set HalfLength 4.3
@@ -305,7 +329,7 @@ module SimpleCalorimeterTiming HCalDelayed {
     add EtaPhiBins $eta $PhiBins
   }
 
-  # default energy fractions {abs(PDG code)} {Fecal Fhcal}
+  # default energy fractions {abs(PDG code)} {FECAL Fhcal}
   add EnergyFraction {0} {1.0}
   # energy fractions for muon, neutrinos and neutralinos
   add EnergyFraction {12} {0.0}
@@ -336,18 +360,18 @@ module SimpleCalorimeterTiming HCalDelayed {
 
 module Merger MissingETOnTime {
 # add InputArray InputArray
-  add InputArray CalOnTime/towers
+  add InputArray CalorimeterOnTime/calTowers
   set MomentumOutputArray momentum
 }
 
 ###################################################
-# Delayed Tower Merger (ECAl + HCAL) (N)
+# Delayed Tower Merger (ECAL + HCAL) (N)
 ###################################################
 
 module Merger CalorimeterDelayed {
 # add InputArray InputArray
-  add InputArray ECalDelayed/ecalTowers
-  add InputArray HCalDelayed/hcalTowers
+  add InputArray ECALDelayed/ecalTowers
+  add InputArray HCALDelayed/hcalTowers
   set OutputArray towers
 }
 
@@ -395,19 +419,19 @@ module TreeWriter TreeWriter {
   add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
   add Branch LLPFilter/mothers llpMothers GenParticle
 
-  add Branch CalorimeterOnTime/caltowers TowerOnTime Tower
+  add Branch CalorimeterOnTime/calTowers TowerOnTime Tower
   add Branch CalorimeterOnTime/flowTracks TrackOnTime Track
   add Branch CalorimeterOnTime/flowNeutrals NeutralOnTime Tower
   
   add Branch MissingETOnTime/momentum MissingETOnTime MissingET
   
-  add Branch ECAlDelayed/ecaltowers ETowerDelayed Tower
-  add Branch ECAlDelayed/eflowTracks ETrackDelayed Track
-  add Branch ECAlDelayed/eflowNeutrals ENeutralDelayed Tower
+  add Branch ECALDelayed/ecalTowers ETowerDelayed Tower
+  add Branch ECALDelayed/eflowTracks ETrackDelayed Track
+  add Branch ECALDelayed/eflowNeutrals ENeutralDelayed Tower
   
-  add Branch HCAlDelayed/hcaltowers HTowerDelayed Tower
-  add Branch HCAlDelayed/eflowTracks HTrackDelayed Track
-  add Branch HCAlDelayed/eflowNeutrals HNeutralDelayed Tower
+  add Branch HCALDelayed/hcalTowers HTowerDelayed Tower
+  add Branch HCALDelayed/eflowTracks HTrackDelayed Track
+  add Branch HCALDelayed/eflowNeutrals HNeutralDelayed Tower
   
   add Branch CalorimeterDelayed/towers TowerDelayed Tower  
   
