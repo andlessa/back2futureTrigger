@@ -11,3 +11,4 @@
 3. The EMF and $`\Delta R(jet,tracks)`$ requirements for the HLT seems to require that the LLP decay in the $`N`$ event record takes places within the HCAL. Otherwise the LLP decay would generate visible particles assigned to the ECAL TTs and we would have $`E_{EM} > E_{HAD}`$. Is this correct?
 
 4. Why was the $`\Delta \phi`$ cut modified?
+
