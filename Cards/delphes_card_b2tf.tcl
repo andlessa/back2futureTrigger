@@ -2,16 +2,17 @@
 # Order of execution of various modules
 #######################################
 
-set MaxEvents 22
-set RandomSeed 123
+#set MaxEvents 22
+#set RandomSeed 123
 
 set ExecutionPath {
 
   LLPFilter
+
   ParticlePropagator
   TrackMerger
   
-  CalorimeterOnTime
+  L1CALOnTime
   MissingETOnTime
   
   ECALDelayed
@@ -63,8 +64,8 @@ module ParticlePropagator ParticlePropagator {
   set HalfLength 3.7
 
   # maximum radius for particles to be considered
-  # if the particle production vertez takes place between
-  # Radius and RadiusMax, the particle is not propagated but still kept
+  # (if the particle production vertex takes place between
+  # Radius and RadiusMax, the particle is not propagated but still kept)
   set RadiusMax 3.5
   set HalfLengthMax 5.5
 
@@ -92,7 +93,7 @@ module Merger TrackMerger {
 #  for the L1 trigger
 ####################################################
 
-module SimpleCalorimeterTiming CalorimeterOnTime {
+module SimpleCalorimeterTiming L1CALOnTime {
   set ParticleInputArray ParticlePropagator/stableParticles
   set TrackInputArray TrackMerger/tracks
 
@@ -100,18 +101,26 @@ module SimpleCalorimeterTiming CalorimeterOnTime {
   set EFlowTrackOutputArray flowTracks
   set EFlowTowerOutputArray flowNeutrals
 
+  # Save tower energy to tower.Eem
   set IsECAL true
 
+  # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
+  # If tower energy after smearing < EnergySignificanceMin*sigma,
+  # remove tower (sigma = resolution from ResolutionFormula)
   set EnergySignificanceMin 2.0
 
+  # Whether to keep bin centers or smear within bin widths
   set SmearTowerCenter false
   
-  # Calorimeter readout window
+  # Calorimeter readout time window
   set TReadoutMin 0.0
   set TReadoutMax 10e-9
   
   # Calorimeter fiducial volume (ECAL+HCAL)
+  # (should be consisent with ParticlePropagator parameters, 
+  # since only particles propagated up to 
+  # or created within the volume are considered)
   set Radius 1.4
   set RadiusMax 3.5
   set HalfLength 3.7
@@ -179,18 +188,26 @@ module SimpleCalorimeterTiming ECALDelayed {
   set EFlowTrackOutputArray eflowTracks
   set EFlowTowerOutputArray eflowNeutrals
 
+  # Save tower energy to tower.Eem
   set IsECAL true
 
+  # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
+  # If tower energy after smearing < EnergySignificanceMin*sigma,
+  # remove tower (sigma = resolution from ResolutionFormula)
   set EnergySignificanceMin 2.0
 
+  # Whether to keep bin centers or smear within bin width
   set SmearTowerCenter false
   
-  # Calorimeter readout window
+  # Calorimeter readout time window
   set TReadoutMin 25e-9
   set TReadoutMax 35e-9
   
-  # Calorimeter fiducial volume
+  # Calorimeter fiducial volume 
+  # (should be consisent with ParticlePropagator parameters, 
+  # since only particles propagated up to 
+  # or created within the volume are considered)
   set Radius 1.4
   set RadiusMax 2.0
   set HalfLength 3.7
@@ -288,18 +305,29 @@ module SimpleCalorimeterTiming HCALDelayed {
   set EFlowTrackOutputArray eflowTracks
   set EFlowTowerOutputArray eflowNeutrals
 
+  # Save tower energy to tower.Ehad
   set IsECAL false
 
-  set EnergyMin 0.0
-  set EnergySignificanceMin 0.0
+  # Minimum energy for keeping the tower after smearing
+  set EnergyMin 0.5
+  # If tower energy after smearing < EnergySignificanceMin*sigma,
+  # remove tower (sigma = resolution from ResolutionFormula)
+  set EnergySignificanceMin 2.0
 
+  # Whether to keep bin centers or smear within bin width
   set SmearTowerCenter false
   
-  # Calorimeter readout window  
+  # Calorimeter readout time window  
   set TReadoutMin 25e-9
   set TReadoutMax 35e-9
   
   # Calorimeter fiducial volume
+  # Calorimeter fiducial volume 
+  # (should be consisent with ParticlePropagator parameters, 
+  # since only particles propagated up to 
+  # or created within the volume are considered)
+  # (Since Calorimeter Radius/HalfLength > ParticlePropagator Radius/HalfLength,
+  # only particles created by decays within the volume are considered)
   set Radius 2.0
   set RadiusMax 3.5
   set HalfLength 4.3
@@ -311,6 +339,8 @@ module SimpleCalorimeterTiming HCALDelayed {
   # lists of the edges of each tower in eta and phi
   # each list starts with the lower edge of the first tower
   # the list ends with the higher edged of the last tower
+
+  # assume the full calorimeter granularity to simulate the HLT
 
   # 10 degrees towers
   set PhiBins {}
@@ -361,7 +391,7 @@ module SimpleCalorimeterTiming HCALDelayed {
 
 module Merger MissingETOnTime {
 # add InputArray InputArray
-  add InputArray CalorimeterOnTime/calTowers
+  add InputArray L1CALOnTime/calTowers
   set MomentumOutputArray momentum
 }
 
@@ -416,30 +446,28 @@ module EnergyScale JetEnergyScaleDelayed {
 
 module TreeWriter TreeWriter {
 
-  add Branch Delphes/stableParticles ParticleStable GenParticle
-  add Branch ParticlePropagator/stableParticles ParticleProp GenParticle
+#  add Branch Delphes/stableParticles ParticleStable GenParticle
+#  add Branch ParticlePropagator/stableParticles ParticleProp GenParticle
+#  add Branch LLPFilter/finalDaughters llpFinalDaughters GenParticle
+#  add Branch LLPFilter/mothers llpMothers GenParticle
+#  add Branch L1CALOnTime/flowTracks TrackOnTime Track
+#  add Branch L1CALOnTime/flowNeutrals NeutralOnTime Tower
+#  add Branch ECALDelayed/eflowTracks ETrackDelayed Track
+#  add Branch ECALDelayed/eflowNeutrals ENeutralDelayed Tower
+#  add Branch HCALDelayed/eflowTracks HTrackDelayed Track
+#  add Branch HCALDelayed/eflowNeutrals HNeutralDelayed Tower
 
   add Branch LLPFilter/bsmParticles llpParticles GenParticle
   add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
-  add Branch LLPFilter/finalDaughters llpFinalDaughters GenParticle
-  add Branch LLPFilter/mothers llpMothers GenParticle
 
-  add Branch CalorimeterOnTime/calTowers TowerOnTime Tower
-  add Branch CalorimeterOnTime/flowTracks TrackOnTime Track
-  add Branch CalorimeterOnTime/flowNeutrals NeutralOnTime Tower
-  
+  add Branch TrackMerger/tracks AllTracks Track
+
+  add Branch L1CALOnTime/calTowers TowerOnTime Tower
   add Branch MissingETOnTime/momentum MissingETOnTime MissingET
-  
-  add Branch ECALDelayed/ecalTowers ETowerDelayed Tower
-  add Branch ECALDelayed/eflowTracks ETrackDelayed Track
-  add Branch ECALDelayed/eflowNeutrals ENeutralDelayed Tower
-  
-  add Branch HCALDelayed/hcalTowers HTowerDelayed Tower
-  add Branch HCALDelayed/eflowTracks HTrackDelayed Track
-  add Branch HCALDelayed/eflowNeutrals HNeutralDelayed Tower
-  
-  add Branch CalorimeterDelayed/towers TowerDelayed Tower  
-  
+
+  add Branch ECALDelayed/ecalTowers ETowerDelayed Tower  
+  add Branch HCALDelayed/hcalTowers HTowerDelayed Tower  
+  add Branch CalorimeterDelayed/towers TowerDelayed Tower 
   add Branch JetEnergyScaleDelayed/jets JetDelayed Jet
   
 }
