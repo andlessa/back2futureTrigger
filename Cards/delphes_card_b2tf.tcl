@@ -2,7 +2,7 @@
 # Order of execution of various modules
 #######################################
 
-set MaxEvents 100
+set MaxEvents 22
 set RandomSeed 123
 
 set ExecutionPath {
@@ -290,8 +290,8 @@ module SimpleCalorimeterTiming HCALDelayed {
 
   set IsECAL false
 
-  set EnergyMin 0.5
-  set EnergySignificanceMin 2.0
+  set EnergyMin 0.0
+  set EnergySignificanceMin 0.0
 
   set SmearTowerCenter false
   
