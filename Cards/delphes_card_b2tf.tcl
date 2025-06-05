@@ -2,8 +2,8 @@
 # Order of execution of various modules
 #######################################
 
-#set MaxEvents 2
-#set RandomSeed 123
+set MaxEvents 100
+set RandomSeed 123
 
 set ExecutionPath {
 
@@ -105,7 +105,7 @@ module SimpleCalorimeterTiming CalorimeterOnTime {
   set EnergyMin 0.5
   set EnergySignificanceMin 2.0
 
-  set SmearTowerCenter true
+  set SmearTowerCenter false
   
   # Calorimeter readout window
   set TReadoutMin 0.0
@@ -184,7 +184,7 @@ module SimpleCalorimeterTiming ECALDelayed {
   set EnergyMin 0.5
   set EnergySignificanceMin 2.0
 
-  set SmearTowerCenter true
+  set SmearTowerCenter false
   
   # Calorimeter readout window
   set TReadoutMin 25e-9
@@ -293,7 +293,7 @@ module SimpleCalorimeterTiming HCALDelayed {
   set EnergyMin 0.5
   set EnergySignificanceMin 2.0
 
-  set SmearTowerCenter true
+  set SmearTowerCenter false
   
   # Calorimeter readout window  
   set TReadoutMin 25e-9
@@ -416,8 +416,8 @@ module EnergyScale JetEnergyScaleDelayed {
 
 module TreeWriter TreeWriter {
 
-#  add Branch Delphes/stableParticles ParticleStable GenParticle
-#  add Branch ParticlePropagator/stableParticles ParticleProp GenParticle
+  add Branch Delphes/stableParticles ParticleStable GenParticle
+  add Branch ParticlePropagator/stableParticles ParticleProp GenParticle
 
   add Branch LLPFilter/bsmParticles llpParticles GenParticle
   add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
