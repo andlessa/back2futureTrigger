@@ -21,8 +21,8 @@ axisDict = {'$m_S$ (GeV)' : 'ms',
            '$\\Delta m_{10}$ (GeV)' : 'dm',
            '$c \\tau (m)$' : 'ctau',
            '$\\epsilon_{\\rm T}$' : 'eff',
-           '$Z_{\\rm exp} = \\frac{n_s}{\sigma_b}$' : 'Z0',
-           '$\sigma_{\\rm UL}^{\\rm exp} (fb)$' : 'sigmaUL',
+           '$Z_{\\rm exp} = \\frac{n_s}{\\sigma_b}$' : 'Z0',
+           '$\\sigma_{\\rm UL}^{\\rm exp} (fb)$' : 'sigmaUL',
            '$n_{s}$' : 'ns'}
 
 varDict = {val : key for key,val in axisDict.items()}
@@ -75,11 +75,13 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
     parsDict['m1'] = slhaData.blocks['MASS'][LLP]
     parsDict['m0'] = slhaData.blocks['MASS'][LSP]
     parsDict['mS'] = slhaData.blocks['MASS'][mother]
+    parsDict['tau'] = 6.582e-25/slhaData.decays[LLP].totalwidth
     
     modelInfoDict.update(parsDict)
     if verbose:
         print('ms = ',parsDict['mS'])
         print('m1 = ',parsDict['m1'])
         print('m0 = ',parsDict['m0'])
+        print('tau (ns) = ',parsDict['tau']*1e9)
     
     return modelInfoDict
