@@ -2,7 +2,8 @@
 # Order of execution of various modules
 #######################################
 
-#set MaxEvents 100
+#set MaxEvents 2
+#set RandomSeed 123
 
 set ExecutionPath {
 
@@ -99,7 +100,7 @@ module SimpleCalorimeterTiming CalorimeterOnTime {
   set EFlowTrackOutputArray flowTracks
   set EFlowTowerOutputArray flowNeutrals
 
-  set IsECAL false
+  set IsECAL true
 
   set EnergyMin 0.5
   set EnergySignificanceMin 2.0
@@ -414,9 +415,13 @@ module EnergyScale JetEnergyScaleDelayed {
 # "add Branch ..." lines.
 
 module TreeWriter TreeWriter {
-# add Branch InputArray BranchName BranchClass
+
+#  add Branch Delphes/stableParticles ParticleStable GenParticle
+#  add Branch ParticlePropagator/stableParticles ParticleProp GenParticle
+
   add Branch LLPFilter/bsmParticles llpParticles GenParticle
   add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
+  add Branch LLPFilter/finalDaughters llpFinalDaughters GenParticle
   add Branch LLPFilter/mothers llpMothers GenParticle
 
   add Branch CalorimeterOnTime/calTowers TowerOnTime Tower
