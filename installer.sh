@@ -36,19 +36,19 @@ madgraph="mg5amcnlo-3.6.3.zip"
 echo -n "Install MadGraph (y/n)? "
 read answer
 if echo "$answer" | grep -iq "^y" ;then
-	mkdir MG5;
+	#mkdir MG5;
 	#echo "[installer] getting MadGraph5"; wget $URL 2>/dev/null || curl -O $URL; tar -zxf $madgraph -C MG5 --strip-components 1;
+	cp $madgraph $madgraph"_bak"
 	unzip $madgraph;
 	mv mg5amcnlo-3.6.3 MG5;
+	mv $madgraph"_bak" $madgraph
 	cd $homeDIR
 	cd ./MG5/bin;
 	echo "[installer] installing HepMC, LHAPDF6 and Pythia8 under MadGraph5"
-    echo "install hepmc\ninstall lhapdf6\ninstall pythia8\nexit\n" > mad_install.txt;
+        echo "install hepmc\ninstall lhapdf6\ninstall pythia8\nexit\n" > mad_install.txt;
 	./mg5_aMC -f mad_install.txt
 	cd $homeDIR
-    rm $madgraph;
 	sed  "s|homeDIR|$homeDIR|g" mg5_configuration.txt > ./MG5/input/mg5_configuration.txt;
-	rm $madgraph;
 fi
 
 echo -n "Install Delphes (y/n)? "
