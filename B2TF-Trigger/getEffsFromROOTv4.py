@@ -153,29 +153,29 @@ def getEffFor(tree,llps,invisibles):
         return evt_eff,evt_cutFlow # return zero effs
     
     # Get MET from the L1 (on-time) calorimenter
-    metOnTime = tree.MissingETOnTime.At(0)
+    metOnTime = tree.L1METOnTime.At(0)
 
-    # Get jets from the HLT (delayed) calorimeter
-    jetsDelayed = list(tree.JetDelayed)
+    # Get jets from the L1 (delayed) calorimeter
+    jetsDelayedL1 = list(tree.L1JetDelayed)
         
 
     evt_cutFlow['All'] += 1
 
     ### Pre-Selection
     # Keep only jets passing the pt cut
-    jetsDelayed = [j for j in jetsDelayed[:] if j.PT > 20.0]
-    if not jetsDelayed:
+    jetsDelayedL1 = [j for j in jetsDelayedL1[:] if j.PT > 20.0]
+    if not jetsDelayedL1:
         return evt_eff,evt_cutFlow
 
     evt_cutFlow['Pre-Sel: PT Jet(N) > 20 GeV'] += 1.0
     # Keep only jets passing the eta cut
-    jetsDelayed = [j for j in jetsDelayed[:] if abs(j.Eta) < 3.2]
-    if not jetsDelayed:
+    jetsDelayedL1 = [j for j in jetsDelayedL1[:] if abs(j.Eta) < 3.2]
+    if not jetsDelayedL1:
         return evt_eff,evt_cutFlow
     
     evt_cutFlow['Pre-Sel: Eta Jet(N) < 3.2'] += 1.0
     # Sort jets by highest pT
-    jetsDelayed = sorted(jetsDelayed, 
+    jetsDelayedL1 = sorted(jetsDelayedL1, 
                          key = lambda j: j.PT,                       reverse=True)
 
 
@@ -185,14 +185,16 @@ def getEffFor(tree,llps,invisibles):
 
     evt_cutFlow['L1: 40 GeV < MET(N-1) < 100 GeV'] += 1.0
 
-    if jetsDelayed[0].PT < 40.0:
+    if jetsDelayedL1[0].PT < 40.0:
         return evt_eff,evt_cutFlow
     
     evt_cutFlow['L1: 40 GeV < PT Jet1(N)'] += 1.0
 
-    dphi_min = 10.0
-    for j in jetsDelayed[:6]:
+    dphi_min = 2*np.pi
+    for j in jetsDelayedL1[:6]:
         dphi = np.abs(j.Phi-metOnTime.Phi)
+        if dphi > np.pi:
+            dphi = 2*np.pi - dphi
         dphi_min = min(dphi,dphi_min)
 
     if dphi_min > 1.0:
@@ -202,7 +204,9 @@ def getEffFor(tree,llps,invisibles):
 
 
     ### HLT Trigger
-    jets = [j for j in jetsDelayed[:] if abs(j.Eta) < 2.5]
+    # Get jets from the L1 (delayed) calorimeter
+    jetsDelayedHLT = list(tree.HLTJetDelayed)
+    jets = [j for j in jetsDelayedHLT[:] if abs(j.Eta) < 2.5]
     if not jets:
         return evt_eff,evt_cutFlow
     
@@ -214,7 +218,7 @@ def getEffFor(tree,llps,invisibles):
     for j in jets:
         closest_cell = None
         dRmin = 100.0
-        for tower_cell in tree.TowerDelayed:
+        for tower_cell in tree.HLTTowerDelayed:
             dR = np.sqrt((j.Eta-tower_cell.Eta)**2 
                          + (j.Phi-tower_cell.Phi)**2)
             if dR < dRmin:
@@ -245,8 +249,11 @@ def getEffFor(tree,llps,invisibles):
     for j in jets_disp:
         dRmin = 100.0
         for track in tracksDelayed:
-            dR = np.sqrt((j.Eta-track.Eta)**2 
-                         + (j.Phi-track.Phi)**2)
+            dphi = np.abs((j.Phi-track.Phi))
+            if dphi > np.pi:
+                dphi = 2*np.pi - dphi
+            deta = (j.Eta-track.Eta)
+            dR = np.sqrt(deta**2 + dphi**2)
             dRmin = min(dR,dRmin)
         if dRmin > 0.2:
             jets_clean.append(j)

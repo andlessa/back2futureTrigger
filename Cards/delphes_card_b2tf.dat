@@ -13,15 +13,18 @@ set ExecutionPath {
   TrackMerger
   
   L1CALOnTime
-  MissingETOnTime
+  L1METOnTime
   
+  L1CALDelayed
+  L1JetFinderDelayed
+  L1JetEnergyScaleDelayed
+
   ECALDelayed
   HCALDelayed
-  CalorimeterDelayed
+  HLTCALDelayed
+  HLTJetFinderDelayed
+  HLTJetEnergyScaleDelayed
   
-  FastJetFinderDelayed
-  JetEnergyScaleDelayed
-
   TreeWriter
 }
 
@@ -90,7 +93,7 @@ module Merger TrackMerger {
 ####################################################
 #   Calorimeter - OnTime (N-1)
 #  Simulates a low granularity calorimeter (ECAL+HCAL)
-#  for the L1 trigger
+#  for the L1 trigger in the N-1 event record
 ####################################################
 
 module SimpleCalorimeterTiming L1CALOnTime {
@@ -172,6 +175,91 @@ module SimpleCalorimeterTiming L1CALOnTime {
 
 }
 
+
+####################################################
+#   Calorimeter - Delayed (N)
+#  Simulates a low granularity calorimeter (ECAL+HCAL)
+#  for the L1 trigger in the N event record
+####################################################
+
+module SimpleCalorimeterTiming L1CALDelayed {
+  set ParticleInputArray ParticlePropagator/stableParticles
+  set TrackInputArray TrackMerger/tracks
+
+  set TowerOutputArray calTowers
+  set EFlowTrackOutputArray flowTracks
+  set EFlowTowerOutputArray flowNeutrals
+
+  # Save tower energy to tower.Eem
+  set IsECAL true
+
+  # Minimum energy for keeping the tower after smearing
+  set EnergyMin 0.5
+  # If tower energy after smearing < EnergySignificanceMin*sigma,
+  # remove tower (sigma = resolution from ResolutionFormula)
+  set EnergySignificanceMin 2.0
+
+  # Whether to keep bin centers or smear within bin widths
+  set SmearTowerCenter false
+  
+  # Calorimeter readout time window
+  set TReadoutMin 25e-9
+  set TReadoutMax 35e-9
+  
+  # Calorimeter fiducial volume (ECAL+HCAL)
+  # (should be consisent with ParticlePropagator parameters, 
+  # since only particles propagated up to 
+  # or created within the volume are considered)
+  set Radius 1.4
+  set RadiusMax 3.5
+  set HalfLength 3.7
+  set HalfLengthMax 5.5
+  
+  
+  set pi [expr {acos(-1)}]
+
+  # lists of the edges of each tower in eta and phi
+  # each list starts with the lower edge of the first tower
+  # the list ends with the higher edged of the last tower
+
+  # assume 0.1 x 0.1 resolution in phi and eta to simulate the L1 trigger calorimeter
+  set PhiBins {}
+  for {set i -36} {$i <= 36} {incr i} {
+    add PhiBins [expr {$i * $pi/36.0}]
+  }
+
+  for {set i 0} {$i <= 80} {incr i} {
+    set eta [expr { -4.0 + $i * 0.1}]
+    add EtaPhiBins $eta $PhiBins
+  }
+
+  # Default energy fraction for all particles 
+  add EnergyFraction {0} {1.0}
+  # energy fractions for muon, neutrinos, neutralinos, Sd, chi1 and chi0
+  add EnergyFraction {12} {0.0}
+  add EnergyFraction {13} {0.0}
+  add EnergyFraction {14} {0.0}
+  add EnergyFraction {16} {0.0}
+  add EnergyFraction {1000022} {0.0}
+  add EnergyFraction {1000023} {0.0}
+  add EnergyFraction {1000025} {0.0}
+  add EnergyFraction {1000035} {0.0}
+  add EnergyFraction {1000045} {0.0}
+  add EnergyFraction {4000022} {0.0}
+  add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {55} {0.0}
+
+  # set ResolutionFormula {resolution formula as a function of eta and energy}
+
+  # set ECALResolutionFormula {resolution formula as a function of eta and energy}
+  # http://arxiv.org/pdf/physics/0608012v1 jinst8_08_s08003
+  # http://villaolmo.mib.infn.it/ICATPP9th_2005/Calorimetry/Schram.p.pdf
+  # http://www.physics.utoronto.ca/~krieger/procs/ComoProceedings.pdf
+  set ResolutionFormula {                      (abs(eta) <= 3.2) * sqrt(energy^2*0.0017^2 + energy*0.101^2) +
+                             (abs(eta) > 3.2 && abs(eta) <= 4.9) * sqrt(energy^2*0.0350^2 + energy*0.285^2)}
+
+
+}
 
 
 ####################################
@@ -389,17 +477,18 @@ module SimpleCalorimeterTiming HCALDelayed {
 # Missing ET merger (N-1)
 #########################
 
-module Merger MissingETOnTime {
+module Merger L1METOnTime {
 # add InputArray InputArray
   add InputArray L1CALOnTime/calTowers
   set MomentumOutputArray momentum
 }
 
+
 ###################################################
-# Delayed Tower Merger (ECAL + HCAL) (N)
+# Delayed Tower Merger (HLT) (N)
 ###################################################
 
-module Merger CalorimeterDelayed {
+module Merger HLTCALDelayed {
 # add InputArray InputArray
   add InputArray ECALDelayed/ecalTowers
   add InputArray HCALDelayed/hcalTowers
@@ -407,12 +496,12 @@ module Merger CalorimeterDelayed {
 }
 
 
-########################
-# Jet finder Delayed (N)
-#######################
+###########################
+# L1 Jet finder Delayed (N)
+###########################
 
-module FastJetFinder FastJetFinderDelayed {
-  set InputArray CalorimeterDelayed/towers
+module FastJetFinder L1JetFinderDelayed {
+  set InputArray L1CALDelayed/calTowers
 
   set OutputArray jets
 
@@ -423,12 +512,42 @@ module FastJetFinder FastJetFinderDelayed {
   set JetPTMin 20.0
 }
 
+
+###########################
+# HLT Jet finder Delayed (N)
+###########################
+
+module FastJetFinder HLTJetFinderDelayed {
+  set InputArray HLTCALDelayed/towers
+
+  set OutputArray jets
+
+  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
+  set JetAlgorithm 6
+  set ParameterR 0.4
+
+  set JetPTMin 20.0
+}
+
+
 ##############################
-# Jet Energy Scale Delayed (N)
+# L1 Jet Energy Scale Delayed (N)
 ##############################
 
-module EnergyScale JetEnergyScaleDelayed {
-  set InputArray FastJetFinderDelayed/jets
+module EnergyScale L1JetEnergyScaleDelayed {
+  set InputArray L1JetFinderDelayed/jets
+  set OutputArray jets
+
+  # scale formula for jets
+  set ScaleFormula {  sqrt( (3.0 - 0.2*(abs(eta)))^2 / pt + 1.0 )  }
+}
+
+##############################
+# HLT Jet Energy Scale Delayed (N)
+##############################
+
+module EnergyScale HLTJetEnergyScaleDelayed {
+  set InputArray HLTJetFinderDelayed/jets
   set OutputArray jets
 
   # scale formula for jets
@@ -459,16 +578,18 @@ module TreeWriter TreeWriter {
 
   add Branch LLPFilter/bsmParticles llpParticles GenParticle
   add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
+ 
+#  add Branch L1CALOnTime/calTowers L1TowerOnTime Tower
+  add Branch L1METOnTime/momentum L1METOnTime MissingET
+  add Branch L1JetEnergyScaleDelayed/jets L1JetDelayed Jet
+ 
 
+#  add Branch ECALDelayed/ecalTowers ETowerDelayed Tower  
+#  add Branch HCALDelayed/hcalTowers HTowerDelayed Tower  
+  add Branch HLTCALDelayed/towers HLTTowerDelayed Tower 
+  add Branch HLTJetEnergyScaleDelayed/jets HLTJetDelayed Jet
   add Branch TrackMerger/tracks AllTracks Track
 
-  add Branch L1CALOnTime/calTowers TowerOnTime Tower
-  add Branch MissingETOnTime/momentum MissingETOnTime MissingET
-
-  add Branch ECALDelayed/ecalTowers ETowerDelayed Tower  
-  add Branch HCALDelayed/hcalTowers HTowerDelayed Tower  
-  add Branch CalorimeterDelayed/towers TowerDelayed Tower 
-  add Branch JetEnergyScaleDelayed/jets JetDelayed Jet
   
 }
 
