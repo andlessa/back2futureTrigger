@@ -1,0 +1,474 @@
+#######################################
+# Order of execution of various modules
+#######################################
+
+#set MaxEvents 22
+#set RandomSeed 123
+
+set ExecutionPath {
+
+  LLPFilter
+
+  ParticlePropagator
+  TrackMerger
+  
+  L1CALOnTime
+  MissingETOnTime
+  
+  ECALDelayed
+  HCALDelayed
+  CalorimeterDelayed
+  
+  FastJetFinderDelayed
+  JetEnergyScaleDelayed
+
+  TreeWriter
+}
+
+
+#####################
+# LLP Filter
+#####################
+
+module BSMFilter LLPFilter {
+
+  set InputArray Delphes/allParticles
+  set OutputArray bsmParticles
+  set MothersArray mothers
+  set FinalDaughtersArray finalDaughters  
+  set DirectDaughtersArray directDaughters
+  set PTMin 0.0
+  set massMin 0.0
+  
+  # Select chi1
+  add PdgCode {4000023}
+  add PdgCode {-4000023}
+}
+
+
+#############################################
+# Propagate particles in up to the end of ECAL
+#############################################
+
+module ParticlePropagator ParticlePropagator {
+  set InputArray Delphes/stableParticles
+
+  set OutputArray stableParticles
+  set ChargedHadronOutputArray chargedHadrons
+  set ElectronOutputArray electrons
+  set MuonOutputArray muons
+
+  # radius of the magnetic field coverage, in m
+  set Radius 1.4
+  # half-length of the magnetic field coverage, in m
+  set HalfLength 3.7
+
+  # maximum radius for particles to be considered
+  # (if the particle production vertex takes place between
+  # Radius and RadiusMax, the particle is not propagated but still kept)
+  set RadiusMax 3.5
+  set HalfLengthMax 5.5
+
+  # magnetic field (ignore magnetic field curvature)
+  set Bz 0.0
+}
+
+
+##############
+# Track merger
+##############
+
+module Merger TrackMerger {
+# add InputArray InputArray
+  add InputArray ParticlePropagator/chargedHadrons
+  add InputArray ParticlePropagator/electrons
+  add InputArray ParticlePropagator/muons
+  set OutputArray tracks
+}
+
+
+####################################################
+#   Calorimeter - OnTime (N-1)
+#  Simulates a low granularity calorimeter (ECAL+HCAL)
+#  for the L1 trigger
+####################################################
+
+module SimpleCalorimeterTiming L1CALOnTime {
+  set ParticleInputArray ParticlePropagator/stableParticles
+  set TrackInputArray TrackMerger/tracks
+
+  set TowerOutputArray calTowers
+  set EFlowTrackOutputArray flowTracks
+  set EFlowTowerOutputArray flowNeutrals
+
+  # Save tower energy to tower.Eem
+  set IsECAL true
+
+  # Minimum energy for keeping the tower after smearing
+  set EnergyMin 0.5
+  # If tower energy after smearing < EnergySignificanceMin*sigma,
+  # remove tower (sigma = resolution from ResolutionFormula)
+  set EnergySignificanceMin 2.0
+
+  # Whether to keep bin centers or smear within bin widths
+  set SmearTowerCenter false
+  
+  # Calorimeter readout time window
+  set TReadoutMin 0.0
+  set TReadoutMax 10e-9
+  
+  # Calorimeter fiducial volume (ECAL+HCAL)
+  # (should be consisent with ParticlePropagator parameters, 
+  # since only particles propagated up to 
+  # or created within the volume are considered)
+  set Radius 1.4
+  set RadiusMax 3.5
+  set HalfLength 3.7
+  set HalfLengthMax 5.5
+  
+  
+  set pi [expr {acos(-1)}]
+
+  # lists of the edges of each tower in eta and phi
+  # each list starts with the lower edge of the first tower
+  # the list ends with the higher edged of the last tower
+
+  # assume 0.1 x 0.1 resolution in phi and eta to simulate the L1 trigger calorimeter
+  set PhiBins {}
+  for {set i -36} {$i <= 36} {incr i} {
+    add PhiBins [expr {$i * $pi/36.0}]
+  }
+
+  for {set i 0} {$i <= 80} {incr i} {
+    set eta [expr { -4.0 + $i * 0.1}]
+    add EtaPhiBins $eta $PhiBins
+  }
+
+  # Default energy fraction for all particles 
+  add EnergyFraction {0} {1.0}
+  # energy fractions for muon, neutrinos, neutralinos, Sd, chi1 and chi0
+  add EnergyFraction {12} {0.0}
+  add EnergyFraction {13} {0.0}
+  add EnergyFraction {14} {0.0}
+  add EnergyFraction {16} {0.0}
+  add EnergyFraction {1000022} {0.0}
+  add EnergyFraction {1000023} {0.0}
+  add EnergyFraction {1000025} {0.0}
+  add EnergyFraction {1000035} {0.0}
+  add EnergyFraction {1000045} {0.0}
+  add EnergyFraction {4000022} {0.0}
+  add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {55} {0.0}
+
+  # set ResolutionFormula {resolution formula as a function of eta and energy}
+
+  # set ECALResolutionFormula {resolution formula as a function of eta and energy}
+  # http://arxiv.org/pdf/physics/0608012v1 jinst8_08_s08003
+  # http://villaolmo.mib.infn.it/ICATPP9th_2005/Calorimetry/Schram.p.pdf
+  # http://www.physics.utoronto.ca/~krieger/procs/ComoProceedings.pdf
+  #set ResolutionFormula {                      (abs(eta) <= 3.2) * sqrt(energy^2*0.0017^2 + energy*0.101^2) +
+  #                           (abs(eta) > 3.2 && abs(eta) <= 4.9) * sqrt(energy^2*0.0350^2 + energy*0.285^2)}
+
+
+}
+
+
+
+####################################
+#   ECAL - Delayed (N)
+#  Simulates a high granularity ECAL
+#  for the HLT trigger
+###################################
+
+module SimpleCalorimeterTiming ECALDelayed {
+  set ParticleInputArray ParticlePropagator/stableParticles
+  set TrackInputArray TrackMerger/tracks
+
+  set TowerOutputArray ecalTowers
+  set EFlowTrackOutputArray eflowTracks
+  set EFlowTowerOutputArray eflowNeutrals
+
+  # Save tower energy to tower.Eem
+  set IsECAL true
+
+  # Minimum energy for keeping the tower after smearing
+  set EnergyMin 0.5
+  # If tower energy after smearing < EnergySignificanceMin*sigma,
+  # remove tower (sigma = resolution from ResolutionFormula)
+  set EnergySignificanceMin 2.0
+
+  # Whether to keep bin centers or smear within bin width
+  set SmearTowerCenter false
+  
+  # Calorimeter readout time window
+  set TReadoutMin 25e-9
+  set TReadoutMax 35e-9
+  
+  # Calorimeter fiducial volume 
+  # (should be consisent with ParticlePropagator parameters, 
+  # since only particles propagated up to 
+  # or created within the volume are considered)
+  set Radius 1.4
+  set RadiusMax 2.0
+  set HalfLength 3.7
+  set HalfLengthMax 4.3
+  
+  
+  set pi [expr {acos(-1)}]
+
+  # lists of the edges of each tower in eta and phi
+  # each list starts with the lower edge of the first tower
+  # the list ends with the higher edged of the last tower
+
+  # assume the full calorimeter granularity to simulate the HLT
+  
+  # assume 0.02 x 0.02 resolution in eta,phi in the barrel |eta| < 1.5
+  set PhiBins {}
+  for {set i -180} {$i <= 180} {incr i} {
+    add PhiBins [expr {$i * $pi/180.0}]
+  }
+
+  # 0.02 unit in eta up to eta = 1.5 (barrel)
+  for {set i -85} {$i <= 86} {incr i} {
+    set eta [expr {$i * 0.0174}]
+    add EtaPhiBins $eta $PhiBins
+  }
+
+  # assume 0.02 x 0.02 resolution in eta,phi in the endcaps 1.5 < |eta| < 3.0
+  set PhiBins {}
+  for {set i -180} {$i <= 180} {incr i} {
+    add PhiBins [expr {$i * $pi/180.0}]
+  }
+
+  # 0.02 unit in eta up to eta = 3
+  for {set i 1} {$i <= 84} {incr i} {
+    set eta [expr { -2.958 + $i * 0.0174}]
+    add EtaPhiBins $eta $PhiBins
+  }
+
+  for {set i 1} {$i <= 84} {incr i} {
+    set eta [expr { 1.4964 + $i * 0.0174}]
+    add EtaPhiBins $eta $PhiBins
+  }
+
+  # take present CMS granularity for HF
+
+  # 0.175 x (0.175 - 0.35) resolution in eta,phi in the HF 3.0 < |eta| < 5.0
+  set PhiBins {}
+  for {set i -18} {$i <= 18} {incr i} {
+    add PhiBins [expr {$i * $pi/18.0}]
+  }
+
+  foreach eta {-5 -4.7 -4.525 -4.35 -4.175 -4 -3.825 -3.65 -3.475 -3.3 -3.125 -2.958 3.125 3.3 3.475 3.65 3.825 4 4.175 4.35 4.525 4.7 5} {
+    add EtaPhiBins $eta $PhiBins
+  }
+
+  # Default energy fraction for all particles 
+  add EnergyFraction {0} {1.0}
+  # energy fractions for muon, neutrinos, neutralinos, Sd, chi1 and chi0
+  add EnergyFraction {12} {0.0}
+  add EnergyFraction {13} {0.0}
+  add EnergyFraction {14} {0.0}
+  add EnergyFraction {16} {0.0}
+  add EnergyFraction {1000022} {0.0}
+  add EnergyFraction {1000023} {0.0}
+  add EnergyFraction {1000025} {0.0}
+  add EnergyFraction {1000035} {0.0}
+  add EnergyFraction {1000045} {0.0}
+  add EnergyFraction {4000022} {0.0}
+  add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {55} {0.0}
+
+  # set ResolutionFormula {resolution formula as a function of eta and energy}
+
+  # set ECALResolutionFormula {resolution formula as a function of eta and energy}
+  # http://arxiv.org/pdf/physics/0608012v1 jinst8_08_s08003
+  # http://villaolmo.mib.infn.it/ICATPP9th_2005/Calorimetry/Schram.p.pdf
+  # http://www.physics.utoronto.ca/~krieger/procs/ComoProceedings.pdf
+  #set ResolutionFormula {                      (abs(eta) <= 3.2) * sqrt(energy^2*0.0017^2 + energy*0.101^2) +
+  #                           (abs(eta) > 3.2 && abs(eta) <= 4.9) * sqrt(energy^2*0.0350^2 + energy*0.285^2)}
+
+
+}
+
+####################################
+#   HCAL - Delayed (N)
+#  Simulates a high granularity HCAL
+#  for the HLT trigger
+###################################
+
+module SimpleCalorimeterTiming HCALDelayed {
+  set ParticleInputArray ParticlePropagator/stableParticles
+  set TrackInputArray TrackMerger/tracks
+
+  set TowerOutputArray hcalTowers
+  set EFlowTrackOutputArray eflowTracks
+  set EFlowTowerOutputArray eflowNeutrals
+
+  # Save tower energy to tower.Ehad
+  set IsECAL false
+
+  # Minimum energy for keeping the tower after smearing
+  set EnergyMin 0.5
+  # If tower energy after smearing < EnergySignificanceMin*sigma,
+  # remove tower (sigma = resolution from ResolutionFormula)
+  set EnergySignificanceMin 2.0
+
+  # Whether to keep bin centers or smear within bin width
+  set SmearTowerCenter false
+  
+  # Calorimeter readout time window  
+  set TReadoutMin 25e-9
+  set TReadoutMax 35e-9
+  
+  # Calorimeter fiducial volume
+  # Calorimeter fiducial volume 
+  # (should be consisent with ParticlePropagator parameters, 
+  # since only particles propagated up to 
+  # or created within the volume are considered)
+  # (Since Calorimeter Radius/HalfLength > ParticlePropagator Radius/HalfLength,
+  # only particles created by decays within the volume are considered)
+  set Radius 2.0
+  set RadiusMax 3.5
+  set HalfLength 4.3
+  set HalfLengthMax 5.5
+  
+  
+  set pi [expr {acos(-1)}]
+
+  # lists of the edges of each tower in eta and phi
+  # each list starts with the lower edge of the first tower
+  # the list ends with the higher edged of the last tower
+
+  # assume the full calorimeter granularity to simulate the HLT
+
+  # 10 degrees towers
+  set PhiBins {}
+  for {set i -18} {$i <= 18} {incr i} {
+    add PhiBins [expr {$i * $pi/18.0}]
+  }
+  foreach eta {-3.2 -2.5 -2.4 -2.3 -2.2 -2.1 -2 -1.9 -1.8 -1.7 -1.6 -1.5 -1.4 -1.3 -1.2 -1.1 -1 -0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2 2.1 2.2 2.3 2.4 2.5 2.6 3.3} {
+    add EtaPhiBins $eta $PhiBins
+  }
+
+  # 20 degrees towers
+  set PhiBins {}
+  for {set i -9} {$i <= 9} {incr i} {
+    add PhiBins [expr {$i * $pi/9.0}]
+  }
+  foreach eta {-4.9 -4.7 -4.5 -4.3 -4.1 -3.9 -3.7 -3.5 -3.3 -3 -2.8 -2.6 2.8 3 3.2 3.5 3.7 3.9 4.1 4.3 4.5 4.7 4.9} {
+    add EtaPhiBins $eta $PhiBins
+  }
+
+  # default energy fractions {abs(PDG code)} {FECAL Fhcal}
+  add EnergyFraction {0} {1.0}
+  # energy fractions for muon, neutrinos and neutralinos
+  add EnergyFraction {12} {0.0}
+  add EnergyFraction {13} {0.0}
+  add EnergyFraction {14} {0.0}
+  add EnergyFraction {16} {0.0}
+  add EnergyFraction {1000022} {0.0}
+  add EnergyFraction {1000023} {0.0}
+  add EnergyFraction {1000025} {0.0}
+  add EnergyFraction {1000035} {0.0}
+  add EnergyFraction {1000045} {0.0}
+  add EnergyFraction {1000045} {0.0}
+  add EnergyFraction {4000022} {0.0}
+  add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {55} {0.0}
+
+  # http://arxiv.org/pdf/hep-ex/0004009v1
+  # http://villaolmo.mib.infn.it/ICATPP9th_2005/Calorimetry/Schram.p.pdf
+  # set HCalResolutionFormula {resolution formula as a function of eta and energy}
+  #set ResolutionFormula {                      (abs(eta) <= 1.7) * sqrt(energy^2*0.0302^2 + energy*0.5205^2 + 1.59^2) +
+  #                           (abs(eta) > 1.7 && abs(eta) <= 3.2) * sqrt(energy^2*0.0500^2 + energy*0.706^2) +
+  #                           (abs(eta) > 3.2 && abs(eta) <= 4.9) * sqrt(energy^2*0.09420^2 + energy*1.00^2)}
+}
+
+#########################
+# Missing ET merger (N-1)
+#########################
+
+module Merger MissingETOnTime {
+# add InputArray InputArray
+  add InputArray L1CALOnTime/calTowers
+  set MomentumOutputArray momentum
+}
+
+###################################################
+# Delayed Tower Merger (ECAL + HCAL) (N)
+###################################################
+
+module Merger CalorimeterDelayed {
+# add InputArray InputArray
+  add InputArray ECALDelayed/ecalTowers
+  add InputArray HCALDelayed/hcalTowers
+  set OutputArray towers
+}
+
+
+########################
+# Jet finder Delayed (N)
+#######################
+
+module FastJetFinder FastJetFinderDelayed {
+  set InputArray CalorimeterDelayed/towers
+
+  set OutputArray jets
+
+  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
+  set JetAlgorithm 6
+  set ParameterR 0.4
+
+  set JetPTMin 20.0
+}
+
+##############################
+# Jet Energy Scale Delayed (N)
+##############################
+
+module EnergyScale JetEnergyScaleDelayed {
+  set InputArray FastJetFinderDelayed/jets
+  set OutputArray jets
+
+  # scale formula for jets
+  set ScaleFormula {  sqrt( (3.0 - 0.2*(abs(eta)))^2 / pt + 1.0 )  }
+}
+
+
+##################
+# ROOT tree writer
+##################
+
+# tracks, towers and eflow objects are not stored by default in the output.
+# if needed (for jet constituent or other studies), uncomment the relevant
+# "add Branch ..." lines.
+
+module TreeWriter TreeWriter {
+
+#  add Branch Delphes/stableParticles ParticleStable GenParticle
+#  add Branch ParticlePropagator/stableParticles ParticleProp GenParticle
+#  add Branch LLPFilter/finalDaughters llpFinalDaughters GenParticle
+#  add Branch LLPFilter/mothers llpMothers GenParticle
+#  add Branch L1CALOnTime/flowTracks TrackOnTime Track
+#  add Branch L1CALOnTime/flowNeutrals NeutralOnTime Tower
+#  add Branch ECALDelayed/eflowTracks ETrackDelayed Track
+#  add Branch ECALDelayed/eflowNeutrals ENeutralDelayed Tower
+#  add Branch HCALDelayed/eflowTracks HTrackDelayed Track
+#  add Branch HCALDelayed/eflowNeutrals HNeutralDelayed Tower
+
+  add Branch LLPFilter/bsmParticles llpParticles GenParticle
+  add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
+
+  add Branch TrackMerger/tracks AllTracks Track
+
+  add Branch L1CALOnTime/calTowers TowerOnTime Tower
+  add Branch MissingETOnTime/momentum MissingETOnTime MissingET
+
+  add Branch ECALDelayed/ecalTowers ETowerDelayed Tower  
+  add Branch HCALDelayed/hcalTowers HTowerDelayed Tower  
+  add Branch CalorimeterDelayed/towers TowerDelayed Tower 
+  add Branch JetEnergyScaleDelayed/jets JetDelayed Jet
+  
+}
+
