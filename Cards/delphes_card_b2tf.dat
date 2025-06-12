@@ -579,7 +579,7 @@ module TreeWriter TreeWriter {
   add Branch LLPFilter/bsmParticles llpParticles GenParticle
   add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
  
-  add Branch L1CALOnTime/calTowers L1TowerOnTime Tower
+#  add Branch L1CALOnTime/calTowers L1TowerOnTime Tower
   add Branch L1METOnTime/momentum L1METOnTime MissingET
   add Branch L1JetEnergyScaleDelayed/jets L1JetDelayed Jet
  
