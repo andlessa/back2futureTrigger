@@ -213,14 +213,17 @@ def getEffFor(tree,llps,invisibles):
     evt_cutFlow['HLT: Eta Jet(N) < 2.5'] += 1.0
 
     # For the remaining jets, find at least one with low
-    # energy depositi in the ECAL cell closest to the jet
+    # energy deposit in the ECAL cell closest to the jet
     jet_cells = []
     for j in jets:
         closest_cell = None
         dRmin = 100.0
         for tower_cell in tree.HLTTowerDelayed:
-            dR = np.sqrt((j.Eta-tower_cell.Eta)**2 
-                         + (j.Phi-tower_cell.Phi)**2)
+            dphi = np.abs(j.Phi-tower_cell.Phi)
+            deta = j.Eta-tower_cell.Eta
+            if dphi > np.pi:
+                dphi = 2*np.pi - dphi
+            dR = np.sqrt(deta**2 + dphi**2)
             if dR < dRmin:
                 dRmin = dR
                 closest_cell = tower_cell
