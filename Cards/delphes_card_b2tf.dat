@@ -2,7 +2,7 @@
 # Order of execution of various modules
 #######################################
 
-#set MaxEvents 22
+#set MaxEvents 1471
 #set RandomSeed 123
 
 set ExecutionPath {
@@ -105,7 +105,7 @@ module SimpleCalorimeterTiming L1CALOnTime {
   set EFlowTowerOutputArray flowNeutrals
 
   # Save tower energy to tower.Eem
-  set IsECAL true
+  set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
@@ -191,7 +191,7 @@ module SimpleCalorimeterTiming L1CALDelayed {
   set EFlowTowerOutputArray flowNeutrals
 
   # Save tower energy to tower.Eem
-  set IsECAL true
+  set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
@@ -277,7 +277,7 @@ module SimpleCalorimeterTiming ECALDelayed {
   set EFlowTowerOutputArray eflowNeutrals
 
   # Save tower energy to tower.Eem
-  set IsECAL true
+  set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
@@ -394,7 +394,7 @@ module SimpleCalorimeterTiming HCALDelayed {
   set EFlowTowerOutputArray eflowNeutrals
 
   # Save tower energy to tower.Ehad
-  set IsECAL false
+  set IsEcal false
 
   # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
@@ -584,8 +584,8 @@ module TreeWriter TreeWriter {
   add Branch L1JetEnergyScaleDelayed/jets L1JetDelayed Jet
  
 
-#  add Branch ECALDelayed/ecalTowers ETowerDelayed Tower  
-#  add Branch HCALDelayed/hcalTowers HTowerDelayed Tower  
+  add Branch ECALDelayed/ecalTowers ETowerDelayed Tower  
+  add Branch HCALDelayed/hcalTowers HTowerDelayed Tower  
   add Branch HLTCALDelayed/towers HLTTowerDelayed Tower 
   add Branch HLTJetEnergyScaleDelayed/jets HLTJetDelayed Jet
   add Branch TrackMerger/tracks AllTracks Track
