@@ -2,7 +2,7 @@
 # Order of execution of various modules
 #######################################
 
-#set MaxEvents 22
+#set MaxEvents 10
 #set RandomSeed 123
 
 set ExecutionPath {
@@ -105,7 +105,7 @@ module SimpleCalorimeterTiming L1CALOnTime {
   set EFlowTowerOutputArray flowNeutrals
 
   # Save tower energy to tower.Eem
-  set IsECAL true
+  set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
@@ -128,9 +128,7 @@ module SimpleCalorimeterTiming L1CALOnTime {
   set RadiusMax 3.5
   set HalfLength 3.7
   set HalfLengthMax 5.5
-  
-  
-  set pi [expr {acos(-1)}]
+    
 
   # lists of the edges of each tower in eta and phi
   # each list starts with the lower edge of the first tower
@@ -138,12 +136,11 @@ module SimpleCalorimeterTiming L1CALOnTime {
 
   # assume 0.1 x 0.1 resolution in phi and eta to simulate the L1 trigger calorimeter
   set PhiBins {}
-  for {set i -36} {$i <= 36} {incr i} {
-    add PhiBins [expr {$i * $pi/36.0}]
+  for {set i -31} {$i <= 31} {incr i} {
+    add PhiBins [expr {$i*0.1}]
   }
-
-  for {set i 0} {$i <= 80} {incr i} {
-    set eta [expr { -4.0 + $i * 0.1}]
+  
+ foreach eta {-4.9 -4.475 -4.05 -3.625 -3.2 -3.1 -2.9 -2.7 -2.5 -2.4 -2.3 -2.2 -2.1 -2. -1.9 -1.8 -1.7 -1.6 -1.5 -1.4 -1.3 -1.2 -1.1 -1. -0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0. 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1. 1.2 1.3 1.4 1.6 1.7 1.8 1.9 2. 2.2 2.3 2.4 2.5 2.7 2.9 3.1 3.2 3.625 4.05 4.475 4.9} {
     add EtaPhiBins $eta $PhiBins
   }
 
@@ -191,7 +188,7 @@ module SimpleCalorimeterTiming L1CALDelayed {
   set EFlowTowerOutputArray flowNeutrals
 
   # Save tower energy to tower.Eem
-  set IsECAL true
+  set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
@@ -224,12 +221,11 @@ module SimpleCalorimeterTiming L1CALDelayed {
 
   # assume 0.1 x 0.1 resolution in phi and eta to simulate the L1 trigger calorimeter
   set PhiBins {}
-  for {set i -36} {$i <= 36} {incr i} {
-    add PhiBins [expr {$i * $pi/36.0}]
+  for {set i -31} {$i <= 31} {incr i} {
+    add PhiBins [expr {$i*0.1}]
   }
-
-  for {set i 0} {$i <= 80} {incr i} {
-    set eta [expr { -4.0 + $i * 0.1}]
+  
+ foreach eta {-4.9 -4.475 -4.05 -3.625 -3.2 -3.1 -2.9 -2.7 -2.5 -2.4 -2.3 -2.2 -2.1 -2. -1.9 -1.8 -1.7 -1.6 -1.5 -1.4 -1.3 -1.2 -1.1 -1. -0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0. 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1. 1.2 1.3 1.4 1.6 1.7 1.8 1.9 2. 2.2 2.3 2.4 2.5 2.7 2.9 3.1 3.2 3.625 4.05 4.475 4.9} {
     add EtaPhiBins $eta $PhiBins
   }
 
@@ -277,7 +273,7 @@ module SimpleCalorimeterTiming ECALDelayed {
   set EFlowTowerOutputArray eflowNeutrals
 
   # Save tower energy to tower.Eem
-  set IsECAL true
+  set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
@@ -394,7 +390,7 @@ module SimpleCalorimeterTiming HCALDelayed {
   set EFlowTowerOutputArray eflowNeutrals
 
   # Save tower energy to tower.Ehad
-  set IsECAL false
+  set IsEcal false
 
   # Minimum energy for keeping the tower after smearing
   set EnergyMin 0.5
