@@ -61,14 +61,18 @@ module ParticlePropagator ParticlePropagator {
   set ElectronOutputArray electrons
   set MuonOutputArray muons
 
+  # Define volume for propagation
+  # (it should be equal to the ECAL volume,
+  # here we add 1mm to make sure the particle enters the calorimeter)
   # radius of the magnetic field coverage, in m
-  set Radius 1.4
+  set Radius 1.401
   # half-length of the magnetic field coverage, in m
-  set HalfLength 3.7
+  set HalfLength 3.701
 
-  # maximum radius for particles to be considered
+  # Define maximum radius for particles to be considered.
   # (if the particle production vertex takes place between
-  # Radius and RadiusMax, the particle is not propagated but still kept)
+  # Radius and RadiusMax, the particle is not propagated but still kept,
+  # so it should be equal to the outer HCAL volume)
   set RadiusMax 3.5
   set HalfLengthMax 5.5
 
@@ -108,10 +112,10 @@ module SimpleCalorimeterTiming L1CALOnTime {
   set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
-  set EnergyMin 0.5
+  set EnergyMin 0.0
   # If tower energy after smearing < EnergySignificanceMin*sigma,
   # remove tower (sigma = resolution from ResolutionFormula)
-  set EnergySignificanceMin 2.0
+  set EnergySignificanceMin 0.0
 
   # Whether to keep bin centers or smear within bin widths
   set SmearTowerCenter false
@@ -191,10 +195,10 @@ module SimpleCalorimeterTiming L1CALDelayed {
   set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
-  set EnergyMin 0.5
+  set EnergyMin 0.0
   # If tower energy after smearing < EnergySignificanceMin*sigma,
   # remove tower (sigma = resolution from ResolutionFormula)
-  set EnergySignificanceMin 2.0
+  set EnergySignificanceMin 0.0
 
   # Whether to keep bin centers or smear within bin widths
   set SmearTowerCenter false
@@ -276,10 +280,10 @@ module SimpleCalorimeterTiming ECALDelayed {
   set IsEcal true
 
   # Minimum energy for keeping the tower after smearing
-  set EnergyMin 0.5
+  set EnergyMin 0.0
   # If tower energy after smearing < EnergySignificanceMin*sigma,
   # remove tower (sigma = resolution from ResolutionFormula)
-  set EnergySignificanceMin 2.0
+  set EnergySignificanceMin 0.0
 
   # Whether to keep bin centers or smear within bin width
   set SmearTowerCenter false
@@ -393,10 +397,10 @@ module SimpleCalorimeterTiming HCALDelayed {
   set IsEcal false
 
   # Minimum energy for keeping the tower after smearing
-  set EnergyMin 0.5
+  set EnergyMin 0.0
   # If tower energy after smearing < EnergySignificanceMin*sigma,
   # remove tower (sigma = resolution from ResolutionFormula)
-  set EnergySignificanceMin 2.0
+  set EnergySignificanceMin 0.0
 
   # Whether to keep bin centers or smear within bin width
   set SmearTowerCenter false
