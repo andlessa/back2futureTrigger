@@ -25,7 +25,7 @@ HLTnjStr = r'$n_{j}$ (Off-line, N)'
 HLTemfStr = r'EMF$_{\rm min}$ (Off-line, N)'
 
 
-cols = ['label',L1metStr,L1njStr,L1pTj1Str,L1dPhi,L1metPartonStr,HLTnjStr,HLTpTj1Str,HLTemfStr]
+cols = [L1metStr,L1njStr,L1pTj1Str,L1dPhi,L1metPartonStr,HLTnjStr,HLTpTj1Str,HLTemfStr]
 
 
 # ### Define CSV filename
@@ -33,7 +33,7 @@ csvFiles = {L1metStr : './results/l1_met.csv',
                 L1njStr : './results/l1_nj.csv',
                 L1pTj1Str : './results/l1_et.csv',
                 L1dPhi : './results/l1_del_phi.csv',
-                L1metPartonStr : './results/l1_met.csv',
+                L1metPartonStr : './results/l1_metParton.csv',
                 HLTnjStr : './results/offline_nj.csv',
                 HLTpTj1Str : './results/offline_pt.csv',
                 HLTemfStr : './results/offline_EMF.csv',
@@ -149,7 +149,7 @@ if __name__ == "__main__":
             emf_min = min([cell.Eem/(cell.Eem + cell.Ehad) for cell in jet_cells])        
 
 
-        dataList.append([label,met,nj,pTj1,dphi_min,metParton,njHLT,pTHLT,emf_min])
+        dataList.append([met,nj,pTj1,dphi_min,metParton,njHLT,pTHLT,emf_min])
     f.Close()
     
     df = pd.DataFrame(columns=cols,data=dataList)
@@ -177,8 +177,9 @@ if __name__ == "__main__":
                 }
 
     # ### Save histograms
-
-    for i,var in enumerate(cols):
+    # Make sure the label can be used as a filename:
+    label_norm =  re.sub('[^A-Za-z0-9]+', '_', label.strip())        
+    for var in cols:
         if not var in csvFiles:
             continue
         
@@ -202,19 +203,17 @@ if __name__ == "__main__":
         dataDict = {'bin_center' : bin_centers, 
                 'bin_left_edge' : bins[:-1],  'bin_right_edge' : bins[1:]}
         dataDF = pd.DataFrame(data=dataDict,index=bin_centers)
-        for j,label in enumerate(df['label'].unique()):
-                label_norm =  re.sub('[^A-Za-z0-9]+', '_', label.strip())
-                data = df[df['label'] == label]
-                dataDF['bin_count'] = pd.cut(data[var],bins=bins,
-                                             right=True,include_lowest=True,
-                                             retbins=False,ordered=False,
-                                             labels=bin_centers).value_counts()
-                nTot = np.sum(dataDF['bin_count'])            
-                dataDF['normalized_count'] = dataDF['bin_count']/nTot
-                dataDF['error'] = np.sqrt(dataDF['bin_count'])/nTot
-                dataDF.drop(columns=['bin_count'],inplace=True)
+        dataDF['bin_count'] = pd.cut(df[var],bins=bins,
+                                        right=True,include_lowest=True,
+                                        retbins=False,ordered=False,
+                                        labels=bin_centers).value_counts()
+       
+        nTot = float(np.sum(dataDF['bin_count']))
+        dataDF['normalized_count'] = dataDF['bin_count']/nTot
+        dataDF['error'] = np.sqrt(dataDF['bin_count'])/nTot
+        dataDF.drop(columns=['bin_count'],inplace=True)
 
-                f.write(f'# Input file for {label_norm} : {file} ({nTot} MC events)\n')
+        f.write(f'# Input file for {label_norm} : {file} ({int(nTot)} MC events)\n')
         f.close()
         print(f'Saving {csvFile}')
         dataDF.to_csv(csvFile,index=False,float_format='%1.4e',mode='a')
