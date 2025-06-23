@@ -1,0 +1,12 @@
+# Values for variable: $\Delta \phi^{min} (MET,j)$ (Hardware Trigger)
+# Input file for ddmH_mS_500_m1_244_dm_90_nosmear : ../pp2chi0chi0J_scan/Events/run_01/ddmH_mS_500_m1_244_dm_90_delphes_events_nosmear.root (38862 MC events)
+bin_center,bin_left_edge,bin_right_edge,normalized_count,error
+2.7778e-01,0.0000e+00,5.5556e-01,2.5989e-03,2.5860e-04
+8.3333e-01,5.5556e-01,1.1111e+00,2.0586e-03,2.3015e-04
+1.3889e+00,1.1111e+00,1.6667e+00,1.2609e-03,1.8012e-04
+1.9444e+00,1.6667e+00,2.2222e+00,4.8891e-04,1.1216e-04
+2.5000e+00,2.2222e+00,2.7778e+00,5.6611e-04,1.2069e-04
+3.0556e+00,2.7778e+00,3.3333e+00,3.8598e-04,9.9660e-05
+3.6111e+00,3.3333e+00,3.8889e+00,0.0000e+00,0.0000e+00
+4.1667e+00,3.8889e+00,4.4444e+00,0.0000e+00,0.0000e+00
+4.7222e+00,4.4444e+00,5.0000e+00,9.9264e-01,5.0540e-03
