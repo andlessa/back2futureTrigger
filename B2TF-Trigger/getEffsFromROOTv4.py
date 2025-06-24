@@ -206,11 +206,12 @@ def getEffFor(tree,llps,invisibles):
     ### HLT Trigger
     # Get jets from the L1 (delayed) calorimeter
     jetsDelayedHLT = list(tree.HLTJetDelayed)
-    jets = [j for j in jetsDelayedHLT[:] if abs(j.Eta) < 2.5]
+    jets = [j for j in jetsDelayedHLT[:] 
+            if (abs(j.Eta) < 2.5 and j.PT > 20.0)]
     if not jets:
         return evt_eff,evt_cutFlow
     
-    evt_cutFlow['HLT: Eta Jet(N) < 2.5'] += 1.0
+    evt_cutFlow['HLT: Eta Jet < 2.5 PT Jet > 20 GeV'] += 1.0
 
     # For the remaining jets, find at least one with low
     # energy deposit in the ECAL cell closest to the jet
@@ -295,16 +296,8 @@ def getEfficiencies(inputFile,
     effsDict = {"Trigger" : 0.0,
                 "Nevents" : 0.0}
     
-    evts_cutFlow = {'All' : 0.0,                    
-                    'Pre-Sel: PT Jet(N) > 20 GeV' : 0.0,
-                    'Pre-Sel: Eta Jet(N) < 3.2' : 0.0,
-                    'L1: 40 GeV < MET(N-1) < 100 GeV' : 0.0,
-                    'L1: 40 GeV < PT Jet1(N)' : 0.0,
-                    'L1: DPhi(Jet(N),MET(N-1)) < 1.0' : 0.0,
-                    'HLT: Eta Jet(N) < 2.5' : 0.0,
-                    'HLT: Jet(N) EMF < 0.06' : 0.0,
-                    'HLT: DR(Tracks(N),Jet(N)) > 0.2' : 0.0
-                   }
+    cutFlowKeys = defineCutFlow()
+    evts_cutFlow = {key : 0.0 for key in cutFlowKeys}
     
     
     nevts = tree.GetEntries()
@@ -357,7 +350,7 @@ def saveOutput(effsDict,outputFile,
     columnsLabels = list(evts_cutFlow.keys())
     data = np.array([list(evts_cutFlow.values())])
     header = ','.join(columnsLabels)
-    np.savetxt(cutFile, data, 
+    np.savetxt(cutFile, data,
                 header=f'Input file: {inputFile}\nNumber of events: {nevts}\n{header}',
                 delimiter=',',fmt='%1.3e')
 
@@ -365,11 +358,13 @@ if __name__ == "__main__":
     
     import argparse    
     ap = argparse.ArgumentParser( description=
-            "Compute the efficiencies for a given input HepMC file" )
+            "Compute the efficiencies for a given input ROOT file" )
     ap.add_argument('-f', '--inputfile',nargs='+',
-            help='path to the HepMC file(s).')
-    ap.add_argument('-p', '--parfile',default='parameters_getEff.ini',
-            help='parameters file name, where additional options are defined [parameters_getEff.ini].')
+            help='path to the ROOT file(s).')
+    ap.add_argument('-n', '--ncpus',type=int,default=1,
+            help='number of parallel jobs to run.')
+    ap.add_argument('-o', '--output_suffix',default='',type=str,
+            help='suffix to be added to the output files.')
     ap.add_argument('-v', '--verbose', default='info',
             help='verbose level (debug, info, warning or error). Default is info')
     
@@ -394,63 +389,32 @@ if __name__ == "__main__":
         print('\n\nEnviroment variables not properly set. Run source setenv.sh first.\n\n')
         sys.exit()
 
-    parser = configparser.ConfigParser(inline_comment_prefixes="#")   
-    ret = parser.read(args.parfile)
-    if ret == []:
-        logger.error(f"No such file or directory: {args.parfile}")
-        sys.exit()
-
-    
-    try:
-        tauList = parser.get("options","ctau_values")
-        tauList = eval(tauList)
-    except:
-        logger.error("Error getting list of ctau values")
-        tauList = np.geomspace(args.tmin,args.tmax,args.ntau)
-
-    try:
-        llpPDGs = parser.get("model","llp_pdgs").split(',')
-        llpPDGs = [int(pdg) for pdg in llpPDGs]
-    except:
-        logger.error("Error getting list of LLP PDG values")
-        llpPDGs = [35]
-
-    try:
-        invisiblePDGs = parser.get("model","invisible_pdgs").split(',')
-        invisiblePDGs = [int(pdg) for pdg in invisiblePDGs]
-    except:
-        logger.error("Error getting list of LLP PDG values")
-        invisiblePDGs = [12,14,16]
 
     t0 = time.time()
 
 
-    # Check for output file suffix
-    output_suffix = ""
-    if parser.has_option("options","output_suffix"):
-        output_suffix = parser.get("options","output_suffix")
-   
 
     # Split input files by distinct models and get recast data for
     # the set of files from the same model:
-    ncpus = int(parser.get("options","ncpus"))
+    ncpus = args.ncpus
     inputFileList = args.inputfile
+    output_suffix = args.output_suffix
     ncpus = min(ncpus,len(inputFileList))
     if ncpus == 1:
-        effsDict,evts_cutFlow = getEfficiencies(inputFileList[0],
-                                                llpPDGs,
-                                                invisiblePDGs)
+        effsDict,evts_cutFlow = getEfficiencies(inputFileList[0])
         outFile = effsDict['inputFile'].split('.root')[0]
-        effFile = outFile + output_suffix  +'_b2tf_effs_v2.csv'
-        cutFile = outFile + output_suffix +'_b2tf_cutFlow_v2.csv'
+        effFile = outFile + output_suffix  +'_b2tf_effs.csv'
+        cutFile = outFile + output_suffix +'_b2tf_cutFlow.csv'
         saveOutput(effsDict,effFile,evts_cutFlow,cutFile)
-        logger.debug('CutFlow:\n %s \n' %evts_cutFlow)
+        cutFlowStr = 'CutFlow:\n'
+        for key,val in evts_cutFlow.items():
+            cutFlowStr += f'  {key} : {val/evts_cutFlow['All']:1.3e}\n'
+        logger.debug(cutFlowStr)
     else:
         pool = multiprocessing.Pool(processes=ncpus)
         children = []
         for inputfile in inputFileList:
-            p = pool.apply_async(getEfficiencies, args=(inputfile,tauList,
-                            llpPDGs,invisiblePDGs))
+            p = pool.apply_async(getEfficiencies, args=(inputfile,))
             children.append(p)
 
         nfiles = len(inputFileList)
@@ -462,8 +426,8 @@ if __name__ == "__main__":
         for p in children: 
             effsDict,evts_cutFlow = p.get()
             outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
-            effFile = outFile + output_suffix +'_b2tf_effs_v2.csv'
-            cutFile = outFile + output_suffix +'_b2tf_cutFlow_v2.csv'
+            effFile = outFile + output_suffix +'_b2tf_effs.csv'
+            cutFile = outFile + output_suffix +'_b2tf_cutFlow.csv'
             saveOutput(effsDict,effFile,evts_cutFlow,cutFile)
             ndone += 1
             progressbar.update(ndone)
