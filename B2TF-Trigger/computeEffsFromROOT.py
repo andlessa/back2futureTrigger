@@ -125,21 +125,27 @@ def getJetET(j):
 
     return ET
 
-
+def defineCutFlow():
+    
+    cutFlowKeys = [
+                    'All',
+                    'Pre-Sel: PT Jet(N) > 20 GeV',
+                    'Pre-Sel: Eta Jet(N) < 3.2',
+                    'L1: 40 GeV < MET(N-1) < 100 GeV',
+                    'L1: 40 GeV < PT Jet1(N)',
+                    'L1: DPhi(Jet(N),MET(N-1)) < 1.0',
+                    'HLT: Eta Jet < 2.5 PT Jet > 20 GeV',
+                    'HLT: Jet(N) EMF < 0.06',
+                    'HLT: DR(Tracks(N),Jet(N)) > 0.2'
+                ]
+    
+    return cutFlowKeys
 
 def getEffFor(tree,llps,invisibles):
 
     evt_eff = 0.0
-    evt_cutFlow = {'All' : 0.0,                    
-                    'Pre-Sel: PT Jet(N) > 20 GeV' : 0.0,
-                    'Pre-Sel: Eta Jet(N) < 3.2' : 0.0,
-                    'L1: 40 GeV < MET(N-1) < 100 GeV' : 0.0,
-                    'L1: 40 GeV < PT Jet1(N)' : 0.0,
-                    'L1: DPhi(Jet(N),MET(N-1)) < 1.0' : 0.0,
-                    'HLT: Eta Jet(N) < 2.5' : 0.0,
-                    'HLT: Jet(N) EMF < 0.06' : 0.0,
-                    'HLT: DR(Tracks(N),Jet(N)) > 0.2' : 0.0
-                   }
+    cutFlowKeys = defineCutFlow()
+    evt_cutFlow = {key : 0.0 for key in cutFlowKeys}
 
     # Extract necessary data from event
     eventDict = getDataFrom(tree.llpParticles,
