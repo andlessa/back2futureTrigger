@@ -10,7 +10,7 @@ import configparser
 import subprocess
 import multiprocessing
 import itertools
-import progressbar as P
+import tqdm
 from helper import getModelDict
 delphesDir = os.path.abspath("../DelphesLLP")
 os.environ['ROOT_INCLUDE_PATH'] = os.path.join(delphesDir,"external")
@@ -33,8 +33,9 @@ logger = logging.getLogger()
 
  
 
-def getDataFrom(llpParticles,llpDaughters,llp_PDGs,invisible_PDGs):
-
+def getDataFrom(llpParticles,llpDaughters,
+                llp_PDGs=[4000023],invisible_PDGs=[4000022]):
+    
     # Consistency checks
     if any(abs(p.PID) not in llp_PDGs for p in llpParticles):
         erroMsg = "LLP PDG from input file does not match definitions"
@@ -129,8 +130,6 @@ def defineCutFlow():
     
     cutFlowKeys = [
                     'All',
-                    'Pre-Sel: PT Jet(N) > 20 GeV',
-                    'Pre-Sel: Eta Jet(N) < 3.2',
                     'L1: 40 GeV < MET(N-1) < 100 GeV',
                     'L1: 40 GeV < PT Jet1(N)',
                     'L1: DPhi(Jet(N),MET(N-1)) < 1.0',
@@ -141,7 +140,7 @@ def defineCutFlow():
     
     return cutFlowKeys
 
-def getEffFor(tree,llps,invisibles):
+def getEffFor(tree,llps=[4000023],invisibles=[4000022]):
 
     evt_eff = 0.0
     cutFlowKeys = defineCutFlow()
@@ -155,8 +154,8 @@ def getEffFor(tree,llps,invisibles):
     if (len(eventDict) != 2):
         errorMsg = f"{len(eventDict)} LLP found (can only handle 2)"
         logger.error(errorMsg)
-        # raise ValueError(errorMsg)
-        return evt_eff,evt_cutFlow # return zero effs
+        raise ValueError(errorMsg)
+        # return evt_eff,evt_cutFlow # return zero effs
     
     # Get MET from the L1 (on-time) calorimenter
     metOnTime = tree.L1METOnTime.At(0)
@@ -168,21 +167,6 @@ def getEffFor(tree,llps,invisibles):
     evt_cutFlow['All'] += 1
 
     ### Pre-Selection
-    # Keep only jets passing the pt cut
-    jetsDelayedL1 = [j for j in jetsDelayedL1[:] if j.PT > 20.0]
-    if not jetsDelayedL1:
-        return evt_eff,evt_cutFlow
-
-    evt_cutFlow['Pre-Sel: PT Jet(N) > 20 GeV'] += 1.0
-    # Keep only jets passing the eta cut
-    jetsDelayedL1 = [j for j in jetsDelayedL1[:] if abs(j.Eta) < 3.2]
-    if not jetsDelayedL1:
-        return evt_eff,evt_cutFlow
-    
-    evt_cutFlow['Pre-Sel: Eta Jet(N) < 3.2'] += 1.0
-    # Sort jets by highest pT
-    jetsDelayedL1 = sorted(jetsDelayedL1, 
-                         key = lambda j: j.PT,                       reverse=True)
 
 
     ### L1 Trigger
@@ -191,7 +175,15 @@ def getEffFor(tree,llps,invisibles):
 
     evt_cutFlow['L1: 40 GeV < MET(N-1) < 100 GeV'] += 1.0
 
-    if jetsDelayedL1[0].PT < 40.0:
+    # Keep only jets passing the pt cut
+    jetsDelayedL1 = [j for j in jetsDelayedL1[:] if j.PT > 20.0]
+    # Keep only jets passing the eta cut
+    jetsDelayedL1 = [j for j in jetsDelayedL1[:] if abs(j.Eta) < 3.2]   
+    # Sort jets by highest pT
+    jetsDelayedL1 = sorted(jetsDelayedL1, 
+                         key = lambda j: j.PT, reverse=True)
+
+    if (not jetsDelayedL1) or  (jetsDelayedL1[0].PT < 40.0):
         return evt_eff,evt_cutFlow
     
     evt_cutFlow['L1: 40 GeV < PT Jet1(N)'] += 1.0
@@ -278,8 +270,7 @@ def getEffFor(tree,llps,invisibles):
     
     return evt_eff,evt_cutFlow
 
-def getEfficiencies(inputFile,
-                    llps=[4000023],invisibles=[4000022]):
+def getEfficiencies(inputFile,ijob=0):
 
 
     # Set the seed for each run, so the results independ on
@@ -307,10 +298,12 @@ def getEfficiencies(inputFile,
     
     
     nevts = tree.GetEntries()
-    for ievt in range(nevts):
+    for ievt in tqdm.tqdm(range(nevts),position=ijob,
+                          desc=os.path.basename(inputFile),
+                          leave=True):
         tree.GetEntry(ievt) 
         effsDict['Nevents'] += 1.0
-        evt_eff,evt_cutFlow = getEffFor(tree,llps,invisibles)
+        evt_eff,evt_cutFlow = getEffFor(tree)
         # Add event efficiency to total efficiencies 
         # #for the given selection (for each tau value)
         effsDict['Trigger'] += evt_eff
@@ -346,19 +339,20 @@ def saveOutput(effsDict,outputFile,
     # Get column labels and data
     columnsLabels = list(effsDict.keys())
     data = np.array([list(effsDict.values())])
-    header = ','.join(columnsLabels)
+    header = ';'.join(columnsLabels)
     np.savetxt(outputFile, data, 
                 header=f'Input file: {inputFile}\nNumber of events: {nevts}\n{header}',
-                delimiter=',',fmt='%1.3e')
+                delimiter=';',fmt='%1.6e')
 
     # Save cutflow (if defined)
     # Get column labels and data
-    columnsLabels = list(evts_cutFlow.keys())
-    data = np.array([list(evts_cutFlow.values())])
-    header = ','.join(columnsLabels)
-    np.savetxt(cutFile, data,
+    if evts_cutFlow and cutFile:
+        columnsLabels = list(evts_cutFlow.keys())
+        data = np.array([list(evts_cutFlow.values())])
+        header = ';'.join(columnsLabels)
+        np.savetxt(cutFile, data,
                 header=f'Input file: {inputFile}\nNumber of events: {nevts}\n{header}',
-                delimiter=',',fmt='%1.3e')
+                delimiter=';',fmt='%1.6e')
 
 if __name__ == "__main__":
     
@@ -406,36 +400,28 @@ if __name__ == "__main__":
     inputFileList = args.inputfile
     output_suffix = args.output_suffix
     ncpus = min(ncpus,len(inputFileList))
-    if ncpus == 1:
-        effsDict,evts_cutFlow = getEfficiencies(inputFileList[0])
-        outFile = effsDict['inputFile'].split('.root')[0]
-        effFile = outFile + output_suffix  +'_b2tf_effs.csv'
+    pool = multiprocessing.Pool(processes=ncpus)
+    children = []
+    for ijob,inputfile in enumerate(inputFileList):
+        p = pool.apply_async(getEfficiencies, args=(inputfile,ijob))
+        children.append(p)
+
+    nfiles = len(inputFileList)
+    
+    
+    cutFlowStr=''
+    logger.info(f'Analyzing {nfiles} files')
+    for p in children: 
+        effsDict,evts_cutFlow = p.get()
+        outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
+        effFile = outFile + output_suffix +'_b2tf_effs.csv'
         cutFile = outFile + output_suffix +'_b2tf_cutFlow.csv'
-        saveOutput(effsDict,effFile,evts_cutFlow,cutFile)
-        cutFlowStr = 'CutFlow:\n'
+        cutFlowStr += f'CutFlow for {effsDict['inputFile']}:\n'
         for key,val in evts_cutFlow.items():
             cutFlowStr += f'  {key} : {val/evts_cutFlow['All']:1.3e}\n'
-        logger.debug(cutFlowStr)
-    else:
-        pool = multiprocessing.Pool(processes=ncpus)
-        children = []
-        for inputfile in inputFileList:
-            p = pool.apply_async(getEfficiencies, args=(inputfile,))
-            children.append(p)
+        saveOutput(effsDict,effFile,evts_cutFlow,cutFile)        
 
-        nfiles = len(inputFileList)
-        progressbar = P.ProgressBar(widgets=[f"Reading {nfiles} files", 
-                                    P.Percentage(),P.Bar(marker=P.RotatingMarker()), P.ETA()])
-        progressbar.maxval = nfiles
-        progressbar.start()
-        ndone = 0
-        for p in children: 
-            effsDict,evts_cutFlow = p.get()
-            outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
-            effFile = outFile + output_suffix +'_b2tf_effs.csv'
-            cutFile = outFile + output_suffix +'_b2tf_cutFlow.csv'
-            saveOutput(effsDict,effFile,evts_cutFlow,cutFile)
-            ndone += 1
-            progressbar.update(ndone)
+    logger.debug(cutFlowStr+'\n')
+            
         
     logger.info("\n\nDone in %3.2f min" %((time.time()-t0)/60.))
