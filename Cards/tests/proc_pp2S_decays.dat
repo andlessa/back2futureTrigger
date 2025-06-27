@@ -1,5 +1,0 @@
-import model ../../models/DipoleDM/DipoleDM_UFO
-generate p p > sd, (sd > ~chi1 ~chi1bar, ~chi1 > ~chi0 a, ~chi1bar > ~chi0bar a) QED==0
-output ../../pp2chi0chi0Decays
-done
-done
