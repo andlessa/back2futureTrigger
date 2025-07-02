@@ -76,6 +76,13 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
     parsDict['m0'] = slhaData.blocks['MASS'][LSP]
     parsDict['mS'] = slhaData.blocks['MASS'][mother]
     parsDict['tau'] = 6.582e-25/slhaData.decays[LLP].totalwidth
+    try:
+        relabelModelPars = {1 : 'lambdauv', 7 : 'chxx10', 8 : 'ychi1', 10 : 'ychi10', 11 : 'sina'}
+        for key,val in slhaData.blocks['NPINPUTS'].items():
+            newkey = relabelModelPars.get(key,key)
+            parsDict[newkey] = val
+    except KeyError:
+        pass
     
     modelInfoDict.update(parsDict)
     if verbose:
