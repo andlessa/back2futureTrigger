@@ -8,8 +8,10 @@ from configParserWrapper import ConfigParserExt
 import logging,shutil
 import subprocess
 import tempfile
-import time,datetime
+import time
+import multiprocessing
 import tqdm
+import numpy as np
 
 FORMAT = '%(levelname)s in %(module)s.%(funcName)s(): %(message)s at %(asctime)s'
 logging.basicConfig(format=FORMAT,datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -29,7 +31,7 @@ def generateProcessFolder(parser):
     
     
     #Get run folder:    
-    pars = parser["MadGraphPars"]
+    pars = parser["MadEventPars"]
     processCard = os.path.abspath(pars["proccard"])    
     if not os.path.isfile(processCard):
         logger.error("Process card %s not found" %processCard)
@@ -91,19 +93,44 @@ def runMadEvent(parser) -> str:
         processFolder = pars['processFolder']
         if not os.path.isdir(processFolder):
             logger.error('Process folder %s not found.' %processFolder)
-            return 'Error'        
+            return 'Error'
+     
+    if not 'runFolder' in pars:
+        logger.error('Run folder not defined.')
+        return 'Error'
+    else:
+        runFolder = pars['runFolder']
+
+    if not 'outputFolder' in pars:
+        logger.error('Output folder not defined.')
+        return 'Error'
+    else:
+        outputFolder = pars['outputFolder']
+        if not os.path.isdir(outputFolder):
+            os.makedirs(outputFolder)
+
+    # If run folder does not exist, create it using processFolder as a template:
+    if not os.path.isdir(runFolder):
+        runFolder = shutil.copytree(processFolder,runFolder,
+                                    ignore=shutil.ignore_patterns('Events','*.lhe'),
+                                    symlinks=True)
+        logger.info("Created temporary folder %s" %runFolder) 
+
+    if not os.path.isdir(runFolder):
+        logger.error('Run folder %s not found.' %runFolder)
+        return 'Error'
 
     # If run folder does not exist, create it using processFolder as a template:
     if 'paramcard' in pars:
         if os.path.isfile(pars['paramcard']):
-            shutil.copyfile(pars['paramcard'],os.path.join(processFolder,'Cards/param_card.dat'))    
+            shutil.copyfile(pars['paramcard'],os.path.join(runFolder,'Cards/param_card.dat'))    
         else:
             raise ValueError("Param card %s not found" %pars['paramcard'])
     
     pdgs = str(pars['pdgs']).replace(',', ' ')
         
     #Generate commands file:       
-    commandsFile = tempfile.mkstemp(suffix='.txt', prefix='MadEvent_commands_', dir=processFolder)
+    commandsFile = tempfile.mkstemp(suffix='.txt', prefix='MadEvent_commands_', dir=runFolder)
     os.close(commandsFile[0])
     commandsFileF = open(commandsFile[1],'w')
     commandsFileF.write(f'compute_widths {pdgs}\n')
@@ -121,18 +148,17 @@ def runMadEvent(parser) -> str:
     logger.debug("Computing widths events with command file %s" %commandsFile)
     run = subprocess.Popen('./bin/madevent < %s' %(commandsFile),
                            shell=True,stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE,cwd=processFolder)      
+                           stderr=subprocess.PIPE,cwd=runFolder)      
     output,errorMsg= run.communicate()    
     logger.debug('MG5 event error:\n %s \n' %errorMsg.decode())
     logger.debug('MG5 event output:\n %s \n' %output.decode())
 
     
-    newFile = os.path.join(processFolder,f'width_results/param_card_{run_tag}.dat')
-    if not os.path.isdir(os.path.join(processFolder,'width_results')):
-        os.mkdir(os.path.join(processFolder,'width_results'))
-    shutil.copyfile(os.path.join(processFolder,'Cards/param_card.dat'),newFile)
+    newFile = os.path.join(outputFolder,f'param_card_{run_tag}.dat')
+    shutil.copyfile(os.path.join(runFolder,'Cards/param_card.dat'),newFile)
     
-    os.remove(commandsFile)
+    if (runFolder != processFolder) and (runFolder != outputFolder):
+        shutil.rmtree(runFolder)
 
     return newFile
 
@@ -153,12 +179,38 @@ def main(parfile,verbose):
     if ret == []:
         logger.error( "No such file or directory: '%s'" % args.parfile)
         sys.exit()
-            
-    #Get a list of parsers (in case loops have been defined)    
-    parserList = parser.expandLoops()
+
+    # Check if a parFile has been defined, if it has, create parsers from each row    
+    if parser.has_option('AuxPars','parFile'):
+        parFile = np.genfromtxt(parser.get('AuxPars','parFile'),
+                                delimiter=',',names=True)
+        parserList = []    
+        for row in parFile:
+            newParser = ConfigParserExt()
+            newParser.read_dict(parser.toDict(raw=True))            
+            for key,val in zip(parFile.dtype.names,row):
+                newParser.set('AuxPars',key,str(val))
+            parserList += newParser.expandLoops()
+    else:
+        #Get a list of parsers (in case loops have been defined)    
+        parserList = parser.expandLoops()
 
     
-    for irun,newParser in enumerate(tqdm.tqdm(parserList)):
+    # Start multiprocessing pool
+    ncpus = -1
+    if parser.has_option("options","ncpu"):
+        ncpus = int(parser.get("options","ncpu"))
+    if ncpus  < 0:
+        ncpus =  multiprocessing.cpu_count()
+    ncpus = min(ncpus,len(parserList))
+    pool = multiprocessing.Pool(processes=ncpus)
+    if ncpus > 1:
+        logger.info('Running %i jobs in parallel with %i processes' %(len(parserList),ncpus))
+    else:
+        logger.info('Running %i jobs in series with a single process' %(len(parserList)))
+    
+    children = []
+    for irun,newParser in enumerate(parserList):
         processFolder = newParser.get('MadEventPars','processFolder')
         processFolder = os.path.abspath(processFolder)
         if processFolder[-1] == '/':
@@ -174,12 +226,28 @@ def main(parfile,verbose):
             for runF in glob.glob(os.path.join(eventsFolder,'run*')):
                 run0 = max(run0,int(os.path.basename(runF).replace('run_',''))+1)
 
-        
+        # Create temporary folder names if running in parallel
+        if ncpus > 1:
+            # Create temporary folders
+            runFolder = tempfile.mkdtemp(prefix='%s_'%(processFolder),suffix='_run_%02d' %(run0+irun))
+            os.removedirs(runFolder)
+        else:
+            runFolder = processFolder
+
+        newParser.set('MadEventPars','runFolder',runFolder)
         parserDict = newParser.toDict(raw=False)
         logger.debug('submitting with pars:\n %s \n' %parserDict)
-        _ = runMadEvent(parserDict)
+        p = pool.apply_async(runMadEvent, args=(parserDict,))                       
+        children.append(p)
 
-    return
+        logger.debug('submitting with pars:\n %s \n' %parserDict)
+
+    #     Wait for jobs to finish:
+    output = []
+    for p in tqdm.tqdm(children):
+        output.append(p.get())
+    
+    return output
     
 
 

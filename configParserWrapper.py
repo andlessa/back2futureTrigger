@@ -104,11 +104,11 @@ class ConfigParserExt(RawConfigParser):
                 else:
                     raise InterpolationDepthError(option, section, valueRaw)
         
-        
         try:
             return eval(ret)
         except:
             return ret
+        
 
         
     def getstr(self,*args,**kargs):
