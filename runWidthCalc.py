@@ -112,7 +112,6 @@ def runMadEvent(parser) -> str:
     # If run folder does not exist, create it using processFolder as a template:
     if not os.path.isdir(runFolder):
         runFolder = shutil.copytree(processFolder,runFolder,
-                                    ignore=shutil.ignore_patterns('Events','*.lhe'),
                                     symlinks=True)
         logger.info("Created temporary folder %s" %runFolder) 
 
@@ -156,6 +155,7 @@ def runMadEvent(parser) -> str:
     
     newFile = os.path.join(outputFolder,f'param_card_{run_tag}.dat')
     shutil.copyfile(os.path.join(runFolder,'Cards/param_card.dat'),newFile)
+    logger.info(f'Copying {os.path.join(runFolder,'Cards/param_card.dat')} to {newFile}')
     
     if (runFolder != processFolder) and (runFolder != outputFolder):
         shutil.rmtree(runFolder)
