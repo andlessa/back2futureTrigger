@@ -6,10 +6,8 @@ import numpy as np
 import pyhepmc
 import random
 import logging
-import configparser
 import subprocess
 import multiprocessing
-import itertools
 import tqdm
 from helper import getModelDict
 delphesDir = os.path.abspath("../DelphesLLP")

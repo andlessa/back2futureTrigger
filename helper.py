@@ -68,10 +68,10 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
     if bannerFile is None:
         bannerFile = list(glob.glob(os.path.join(os.path.dirname(f),'*banner*txt')))[0]
     with open(bannerFile,'r') as ff:
-        if '<slha>' in bannerFile:
-            slhaData = ff.read().split('<slha>')[1].split('</slha>')[0]
-        else:
-            slhaData = ff.read()
+        slhaData = ff.read()
+        if '<slha>' in slhaData:
+            slhaData = slhaData.split('<slha>')[1].split('</slha>')[0]
+            
         slhaData = pyslha.readSLHA(slhaData)
             
     parsDict = {}
