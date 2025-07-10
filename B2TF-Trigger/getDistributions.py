@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import os
 import logging
-import sys
 
 c = 3e8
 
@@ -24,8 +23,14 @@ HLTpTj1Str = r'Leading jet $E_{T}$ (Off-line, N) (GeV)'
 HLTnjStr = r'$n_{j}$ (Off-line, N)'
 HLTemfStr = r'EMF$_{\rm min}$ (Off-line, N)'
 
+bb1dPhi = r'$\Delta \phi (b_1,\bar{b}_1)$ (Parton Level)'
+bb1dR = r'$\Delta R (b_1,\bar{b}_1)$ (Parton Level)'
+bb2dPhi = r'$\Delta \phi (b_2,\bar{b}_2)$ (Parton Level)'
+bb2dR = r'$\Delta R (b_2,\bar{b}_2)$ (Parton Level)'
 
-cols = [L1metStr,L1njStr,L1pTj1Str,L1dPhi,L1metPartonStr,HLTnjStr,HLTpTj1Str,HLTemfStr]
+
+cols = [L1metStr,L1njStr,L1pTj1Str,L1dPhi,L1metPartonStr,HLTnjStr,HLTpTj1Str,HLTemfStr,
+        bb1dPhi,bb1dR,bb2dPhi,bb2dR]
 
 
 # ### Define CSV filename
@@ -37,6 +42,10 @@ csvFiles = {L1metStr : './results/l1_met.csv',
                 HLTnjStr : './results/offline_nj.csv',
                 HLTpTj1Str : './results/offline_pt.csv',
                 HLTemfStr : './results/offline_EMF.csv',
+                bb1dPhi : './results/bbar1_dPhi.csv',
+                bb1dR : './results/bbar1_dR.csv',
+                bb2dPhi : './results/bbar2_dPhi.csv',
+                bb2dR : './results/bbar2_dR.csv',
                 }
 
 if __name__ == "__main__":
@@ -82,10 +91,16 @@ if __name__ == "__main__":
     for ievt in tqdm(range(nevts)):
         tree.GetEntry(ievt)
 
-        # Get parton level MET
+        # Get parton level MET and b-bar angular separation
         llps = list(tree.llpParticles)
         invisibles = [p for p in tree.llpDirectDaughters 
                     if abs(p.PID) == 4000022]
+        bquarks = [(p.M1,p) for p in tree.llpDirectDaughters 
+                    if abs(p.PID) == 5]
+        # Group bquarks by parent
+        bquark_pairs = {illp : [] for illp,_ in bquarks}
+        for illp,b  in bquarks:
+            bquark_pairs[illp].append(b)
         invisibles = sorted(invisibles, key = lambda p: p.M1)
         pInvTot = np.zeros(3)
         for illp,llp in enumerate(llps):
@@ -100,6 +115,29 @@ if __name__ == "__main__":
             pInvTot += pInv
         
         metParton = np.linalg.norm(pInvTot[:2])
+
+        bb1dphi = 0.0
+        bb1dr = 0.0
+        bb2dphi = 0.0
+        bb2dr = 0.0
+        for illp,bpair in bquark_pairs.items():
+            if len(bpair) != 2:
+                continue
+            b = bpair[0]
+            bbar = bpair[1]
+            bbdphi = np.abs(b.Phi-bbar.Phi)
+            if bbdphi > np.pi:
+                bbdphi = 2*np.pi-bbdphi
+            bbdr = np.sqrt((b.Eta-bbar.Eta)**2 + bbdphi**2)
+            if illp == 0:
+                bb1dphi = bbdphi
+                bb1dr = bbdr
+            else:
+                bb2dphi = bbdphi
+                bb2dr = bbdr
+
+
+        # Get detector level variables
                 
         metOnTime = tree.L1METOnTime.At(0)
         jetsDelayed = list(tree.L1JetDelayed)
@@ -149,7 +187,8 @@ if __name__ == "__main__":
             emf_min = min([cell.Eem/(cell.Eem + cell.Ehad) for cell in jet_cells])        
 
 
-        dataList.append([met,nj,pTj1,dphi_min,metParton,njHLT,pTHLT,emf_min])
+        dataList.append([met,nj,pTj1,dphi_min,metParton,njHLT,pTHLT,emf_min,
+                         bb1dphi,bb1dr,bb2dphi,bb2dr])
     f.Close()
     
     df = pd.DataFrame(columns=cols,data=dataList)
@@ -174,7 +213,11 @@ if __name__ == "__main__":
                 L1metPartonStr : np.arange(0.,300.,20.), 
                 HLTemfStr : np.array([-1.1,-0.9,-0.01,0.01,0.02,0.03,0.04,
                                         0.05,0.06,0.07,0.08,0.09,0.1,0.2,
-                                        0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1,1.2])
+                                        0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1,1.2]),
+                bb1dPhi : np.linspace(0.,np.pi,100),
+                bb1dR : np.linspace(0.,10.0,100),
+                bb2dPhi : np.linspace(0.,np.pi,100),
+                bb2dR : np.linspace(0.,10.0,100)
                 }
 
     # ### Save histograms
