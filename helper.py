@@ -27,6 +27,28 @@ axisDict = {'$m_S$ (GeV)' : 'ms',
 
 varDict = {val : key for key,val in axisDict.items()}
 
+defaultPars = {'figure.figsize': (5, 4),
+               'lines.markersize' : 4,
+               'axes.titlesize' : 13,
+               'font.size' : 13,
+               'axes.labelsize' : 16,
+               'xtick.labelsize' : 13,
+               'ytick.labelsize' : 13,
+               'legend.fontsize' : 10,
+               "text.usetex": True,
+               "font.family": "sans-serif",
+               "font.sans-serif": ["Helvetica"],
+               'font.family':'Times New Roman', 
+               'font.serif':'Times New Roman',
+               "savefig.dpi" : 300,
+               'contour.linewidth' : 2.0,
+               'lines.linewidth' : 2.0,
+               'axes.grid' : True,
+               'grid.linewidth' : 0.5,
+               'grid.color' : 'lightgray',
+               'axes.axisbelow' : True
+               }
+
 def getTitleFromDF(df):
 
     title = []
