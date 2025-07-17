@@ -107,8 +107,7 @@ def CalRatioHighET_L1(jetsL1 : List, pTmin : float = 60.0) -> dict:
 
     return l1_cuflow
 
-def CalRatio_HLT(jetsHLT : List, HLTTowers : List,
-                    tracks : List) -> dict:
+def CalRatio_HLT(jetsHLT : List, tracks : List) -> dict:
 
     hlt_cuflow = {
                     'HLT: Eta Jet < 2.5 PT Jet > 20 GeV' : 0,
@@ -122,27 +121,12 @@ def CalRatio_HLT(jetsHLT : List, HLTTowers : List,
     
     hlt_cuflow['HLT: Eta Jet < 2.5 PT Jet > 20 GeV'] += 1
         
-    # For the remaining jets, find at least one with low
-    # energy deposit in the ECAL cell closest to the jet
-    jet_cells = []
+    jets_disp = []
     for j in jetsHLT:
-        closest_cell = None
-        dRmin = 100.0
-        for tower_cell in HLTTowers:
-            dphi = np.abs(j.Phi-tower_cell.Phi)
-            deta = j.Eta-tower_cell.Eta
-            if dphi > np.pi:
-                dphi = 2*np.pi - dphi
-            dR = np.sqrt(deta**2 + dphi**2)
-            if dR < dRmin:
-                dRmin = dR
-                closest_cell = tower_cell
-        
-        jet_cells.append(closest_cell)
-    
-    # Remove jets with large ECAL deposits
-    jets_disp = [j for j,cell in zip(jetsHLT,jet_cells) 
-                 if cell.Eem/(cell.Eem + cell.Ehad) < 0.06]
+        EMF = 1.0/(1.0+j.EhadOverEem)
+        if EMF < 0.06:
+            jets_disp.append(j)
+
     if not jets_disp:
         return hlt_cuflow
     

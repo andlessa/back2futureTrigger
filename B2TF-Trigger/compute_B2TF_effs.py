@@ -51,7 +51,6 @@ def getEffForB2TF(tree) -> dict:
     ### HLT Trigger
     # Get jets from the L1 (delayed) calorimeter
     jetsDelayedHLT = list(tree.HLTJetDelayed)
-    towers = tree.HLTTowerDelayed
     tracksDelayed = []
     if hasattr(tree,'AllTracks'):
         for track in tree.AllTracks:
@@ -61,7 +60,7 @@ def getEffForB2TF(tree) -> dict:
                 continue
             tracksDelayed.append(track)
     
-    evt_cutFlow.update(CalRatio_HLT(jetsDelayedHLT,towers,tracksDelayed))
+    evt_cutFlow.update(CalRatio_HLT(jetsDelayedHLT,tracksDelayed))
     
     return evt_cutFlow
 

@@ -1092,7 +1092,7 @@ module TreeWriter TreeWriter {
 #  add Branch L1CALOnTime/towers L1TowerOnTime Tower
   add Branch L1METOnTime/momentum L1METOnTime MissingET
   add Branch L1SmallJetEnergyScaleOnTime/jets L1SmallJetOnTime Jet
-  add Branch HLTCALOnTime/towers HLTTowerOnTime Tower 
+#  add Branch HLTCALOnTime/towers HLTTowerOnTime Tower 
   add Branch HLTJetEnergyScaleOnTime/jets HLTJetOnTime Jet
 
   add Branch L1JetEnergyScaleDelayed/jets L1JetDelayed Jet
@@ -1101,7 +1101,7 @@ module TreeWriter TreeWriter {
 
 #  add Branch ECALDelayed/calTowers ETowerDelayed Tower  
 #  add Branch HCALDelayed/calTowers HTowerDelayed Tower  
-  add Branch HLTCALDelayed/towers HLTTowerDelayed Tower 
+#  add Branch HLTCALDelayed/towers HLTTowerDelayed Tower 
   add Branch HLTJetEnergyScaleDelayed/jets HLTJetDelayed Jet
 #  add Branch TrackMerger/tracks AllTracks Track
 

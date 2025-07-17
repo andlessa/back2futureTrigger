@@ -53,14 +53,12 @@ def getEffForCalRatio(tree) -> dict:
     eventOnTime = {
                     'jetsL1' : tree.L1SmallJetOnTime, 
                     'jetsHLT' : tree.HLTJetOnTime, 
-                    'towers' : tree.HLTTowerOnTime,
                     'tracks' : tracksOnTime
                   }  
                    
     eventDelayed = {
                     'jetsL1' : tree.L1SmallJetDelayed, 
                     'jetsHLT' : tree.HLTJetDelayed, 
-                    'towers' : tree.HLTTowerDelayed,
                     'tracks' : tracksDelayed
                   }                   
     
@@ -76,8 +74,7 @@ def getEffForCalRatio(tree) -> dict:
         
         l1_pass = list(l1_cutflow.values())[-1]
         
-        hlt_cutflow = CalRatio_HLT(event['jetsHLT'],event['towers'],
-                                   event['tracks'])
+        hlt_cutflow = CalRatio_HLT(event['jetsHLT'],event['tracks'])
         
         cutFlow = {key : val for key,val in l1_cutflow.items()}
         cutFlow.update({key : val*l1_pass for key, val in hlt_cutflow.items()})
