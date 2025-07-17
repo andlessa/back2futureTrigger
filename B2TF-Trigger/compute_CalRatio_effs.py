@@ -130,9 +130,10 @@ def getEfficiencies(inputFile,ijob=0):
         effsDict['Nevents'] += 1.0
         evt_cutFlow = getEffForCalRatio(tree)
         if all(val != 0 for val in evt_cutFlow.values()):
-            evt_eff = 0.0
-        else:
             evt_eff = 1.0
+        else:
+            evt_eff = 0.0
+
         # Add event efficiency to total efficiencies 
         # for the given selection (for each tau value)
         effsDict['Trigger'] += evt_eff
@@ -144,7 +145,7 @@ def getEfficiencies(inputFile,ijob=0):
     f.Close()
 
     # Sort keys:
-    sorted_keys = sorted(evts_cutFlow.keys(), key=lambda k: ('All' in k, 'L1' in k,evts_cutFlow[k]),
+    sorted_keys = sorted(evts_cutFlow.keys(), key=lambda k: ('All' in k, '(N-1)' in k, 'L1' in k, evts_cutFlow[k]),
                          reverse=True)
     evts_cutFlow_sorted = {key : evts_cutFlow[key] for key in sorted_keys}
     evts_cutFlow = evts_cutFlow_sorted
