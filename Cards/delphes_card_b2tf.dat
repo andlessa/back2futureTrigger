@@ -903,7 +903,7 @@ module FastJetFinder L1SmallJetFinderOnTime {
 
   # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
   set JetAlgorithm 6
-  set ParameterR 0.2
+  set ParameterR 0.1
 
   set JetPTMin 20.0
 }
@@ -986,7 +986,7 @@ module FastJetFinder L1SmallJetFinderDelayed {
 
   # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
   set JetAlgorithm 6
-  set ParameterR 0.2
+  set ParameterR 0.1
 
   set JetPTMin 20.0
 }

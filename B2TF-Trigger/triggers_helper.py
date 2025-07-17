@@ -111,9 +111,12 @@ def CalRatio_HLT(jetsHLT : List, tracks : List) -> dict:
 
     hlt_cuflow = {
                     'HLT: Eta Jet < 2.5 PT Jet > 20 GeV' : 0,
-                    'HLT: Jet(N) EMF < 0.06' : 0,
-                    'HLT: DR(Tracks(N),Jet(N)) > 0.2' : 0
+                    'HLT: Jet EMF < 0.06' : 0                    
                 }
+
+    if tracks:
+        hlt_cuflow.update({'HLT: DR(Tracks,Jet) > 0.2' : 0})
+
 
     jetsHLT = [j for j in jetsHLT if (abs(j.Eta) < 2.5 and j.PT > 20.0)]
     if not jetsHLT:
@@ -130,28 +133,29 @@ def CalRatio_HLT(jetsHLT : List, tracks : List) -> dict:
     if not jets_disp:
         return hlt_cuflow
     
-    hlt_cuflow['HLT: Jet(N) EMF < 0.06'] += 1
+    hlt_cuflow['HLT: Jet EMF < 0.06'] += 1
     
 
     # Finally for the remaining jets remove jets with tracks close
     # to it and belonging to the delayed event    
-    jets_clean = []
-    for j in jets_disp:
-        dRmin = 100.0
-        for track in tracks:
-            dphi = np.abs((j.Phi-track.Phi))
-            if dphi > np.pi:
-                dphi = 2*np.pi - dphi
-            deta = (j.Eta-track.Eta)
-            dR = np.sqrt(deta**2 + dphi**2)
-            dRmin = min(dR,dRmin)
-        if dRmin > 0.2:
-            jets_clean.append(j)
+    if tracks:
+        jets_clean = []
+        for j in jets_disp:
+            dRmin = 100.0
+            for track in tracks:
+                dphi = np.abs((j.Phi-track.Phi))
+                if dphi > np.pi:
+                    dphi = 2*np.pi - dphi
+                deta = (j.Eta-track.Eta)
+                dR = np.sqrt(deta**2 + dphi**2)
+                dRmin = min(dR,dRmin)
+            if dRmin > 0.2:
+                jets_clean.append(j)
 
-    if not jets_clean:
+        if not jets_clean:
+            return hlt_cuflow
+        
+        hlt_cuflow['HLT: DR(Tracks,Jet) > 0.2'] += 1
+    else:        
         return hlt_cuflow
-    
-    hlt_cuflow['HLT: DR(Tracks(N),Jet(N)) > 0.2'] += 1
-    
-    return hlt_cuflow
 

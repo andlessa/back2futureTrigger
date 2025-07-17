@@ -65,23 +65,26 @@ def getEffForCalRatio(tree) -> dict:
 
     ### Check if the N-1 or N event records pass the triggers
     cutFlows = []
-    for event in [eventOnTime,eventDelayed]:
+    for event,label in [(eventOnTime,'N-1'),(eventDelayed,'N')]:
         # Check low ET trigger
         l1_cutflow = CalRatioLowET_L1(event['jetsL1'])
         # If failed, check high ET trigger
         if any(val == 0 for val in l1_cutflow.values()):
              l1_cutflow = CalRatioHighET_L1(event['jetsL1'],pTmin = 60.0)
         
-        l1_pass = list(l1_cutflow.values())[-1]
+        l1_pass = all(val != 0 for val in l1_cutflow.values())
         
         hlt_cutflow = CalRatio_HLT(event['jetsHLT'],event['tracks'])
+
+        hlt_pass = all(val != 0 for val in hlt_cutflow.values())
         
-        cutFlow = {key : val for key,val in l1_cutflow.items()}
-        cutFlow.update({key : val*l1_pass for key, val in hlt_cutflow.items()})
+        cutFlow = {f'({label}) {key}' : val for key,val in l1_cutflow.items()}
+        cutFlow.update({f'({label}) {key}' : val*l1_pass 
+                        for key, val in hlt_cutflow.items()})
         cutFlows.append(cutFlow)
             
-        # If the event passed all cuts, do not check next event
-        if all(val != 0 for val in cutFlow.values()):
+        # If the event passed both triggers, skip next event
+        if l1_pass and hlt_pass:
             break
     
     # Sort cutFlow by last cut and total number of cuts passed
@@ -126,7 +129,7 @@ def getEfficiencies(inputFile,ijob=0):
         tree.GetEntry(ievt) 
         effsDict['Nevents'] += 1.0
         evt_cutFlow = getEffForCalRatio(tree)
-        if any(val == 0 for val in evt_cutFlow.values()):
+        if all(val != 0 for val in evt_cutFlow.values()):
             evt_eff = 0.0
         else:
             evt_eff = 1.0
