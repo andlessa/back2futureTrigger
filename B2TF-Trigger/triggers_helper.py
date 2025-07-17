@@ -154,8 +154,8 @@ def CalRatio_HLT(jetsHLT : List, tracks : List) -> dict:
 
         if not jets_clean:
             return hlt_cuflow
-        
-        hlt_cuflow['HLT: DR(Tracks,Jet) > 0.2'] += 1
-    else:        
-        return hlt_cuflow
+        else:
+            hlt_cuflow['HLT: DR(Tracks,Jet) > 0.2'] += 1
+     
+    return hlt_cuflow
 
