@@ -107,14 +107,14 @@ def CalRatioHighET_L1(jetsL1 : List, pTmin : float = 60.0) -> dict:
 
     return l1_cuflow
 
-def CalRatio_HLT(jetsHLT : List, tracks : List) -> dict:
+def CalRatio_HLT(jetsHLT : List, tracks : Union[List,None]) -> dict:
 
     hlt_cuflow = {
                     'HLT: Eta Jet < 2.5 PT Jet > 20 GeV' : 0,
                     'HLT: Jet EMF < 0.06' : 0                    
                 }
 
-    if tracks:
+    if tracks is not None:
         hlt_cuflow.update({'HLT: DR(Tracks,Jet) > 0.2' : 0})
 
 
@@ -154,8 +154,8 @@ def CalRatio_HLT(jetsHLT : List, tracks : List) -> dict:
 
         if not jets_clean:
             return hlt_cuflow
-        else:
-            hlt_cuflow['HLT: DR(Tracks,Jet) > 0.2'] += 1
+
+    hlt_cuflow['HLT: DR(Tracks,Jet) > 0.2'] += 1
      
     return hlt_cuflow
 

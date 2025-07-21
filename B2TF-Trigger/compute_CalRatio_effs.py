@@ -38,15 +38,19 @@ def getEffForCalRatio(tree) -> dict:
     evt_cutFlow['All'] = 1
     
 
-    tracksDelayed = []
-    tracksOnTime = []
+    tracksDelayed = None
+    tracksOnTime = None
     if hasattr(tree,'AllTracks'):
+        tracksDelayed = []
+        tracksOnTime = []
         for track in tree.AllTracks:
             if track.PT < 2.0:
                 continue
-            if (25e-9 < track.T < 35e-9):               
+            l_track = np.sqrt(track.X**2 + track.Y**2 + track.Z**2)
+            t_readout =  track.T - l_track*1e-3/c
+            if (25e-9 < t_readout < 35e-9):               
                 tracksDelayed.append(track)
-            elif ( 0.0 < track.T < 10e-9):
+            elif (t_readout < 10e-9):
                 tracksOnTime.append(track)
     
     
