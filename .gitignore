@@ -1,4 +1,5 @@
 *.pyc
 *.so
 *.a
+*.csv
 __pycache__
