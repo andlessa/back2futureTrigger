@@ -138,7 +138,7 @@ def CalRatio_HLT(jetsHLT : List, tracks : Union[List,None]) -> dict:
 
     # Finally for the remaining jets remove jets with tracks close
     # to it and belonging to the delayed event    
-    if tracks:
+    if tracks is not None:
         jets_clean = []
         for j in jets_disp:
             dRmin = 100.0
@@ -155,7 +155,7 @@ def CalRatio_HLT(jetsHLT : List, tracks : Union[List,None]) -> dict:
         if not jets_clean:
             return hlt_cuflow
 
-    hlt_cuflow['HLT: DR(Tracks,Jet) > 0.2'] += 1
+        hlt_cuflow['HLT: DR(Tracks,Jet) > 0.2'] += 1
      
     return hlt_cuflow
 
