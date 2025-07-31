@@ -93,11 +93,11 @@ if __name__ == "__main__":
             rho = np.linalg.norm(x[:2])*1e-3
             z = x[2]*1e-3
             llpDict = {'eventRecord' : eventRecord, r'$\beta$' : beta,
-                       r'$rho_{\rm dec}$ (m)' : rho, r'$z$ (m)' : z, 
-                       r'$t_{rm readout}$ (ns)' : t_readout, 'event' : ievt}
+                       r'$\rho_{\rm dec}$ (m)' : rho, r'$z$ (m)' : z, 
+                       r'$t_{\rm readout}$ (ns)' : t_readout, 'event' : ievt}
         
             llpList.append(llpDict)
-        llpList = sorted(llpList, key = lambda llpD: llpD[r'$t_{rm readout}$ (ns)'])
+        llpList = sorted(llpList, key = lambda llpD: llpD[r'$t_{\rm readout}$ (ns)'])
         for illp,llpD in enumerate(llpList):
             llpD['illp'] = illp
             llpData.append(llpD)
