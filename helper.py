@@ -76,6 +76,7 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
 
     if model == 'minimalH':
         LLP = 4000023
+        LLP2 = 4000024
         LSP = 4000022
         mother = 55        
     else:
@@ -101,8 +102,24 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
     parsDict['m0'] = slhaData.blocks['MASS'][LSP]
     parsDict['mS'] = slhaData.blocks['MASS'][mother]
     parsDict['tau'] = 6.58212e-25/slhaData.decays[LLP].totalwidth
+    if LLP2 in slhaData.blocks['MASS']:
+        parsDict['m2'] = slhaData.blocks['MASS'][LLP2]
+
     try:
-        relabelModelPars = {1 : 'lambdauv', 7 : 'chxx10', 8 : 'ychi1', 10 : 'ychi10', 11 : 'sina'}
+        if 'm2' in parsDict:
+            relabelModelPars = {1 : 'lambdauv', 
+                            11 : 'chxx10', 
+                            18 : 'ychi20', 
+                            19 : 'ychi21', 
+                            20 : 'sina',
+                            }
+        else:
+            relabelModelPars = {1 : 'lambdauv', 
+                            7 : 'chxx10', 
+                            8 : 'ychi1', 
+                            10 : 'ychi10', 
+                            11 : 'sina',
+                            }
         for key,val in slhaData.blocks['NPINPUTS'].items():
             newkey = relabelModelPars.get(key,key)
             parsDict[newkey] = val
@@ -112,6 +129,8 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
     modelInfoDict.update(parsDict)
     if verbose:
         print('ms = ',parsDict['mS'])
+        if 'm2' in parsDict:
+            print('m2 = ',parsDict['m2'])
         print('m1 = ',parsDict['m1'])
         print('m0 = ',parsDict['m0'])
         print('tau (ns) = ',parsDict['tau']*1e9)

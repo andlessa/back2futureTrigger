@@ -221,7 +221,7 @@ if __name__ == "__main__":
         cutFile = outFile + output_suffix +'_b2tf_cutFlow.csv'
         cutFlowStr += f'CutFlow for {effsDict['inputFile']}:\n'
         for key,val in evts_cutFlow.items():
-            cutFlowStr += f'  {key} : {val/evts_cutFlow['All']:1.3e}\n'
+            cutFlowStr += f'  {key} : {val} ({val/evts_cutFlow['All']:1.3e})\n'
         saveOutput(effsDict,effFile,evts_cutFlow,cutFile)        
 
     logger.debug(cutFlowStr+'\n')
