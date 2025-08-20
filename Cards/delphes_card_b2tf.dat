@@ -177,6 +177,7 @@ module SimpleCalorimeterTiming L1ECALOnTime {
   add EnergyFraction {1000045} {0.0}
   add EnergyFraction {4000022} {0.0}
   add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {4000024} {0.0}
   add EnergyFraction {55} {0.0}
 
   # set ResolutionFormula {resolution formula as a function of eta and energy}
@@ -262,6 +263,7 @@ module SimpleCalorimeterTiming L1HCALOnTime {
   add EnergyFraction {1000045} {0.0}
   add EnergyFraction {4000022} {0.0}
   add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {4000024} {0.0}
   add EnergyFraction {55} {0.0}
 
   # http://arxiv.org/pdf/hep-ex/0004009v1
@@ -377,6 +379,7 @@ module SimpleCalorimeterTiming HLTECALOnTime {
   add EnergyFraction {1000045} {0.0}
   add EnergyFraction {4000022} {0.0}
   add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {4000024} {0.0}
   add EnergyFraction {55} {0.0}
 
   # set ResolutionFormula {resolution formula as a function of eta and energy}
@@ -474,6 +477,7 @@ module SimpleCalorimeterTiming HLTHCALOnTime {
   add EnergyFraction {1000045} {0.0}
   add EnergyFraction {4000022} {0.0}
   add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {4000024} {0.0}
   add EnergyFraction {55} {0.0}
 
   # http://arxiv.org/pdf/hep-ex/0004009v1
@@ -554,6 +558,7 @@ module SimpleCalorimeterTiming L1ECALDelayed {
   add EnergyFraction {1000045} {0.0}
   add EnergyFraction {4000022} {0.0}
   add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {4000024} {0.0}
   add EnergyFraction {55} {0.0}
 
   # set ResolutionFormula {resolution formula as a function of eta and energy}
@@ -639,6 +644,7 @@ module SimpleCalorimeterTiming L1HCALDelayed {
   add EnergyFraction {1000045} {0.0}
   add EnergyFraction {4000022} {0.0}
   add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {4000024} {0.0}
   add EnergyFraction {55} {0.0}
 
   # http://arxiv.org/pdf/hep-ex/0004009v1
@@ -752,6 +758,7 @@ module SimpleCalorimeterTiming HLTECALDelayed {
   add EnergyFraction {1000045} {0.0}
   add EnergyFraction {4000022} {0.0}
   add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {4000024} {0.0}
   add EnergyFraction {55} {0.0}
 
   # set ResolutionFormula {resolution formula as a function of eta and energy}
@@ -849,6 +856,7 @@ module SimpleCalorimeterTiming HLTHCALDelayed {
   add EnergyFraction {1000045} {0.0}
   add EnergyFraction {4000022} {0.0}
   add EnergyFraction {4000023} {0.0}
+  add EnergyFraction {4000024} {0.0}
   add EnergyFraction {55} {0.0}
 
   # http://arxiv.org/pdf/hep-ex/0004009v1
