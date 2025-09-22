@@ -255,21 +255,31 @@ resulting in the vertices given in \cref{tab:feynmanRulesH}.
 	\begin{tabular}{p{2cm}|p{8.5cm}}
 		\toprule
 		\textbf{Interaction} & \textbf{Vertex term (Minimal H)}\\ \toprule 
-		$h\, \chi_1\,\chi_1$ & $\frac{i}{\sqrt{2}} (y_{\chi})_{11} \sin\alpha$\\
-		$S\,\chi_1\,\chi_1$  & $-\frac{i}{\sqrt{2}} (y_{\chi})_{11} \cos\alpha $\\
-		$\chi_1\,\chi_0\,h$  & $-i \frac{v}{\Lambda} (C_{H\chi\chi})_{01} \cos\alpha$\\
-		$S\,\chi_1\,\chi_0$ &  $-i \frac{v}{\Lambda} (C_{H\chi\chi})_{01} \sin\alpha$\\
+		$h\, \chi_2\,\chi_1$ & $\frac{i}{\sqrt{2}} (y_{\chi})_{21} \sin\alpha$\\
+		$h\, \chi_2\,\chi_0$ & $\frac{i}{\sqrt{2}} (y_{\chi})_{20} \sin\alpha$\\
+		$h\chi_1\,\chi_0$  & $-i \frac{v}{\Lambda} (C_{H\chi\chi})_{10} \cos\alpha$\\		
+		$S\,\chi_2\,\chi_1$  & $-\frac{i}{\sqrt{2}} (y_{\chi})_{21} \cos\alpha $\\
+		$S\,\chi_2\,\chi_0$ &  $\frac{i}{\sqrt{2}} (y_{\chi})_{20} \cos\alpha$\\
+		$S\,\chi_1\,\chi_0$ &  $-i \frac{v}{\Lambda} (C_{H\chi\chi})_{10} \sin\alpha$\\
     	$S\,G_\mu\,G_\nu$  & $i \frac{g_s^2}{12 \pi^2 v} \sin\alpha F(m^2_S/m^2_t) (p_1^\mu p_2^\nu - g^{\mu\nu} p_1\cdot p_2) $\\
 		\bottomrule        
 	\end{tabular}
 	\caption{Feynman rules for the relevant interactions in the {\bf minimal} model with couplings to Higgs. The couplings between $S$ and two SM particles are the same as in \cref{tab:feynmanRules} and have been omitted. \label{tab:feynmanRulesH}}
 \end{table}
 
-
-In this scenario the heavy fermion can only decay through the effective operator, hence:
+For the following we assume the mass spectrum:
+$$
+m_S > m_2 > m_1 > m_0 > m_h/2.
+$$
+In this scenario the heaviest fermion ($\chi_2$) mostly decays through the BSM Yukawa interaction:
 \begin{align}
-	\Gamma (\chi_1 \to h \chi_0) & = \cos^2\alpha \frac{C_{H\chi\chi}^2}{16 \pi} \frac{v^2}{\Lambda^2} M_1 \left[\left(1 + \frac{M_0}{M_1}\right)^2 - \frac{m_h^2}{M_1^2} \right]  \sqrt{\lambda\left(1,\frac{M_0^2}{M_1^2},\frac{m_h^2}{M_1^2}\right)}\\
-	\Gamma (\chi_1 \to S \chi_0) & = \sin^2\alpha \frac{C_{H\chi\chi}^2}{16 \pi} \frac{v^2}{\Lambda^2} M_1 \left[\left(1 + \frac{M_0}{M_1}\right)^2 - \frac{m_S^2}{M_1^2} \right]  \sqrt{\lambda\left(1,\frac{M_0^2}{M_1^2},\frac{m_S^2}{M_1^2}\right)}\, ,
+	\Gamma (\chi_2 \to h \chi_i) & = M_ 2 \left(y_\chi\right)_{2i}^2 \sin^2\alpha \left[\left(1 + \frac{M_i}{M_2}\right)^2 - \frac{m_h^2}{M_2^2} \right]  \sqrt{\lambda\left(1,\frac{M_i^2}{M_1^2},\frac{m_h^2}{M_1^2}\right)}, i=0,1
+\end{align}
+Note that if $m_2 \gtrsim m_1 \gg m_0$, the decay $\chi_2 \to \chi_1 + h$ is kinematically suppressed and $\chi_2 \to \chi_0 + h$ will be the dominant decay channel.
+
+On the other hand, $\chi_1$ can only decay through the effective operator, hence:
+\begin{align}
+	\Gamma (\chi_1 \to h \chi_0) & = \cos^2\alpha \frac{\left(C_{H\chi\chi}\right)_{10}^2}{16 \pi} \frac{v^2}{\Lambda^2} M_1 \left[\left(1 + \frac{M_0}{M_1}\right)^2 - \frac{m_h^2}{M_1^2} \right]  \sqrt{\lambda\left(1,\frac{M_0^2}{M_1^2},\frac{m_h^2}{M_1^2}\right)}
 \end{align} 
 where $\lambda(x,y,z) = x^2 + y^2 + z^2 + 2 x y + 2 x z + 2 y z$.
 
@@ -291,52 +301,6 @@ Finally, in \cref{fig:chi1_lifetimeH} we show the decay length as a function of 
 	\caption{Proper decay length for $\chi_1$ in the minimal H scenario as a function of $\Delta m = m_{\chi_1} - m_{\chi_0}$.} \label{fig:chi1_lifetimeH}
 \end{figure}
 
-\subsection{Minimal Couplings to Photon (\textsc{\small DipoleDM\_minimalA\_UFO})}
-
-The minimal scenario assumes that $\chi_0$ only couples through the $F^{\mu\nu}$ effective operator and the diagonal entries are zero:
-\begin{align}
-	(C_{\gamma\chi\chi})_{ij} &= 0 \mbox{ , if $i = j$} \\
-	(C_{H\chi\chi})_{ij} &= 0\\
-	(y_{\chi})_{ij} & = 0 \mbox{ , if $i = 0$ or $j = 0$ }
-\end{align}
-With the above assumptions the Lagrangian simplifies to:
-\begin{equation}
-	\mathcal{L}_{\chi} =  i \overline{\chi}_i \cancel \partial \chi_i - \tilde{M}_{ij} \overline{\chi}_i \chi_j - \left(y_\chi\right)_{11} \overline{\chi}_1 \chi_1 \phi + \frac{\left(C_{\gamma \chi \chi}\right)_{01}}{\Lambda} \left(\overline{\chi}_0 \sigma^{\mu\nu} \chi_1 + h.c.\right) F_{\mu\nu} 
-\end{equation}
-resulting in the vertices given in \cref{tab:feynmanRulesA}.
-
-\begin{table}[h!]   \centering
-	\rowcolors{2}{gray!10}{white}
-	\vspace{0.2cm}
-	\begin{tabular}{p{2cm}|p{8.5cm}}
-		\toprule
-		\textbf{Interaction} & \textbf{Vertex term (Minimal A)}\\ \toprule 
-		$ h\,\chi_1\,\chi_1$ & $\frac{i}{\sqrt{2}} (y_{\chi})_{11} \sin\alpha$\\
-		$S\,\chi_1\,\chi_1$  & $-\frac{i}{\sqrt{2}} (y_{\chi})_{11} \cos\alpha $\\
-		$\chi_1\,\chi_0\, A^\mu$  & $-i \frac{1}{\Lambda} (C_{\gamma\chi\chi})_{01} (\gamma^\mu \slashed{p} - \slashed{p} \gamma^\mu)$\\
-		$S\,G_\mu\,G_\nu$  & $i \frac{g_s^2}{12 \pi^2 v} \sin\alpha F(m^2_S/m^2_t) (p_1^\mu p_2^\nu - g^{\mu\nu} p_1\cdot p_2) $\\
-		\bottomrule        
-	\end{tabular}
-	\caption{Feynman rules for the relevant interactions in the {\bf minimal} model with couplings to photons. The couplings between $S$ and two SM particles are the same as in \cref{tab:feynmanRules} and have been omitted. \label{tab:feynmanRulesA}}
-\end{table}
-
-
-In this scenario the heavy fermion can only decay through the effective operator, hence:
-\begin{equation}
-	\Gamma (\chi_1 \to \gamma \chi_0) = \frac{C_{\gamma\chi\chi}^2}{2 \pi} \frac{M_1^2}{\Lambda^2} M_1 \left(1-\frac{M_0^2}{M_1^2}\right)^3
-\end{equation} 
-
-Since this is the only allowed channel it has always 100\% branching ratio and the lifetime for the compressed scenario is given by:
-\begin{equation}
-	c \tau = 1.55 \times 10^{-6} \mbox{ m} \left(\frac{0.1}{C_{\gamma\chi\chi}}\right)^2 \left(\frac{\Lambda}{10\mbox{ TeV}}\right)^2 \left(\frac{1 \mbox{ GeV}}{\Delta m}\right)^{3}\, ,
-\end{equation}
-where we have assumed $M_0 \lesssim M_1$, so $\Delta m^2 = M_1^2 - M_0^2 \simeq 2 M_1 \Delta m$. In \cref{fig:chi1_lifetimeA} we show the decay length as a function of $\Delta m$. As we can see, even for $\Lambda = 100$~TeV the decay is prompt as long as $\Delta m > 1$~GeV.
-
-\begin{figure}
-	\centering
-%	\includegraphics[scale=0.8]{../../chi1_lifetime_A.png}
-	\caption{Proper decay length for $\chi_1$ in the minimal photon scenario as a function of $\Delta m = m_{\chi_1} - m_{\chi_0}$.} \label{fig:chi1_lifetimeA}
-\end{figure}
 
 %\clearpage
 %\bibliographystyle{JHEP}
