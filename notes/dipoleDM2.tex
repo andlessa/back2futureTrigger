@@ -240,13 +240,12 @@ In \cref{fig:xsec_s} we show the $\sigma(p p \to S)$ as a function of $m_S$ for 
 The minimal scenario assumes that $\chi_0$ only couples through the $H$ effective operator and the diagonal entries are zero:
 \begin{align}
 	(C_{\gamma\chi\chi})_{ij} &= 0\\
-	(C_{H\chi\chi})_{ij} &= 0 \mbox{ , if $i = j$} \\
-	(y_{\chi})_{ij} & = 0 \mbox{ , if $i = 0$ or $j = 0$ }
+	(C_{H\chi\chi})_{ij} &= 0 \mbox{ , if $i = j$ or $i = 2$ or $j=2$} \\
+	(y_{\chi})_{ij} & = 0 \mbox{ , if $i = j$ or $i =1, j = 0$ }
 \end{align}
 With the above assumptions the Lagrangian simplifies to:
 \begin{align}
-	\mathcal{L}_{\chi} = &  i \overline{\chi}_i \cancel \partial \chi_i - \tilde{M}_{ij} \overline{\chi}_i \chi_j - \left(y_\chi\right)_{11} \overline{\chi}_1 \chi_1 \phi - \left(y_\chi\right)_{22} \overline{\chi}_2 \chi_2 \phi - \left(\left(y_\chi\right)_{21} \overline{\chi}_2 \chi_1 \phi + h.c.\right) \\
-	& + \frac{\left(C_{H \chi \chi}\right)_{01}}{\Lambda} \left( \overline{\chi}_0 \chi_1 |H|^2 + h.c.\right)
+	\mathcal{L}_{\chi} = \overline{\chi}_i \left( i \cancel \partial- M_{i} \right) \chi_i - \left[\left(y_\chi\right)_{21} \overline{\chi}_2 \chi_1 \phi + \left(y_\chi\right)_{20} \overline{\chi}_2 \chi_0 \phi + \frac{\left(C_{H \chi \chi}\right)_{10}}{\Lambda} \overline{\chi}_0 \chi_1 |H|^2  + h.c.\right] 
 \end{align}
 resulting in the vertices given in \cref{tab:feynmanRulesH}.
 
