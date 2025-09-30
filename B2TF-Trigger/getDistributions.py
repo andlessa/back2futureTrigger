@@ -165,26 +165,10 @@ if __name__ == "__main__":
         jets = sorted(jets, key = lambda j: j.PT, reverse=True)
         njHLT = len(jets)     
         pTHLT = 0.0
-        emf_min = -1.0   
+        emf_min = -1.0     
         if njHLT > 0:
             pTHLT = jets[0].PT
-            jet_cells = []        
-            for j in jets:
-                closest_cell = None
-                dRmin = 100.0
-                for tower_cell in tree.HLTTowerDelayed:
-                    dphi = np.abs(j.Phi-tower_cell.Phi)
-                    deta = j.Eta-tower_cell.Eta
-                    if dphi > np.pi:
-                        dphi = 2*np.pi - dphi
-                    dR = np.sqrt(deta**2 + dphi**2)
-                    if dR < dRmin:
-                        dRmin = dR
-                        closest_cell = tower_cell
-                
-                jet_cells.append(closest_cell)
-            # Compute minimum EMF:
-            emf_min = min([cell.Eem/(cell.Eem + cell.Ehad) for cell in jet_cells])        
+            emf_min = 1.0/(1.0+jets[0].EhadOverEem)
 
 
         dataList.append([met,nj,pTj1,dphi_min,metParton,njHLT,pTHLT,emf_min,

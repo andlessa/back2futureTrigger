@@ -88,7 +88,7 @@ if __name__ == "__main__":
             elif 25 < t_readout < 35:
                 eventRecord = 'N'
             else:
-                continue
+                eventRecord = 'Other'
             beta = np.sqrt(llp.Px**2 + llp.Py**2 + llp.Pz**2)/llp.E
             rho = np.linalg.norm(x[:2])*1e-3
             z = x[2]*1e-3
