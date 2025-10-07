@@ -1,0 +1,4 @@
+# Input file: /rundisk/lessa/pp2chi0chi0J_nosmear_benchmarks_2/Events/run_02/benchmark_delphes_events.root
+# Number of events: 54985.0
+# All;L1: 40 GeV < MET(N-1) < 100 GeV;L1: 40 GeV < PT Jet1(N);L1: DPhi(Jet(N),MET(N-1)) < 1.0;HLT: Eta Jet < 2.5 PT Jet > 20 GeV;HLT: Jet EMF < 0.06;m1;m0;mS;tau;m2;lambdauv;chxx10;ychi20;ychi21;sina
+5.498500e+04;2.132600e+04;1.400000e+01;4.000000e+00;4.000000e+00;3.000000e+00;2.440000e+02;1.540000e+02;7.000000e+02;3.324419e-08;2.500000e+02;2.200000e+07;1.000000e-01;1.000000e-01;1.500000e+00;2.000000e-01
