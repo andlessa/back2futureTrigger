@@ -10,12 +10,14 @@ from xml.etree import ElementTree as ET
 
 
 texDict = {'$m_S$ = %1.0f GeV' : 'ms',
+           '$m_2 = $ %1.0f GeV' : 'm2',
            '$m_1 = $ %1.0f GeV' : 'm1',
         #    '$m_0 = $ %1.2f GeV' : 'm0',
            '$\\Delta m_{10} = $ %1.0f GeV' : 'dm',
            '$c \\tau = $ %1.0f m' : 'ctau'}
 
 axisDict = {'$m_S$ (GeV)' : 'ms',
+           '$m_2$ (GeV)' : 'm2',
            '$m_1$ (GeV)' : 'm1',
         #    '$m_0 = $ %1.2f GeV' : 'm0',
            '$\\Delta m_{10}$ (GeV)' : 'dm',
