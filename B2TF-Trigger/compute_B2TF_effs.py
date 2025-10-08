@@ -168,6 +168,8 @@ if __name__ == "__main__":
             help='number of parallel jobs to run.')
     ap.add_argument('-o', '--output_suffix',default='',type=str,
             help='suffix to be added to the output files.')
+    ap.add_argument('-a', '--add_files',action='store_true',
+            help='if set, assume the input files correspond to the same model and can be added.')
     ap.add_argument('-v', '--verbose', default='info',
             help='verbose level (debug, info, warning or error). Default is info')
     
