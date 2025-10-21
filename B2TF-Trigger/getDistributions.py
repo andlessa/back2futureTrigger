@@ -106,7 +106,7 @@ if __name__ == "__main__":
         for illp,llp in enumerate(llps):
             daughter = invisibles[illp]
             decayTime = daughter.T
-            if decayTime < 10e-9: # if LLP decays on-time, add its daughter momentum
+            if decayTime < 15e-9: # if LLP decays on-time, add its daughter momentum
                 pInv = np.array([daughter.Px,daughter.Py,
                                 daughter.Pz])
             else: # add the LLP momentum

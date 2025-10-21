@@ -48,9 +48,9 @@ def getEffForCalRatio(tree) -> dict:
                 continue
             l_track = np.sqrt(track.X**2 + track.Y**2 + track.Z**2)
             t_readout =  track.T - l_track*1e-3/c
-            if (25e-9 < t_readout < 35e-9):               
+            if (22e-9 < t_readout < 40e-9):               
                 tracksDelayed.append(track)
-            elif (t_readout < 10e-9):
+            elif (t_readout < 15e-9):
                 tracksOnTime.append(track)
     
     

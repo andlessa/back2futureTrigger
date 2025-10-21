@@ -44,9 +44,9 @@ def getEffForCalRatio(tree) -> dict:
         for track in tree.AllTracks:
             if track.PT < 2.0:
                 continue
-            if (25e-9 < track.T < 35e-9):               
+            if (22e-9 < track.T < 40e-9):               
                 tracksDelayed.append(track)
-            elif ( 0.0 < track.T < 10e-9):
+            elif ( 0.0 < track.T < 15e-9):
                 tracksOnTime.append(track)
     
     

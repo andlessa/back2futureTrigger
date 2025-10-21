@@ -137,7 +137,7 @@ module SimpleCalorimeterTiming L1ECALOnTime {
   
   # Calorimeter readout time window
   set TReadoutMin 0.0
-  set TReadoutMax 10e-9
+  set TReadoutMax 15e-9
   
   # Calorimeter fiducial volume (ECAL)
   # (should be consisent with ParticlePropagator parameters, 
@@ -221,7 +221,7 @@ module SimpleCalorimeterTiming L1HCALOnTime {
   
   # Calorimeter readout time window
   set TReadoutMin 0.0
-  set TReadoutMax 10e-9
+  set TReadoutMax 15e-9
   
   # Calorimeter fiducial volume (HCAL)
   # (should be consisent with ParticlePropagator parameters, 
@@ -304,7 +304,7 @@ module SimpleCalorimeterTiming HLTECALOnTime {
   
   # Calorimeter readout time window
   set TReadoutMin 0.0
-  set TReadoutMax 10e-9
+  set TReadoutMax 15e-9
   
   # Calorimeter fiducial volume 
   # (should be consisent with ParticlePropagator parameters, 
@@ -422,7 +422,7 @@ module SimpleCalorimeterTiming HLTHCALOnTime {
   
   # Calorimeter readout time window  
   set TReadoutMin 0.0
-  set TReadoutMax 10e-9
+  set TReadoutMax 15e-9
   
   # Calorimeter fiducial volume (HCAL)
   # (should be consisent with ParticlePropagator parameters, 
@@ -517,8 +517,8 @@ module SimpleCalorimeterTiming L1ECALDelayed {
   set SmearTowerCenter false
   
   # Calorimeter readout time window
-  set TReadoutMin 25e-9
-  set TReadoutMax 35e-9
+  set TReadoutMin 22e-9
+  set TReadoutMax 40e-9
   
   # Calorimeter fiducial volume (ECAL)
   # (should be consisent with ParticlePropagator parameters, 
@@ -601,8 +601,8 @@ module SimpleCalorimeterTiming L1HCALDelayed {
   set SmearTowerCenter false
   
   # Calorimeter readout time window
-  set TReadoutMin 25e-9
-  set TReadoutMax 35e-9
+  set TReadoutMin 22e-9
+  set TReadoutMax 40e-9
   
   # Calorimeter fiducial volume (HCAL)
   # (should be consisent with ParticlePropagator parameters, 
@@ -682,8 +682,8 @@ module SimpleCalorimeterTiming HLTECALDelayed {
   set SmearTowerCenter false
   
   # Calorimeter readout time window
-  set TReadoutMin 25e-9
-  set TReadoutMax 35e-9
+  set TReadoutMin 22e-9
+  set TReadoutMax 40e-9
   
   # Calorimeter fiducial volume 
   # (should be consisent with ParticlePropagator parameters, 
@@ -800,8 +800,8 @@ module SimpleCalorimeterTiming HLTHCALDelayed {
   set SmearTowerCenter false
   
   # Calorimeter readout time window  
-  set TReadoutMin 25e-9
-  set TReadoutMax 35e-9
+  set TReadoutMin 22e-9
+  set TReadoutMax 40e-9
   
   # Calorimeter fiducial volume (HCAL)
   # (should be consisent with ParticlePropagator parameters, 

@@ -57,7 +57,7 @@ def getEffForB2TF(tree) -> dict:
         for track in tree.AllTracks:
             l_track = np.sqrt(track.X**2 + track.Y**2 + track.Z**2)
             t_readout =  track.T - l_track*1e-3/c
-            if not (25e-9 < t_readout < 35e-9):
+            if not (22e-9 < t_readout < 40e-9):
                 continue
             if track.PT < 2.0:
                 continue
