@@ -15,7 +15,7 @@
 M$ModelName = "DipoleDM";
 
 M$Information = { Authors      -> {"Andre Lessa"}, 
-                  Emails       ->{"andre.leessa@ufabc.edu.br"},
+                  Emails       ->{"andre.lessa@ufabc.edu.br"},
                   Date         ->"03.12.2024", 
                   Version      ->"1",
                   URLs         ->""};
