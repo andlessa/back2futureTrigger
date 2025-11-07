@@ -233,71 +233,78 @@ def runDelphes(parser,runInfo,runDelphesPythia=True) -> Dict:
 
     runFolder = parser['MadGraphPars']['runFolder']
     nevts = parser["MadGraphSet"]["nevents"]
-    rootFile = os.path.join(runFolder,'Events',runInfo['run number'], '%s_delphes_events.root'  %runInfo['run tag'])
-    delphesFile = os.path.join(runFolder,'Events',runInfo['run number'],'delphes_card.dat')
-    delphescard = os.path.abspath(pars['delphescard'])
-    shutil.copyfile(delphescard,delphesFile)
-
+    # Allow for running delphes multiple times with distinct cards
+    delphescardList = pars['delphescard'].split(',')
+    hepmcFiles = []
+    lheFile = ""
     
-    delphesDir = os.path.abspath(pars['delphesDir'])
-    delphescard = os.path.abspath(pars['delphescard'])
-    
-    # Get possible input files:
-    eventsFolder = os.path.join(runFolder,'Events',runInfo['run number'])
-    lheFile = os.path.join(eventsFolder,'unweighted_events.lhe.gz')        
-    hepmcFiles = list(glob.glob(os.path.join(eventsFolder,'*hepmc*')))
-
-
-    if runDelphesPythia:
-        if not os.path.isfile(lheFile):
-            logger.error(f'LHE file {lheFile} not found.')
-            return runInfo
-        pythiaCard = os.path.abspath(pars['pythia8card'])
-        pythiaFile = os.path.join(runFolder,'Events',runInfo['run number'],'pythia8_card.dat')
-        shutil.copyfile(pythiaCard,pythiaFile)    
-        #Generate pythia card with additional info
-        with open(pythiaFile,'a') as f:
-            f.write('\n\n')
-            f.write('### Added lines:\n')
-            f.write('Beams:frameType = 4\n')
-            f.write('Beams:LHEF = %s\n' %lheFile)
-            f.write('Beams:setProductionScalesFromLHEF=on\n')
-            f.write('Main:numberOfEvents   = %i\n' %nevts)
-            f.write('Main:timesAllowErrors   = %i\n' %int(1e-2*nevts)) # Allow at most 1% of failures
-            # Matching specific parameters:
-            if 'matching' in pars and pars['matching']:
-                qcut = 1.5*parser["MadGraphSet"]['xqcut']
-                njet = pars['njetmax']
-                f.write('JetMatching:merge=on \n')
-                f.write('JetMatching:qCut         = %1.2f \n' %qcut)
-                f.write('JetMatching:nJetMax      = %i \n' %njet)
-
-        logger.debug("Running DelphesPythia8 with config files %s and %s" %(pythiaFile,delphesFile))
-        run = subprocess.Popen('./DelphesPythia8 %s %s %s' %(delphescard,pythiaFile,rootFile),shell=True,
-                                stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
-                                cwd=delphesDir)
-    else:   
-        if len(hepmcFiles) > 1:
-            logger.warning(f'Found {len(hepmcFiles)} candidate files for the HEPMC file. Using {hepmcFiles[0]}.')
-        elif not hepmcFiles:
-            logger.error(f'HEPMC file not found in {runFolder}')
-            return runInfo
+    for delphescard in delphescardList:
+        delphescard = os.path.abspath(delphescard)
+        cardName = os.path.basename(delphescard)
+        cardName = os.path.splitext(cardName)[0]
+        rootFile = os.path.join(runFolder,'Events',runInfo['run number'], f"{runInfo['run tag']}_{cardName}.root")
         
-        hepmcFile = hepmcFiles[0]
-        logger.debug("Running DelphesHepMC2 with files %s and %s" %(delphesFile,hepmcFile))
-        run = subprocess.Popen('./DelphesHepMC2 %s %s %s' %(delphescard,rootFile,hepmcFile),shell=True,
-                                stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
-                                cwd=delphesDir)
+        delphesFile = os.path.join(runFolder,'Events',runInfo['run number'],os.path.basename(delphescard))
+        shutil.copyfile(delphescard,delphesFile)
 
-    output,errorMsg = run.communicate()
+        
+        delphesDir = os.path.abspath(pars['delphesDir'])
+        # Get possible input files:
+        eventsFolder = os.path.join(runFolder,'Events',runInfo['run number'])
+        lheFile = os.path.join(eventsFolder,'unweighted_events.lhe.gz')        
+        hepmcFiles = list(glob.glob(os.path.join(eventsFolder,'*hepmc*')))
 
-    runInfo.update({'DelphesOutput' : output, 'DelphesError' : errorMsg})
 
-    #Generate pythia log file
-    if runDelphesPythia:
-        pythia_log = rootFile.replace('_delphes_events.root','_pythia_delphes.log')
-        with open(pythia_log,'w') as f:
-            f.write(output)
+        if runDelphesPythia:
+            if not os.path.isfile(lheFile):
+                logger.error(f'LHE file {lheFile} not found.')
+                return runInfo
+            pythiaCard = os.path.abspath(pars['pythia8card'])
+            pythiaFile = os.path.join(runFolder,'Events',runInfo['run number'],'pythia8_card.dat')
+            shutil.copyfile(pythiaCard,pythiaFile)    
+            #Generate pythia card with additional info
+            with open(pythiaFile,'a') as f:
+                f.write('\n\n')
+                f.write('### Added lines:\n')
+                f.write('Beams:frameType = 4\n')
+                f.write('Beams:LHEF = %s\n' %lheFile)
+                f.write('Beams:setProductionScalesFromLHEF=on\n')
+                f.write('Main:numberOfEvents   = %i\n' %nevts)
+                f.write('Main:timesAllowErrors   = %i\n' %int(1e-2*nevts)) # Allow at most 1% of failures
+                # Matching specific parameters:
+                if 'matching' in pars and pars['matching']:
+                    qcut = 1.5*parser["MadGraphSet"]['xqcut']
+                    njet = pars['njetmax']
+                    f.write('JetMatching:merge=on \n')
+                    f.write('JetMatching:qCut         = %1.2f \n' %qcut)
+                    f.write('JetMatching:nJetMax      = %i \n' %njet)
+
+            logger.debug("Running DelphesPythia8 with config files %s and %s" %(pythiaFile,delphescard))
+            run = subprocess.Popen('./DelphesPythia8 %s %s %s' %(delphescard,pythiaFile,rootFile),shell=True,
+                                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
+                                    cwd=delphesDir)
+        else:   
+            if len(hepmcFiles) > 1:
+                logger.warning(f'Found {len(hepmcFiles)} candidate files for the HEPMC file. Using {hepmcFiles[0]}.')
+            elif not hepmcFiles:
+                logger.error(f'HEPMC file not found in {runFolder}')
+                return runInfo
+            
+            hepmcFile = hepmcFiles[0]
+            logger.debug("Running DelphesHepMC2 with files %s and %s" %(delphescard,hepmcFile))
+            run = subprocess.Popen('./DelphesHepMC2 %s %s %s' %(delphescard,rootFile,hepmcFile),shell=True,
+                                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
+                                    cwd=delphesDir)
+
+        output,errorMsg = run.communicate()
+
+        runInfo.update({'DelphesOutput' : output, 'DelphesError' : errorMsg})
+
+        #Generate pythia log file
+        if runDelphesPythia:
+            pythia_log = rootFile.replace('.root','_pythia_delphes.log')
+            with open(pythia_log,'w') as f:
+                f.write(output)
 
     if cleanOutput:
         for f in hepmcFiles + [lheFile]:
