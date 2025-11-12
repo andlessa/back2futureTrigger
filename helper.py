@@ -74,7 +74,7 @@ def getAxisLabel(df):
     else:
         return 'x(?)'
 
-def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
+def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None,xsecFile=None):
 
     if model == 'minimalH':
         LLP = 4000023
@@ -83,6 +83,7 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
         mother = 55        
     else:
         raise ValueError("Unreconized model %s" %model)
+    xsec_pb = -1.0
 
     modelInfoDict = {}
     f = inputFile
@@ -98,6 +99,14 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
             slhaData = slhaData.split('<slha>')[1].split('</slha>')[0]
             
         slhaData = pyslha.readSLHA(slhaData)
+
+    if xsecFile is None:
+        try:
+            xsecFile = list(glob.glob(os.path.join(os.path.dirname(f),'*merged_xsecs*txt')))[0]
+            xsecData = np.genfromtxt(xsecFile,skip_header=1)
+            xsec_pb = xsecData[1]
+        except:
+            pass
             
     parsDict = {}
     parsDict['m1'] = slhaData.blocks['MASS'][LLP]
@@ -128,6 +137,7 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None):
     except KeyError:
         pass
     
+    parsDict['xsec_pb'] = xsec_pb
     modelInfoDict.update(parsDict)
     if verbose:
         print('ms = ',parsDict['mS'])
