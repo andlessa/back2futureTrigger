@@ -3,3 +3,4 @@
 *.a
 *.csv
 __pycache__
+*.pkl
