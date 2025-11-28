@@ -65,8 +65,11 @@ def getEfficiencies(inputFile,ijob=0):
         cutFlow['Nevents'] += 1.0
 
         llpDec = {}
-        llpBoost = {}
+        llpBoost = {}        
         llps = list(tree.llpParticles)
+        if len(llps) != 1:
+            logger.error(f"{len(llps)} LLPs found!")
+            return 0.0
         for illp,llp in enumerate(llps):
             p = np.array([llp.Px,llp.Py,llp.Pz,llp.E])
             beta = np.linalg.norm(p[:3])/p[3]
@@ -87,17 +90,32 @@ def getEfficiencies(inputFile,ijob=0):
         # Require decay in N-1 and DV in ~4m-8m
         good_DVs = []
         for illp,dec in llpDec.items():
+            llp = llps[illp]
             X,Y,Z,t_readout,beta = dec
             if not (0.0 < t_readout < 15.0):
                 continue
             l = np.linalg.norm([X,Y,Z])*1e-3
-            if not (3.5 < l < 8.0):
+            lxy = np.linalg.norm([X,Y])*1e-3
+            lz = np.abs(Z)*1e-3
+            if lz < 5.0: # barrel
+                if not (abs(llp.Eta) < 0.7):
+                    continue
+                if not (3.0 < lxy < 8.0):
+                    continue
+            elif lz < 15.0: # endcap
+                if not (1.3 < abs(llp.Eta) < 2.5):
+                    continue
+                if not (lxy < 10.0):
+                    continue
+            else:
                 continue
+
             good_DVs.append(illp)
         
         
         if not good_DVs:
             continue
+
         cutFlow['DV(N-1) > 0'] += 1.0
         llp = llps[good_DVs[0]]
         
