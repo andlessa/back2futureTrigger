@@ -1,0 +1,67 @@
+
+(***************** This is the FeynRules model file for Higgs effective couplings to gluons and photons ***********)
+
+M$ModelName = "Higgs_Effective_Couplings";
+
+(* The loop coefficient *)
+
+sert[x_] := 1+ 7/30 x + 2/21 x^2 + 26/525 x^3;
+
+serw[xw_, xt_] := 1 + xw * 66/235 +xw^2 * 228/1645 + xw^3 * 696/8225 +
+            xw^4 * 5248/90475 +xw^5 * 1280/29939+ xw^6 * 54528/1646645- 
+            xt * 56/705 - xt^2 * 32/987;
+
+serp[x_] := 1 + x/3 + x^2 * 8/45 + x^3 * 4/35;
+
+     
+
+(***** Parameter list ******)
+
+M$Parameters = {
+
+
+AH == {TeX -> Subscript[A, H],
+       ParameterType -> Internal,
+       InteractionOrder -> {HIW, 1},
+       Value -> ee^2/4/Pi/(Pi*v)*(47/18)*serw[(MH/2/MW)^2, (MH/2/MT)^2]},
+
+GH == {TeX -> Subscript[G, H],
+       ParameterType -> Internal,
+       InteractionOrder -> {HIG, 1},
+       Value -> -gs^2/(4Pi(3Pi v)) sert[(MH/2/MT)^2] },
+
+Gphi == {TeX -> Subscript[G, h],
+       ParameterType -> Internal,
+       InteractionOrder -> {HIG, 1},
+       Value -> -gs^2/4/Pi/(2*Pi*v)*serp[(MH/2/MT)^2]}
+
+}
+
+
+
+
+(***** Particle classes list ******)
+
+M$ClassesDescription = {
+
+
+S[4] == {
+        ClassName -> h1,
+	SelfConjugate -> True,
+	Mass -> {MP,120},
+        Width -> {WH1, 0.00575308848}}
+}
+
+(******* Lagrangian *******)
+
+(* CP even operators *)
+
+LCPEven := -1/4 GH FS[G, mu, nu, b] FS[G, mu, nu, b] H - 1/4 AH FS[A, mu, nu] FS[A, mu, nu] H;
+
+(* CP odd operators *)
+
+LCPOdd := - 1/4 Gphi FS[G, mu, nu, a] Dual[FS][G, mu, nu, a] h1;
+
+
+
+
