@@ -64,8 +64,8 @@ def generateProcess(parser):
                                 cwd=mg5Folder)
          
     output,errorMsg = run.communicate()
-    logger.debug('MG5 process error:\n %s \n' %errorMsg)
-    logger.debug('MG5 process output:\n %s \n' %output)
+    logger.debug('MG5 process error:\n %s \n' %errorMsg.decode())
+    logger.debug('MG5 process output:\n %s \n' %output.decode())
     logger.info("Finished process generation")
 
     os.remove(procCard)
