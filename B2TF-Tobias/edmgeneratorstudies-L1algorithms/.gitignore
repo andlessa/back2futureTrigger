@@ -1,9 +1,0 @@
-# exclude everything produced
-MCDerivation/*
-MCGeneration/*
-batch_scripts/*
-nTuples/*
-build/*
-
-# small exception to the rule for submission files
-!batch_scripts/.gitkeep

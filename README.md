@@ -62,7 +62,7 @@ The cross-section for $p p \to S$ production is computed considering  the  *Higg
  The *leading order* cross-sections (no k-factors applied) for the two scenarios above are shown below as a function of the $S$ mass ($M_S$):
 
  <p float="left">
-    <img src="xsecs_mS.png" alt="Cross-section" width=60%/>
+    <img src="plots/xsecs_mS.png" alt="Cross-section" width=60%/>
 </p>
 
 ## Some References
