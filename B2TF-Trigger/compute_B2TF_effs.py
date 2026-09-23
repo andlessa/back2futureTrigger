@@ -142,6 +142,8 @@ def saveOutput(effsDict,outputFile,
     # Get column labels and data
     columnsLabels = list(effsDict.keys())
     data = np.array([list(effsDict.values())])
+    print(columnsLabels)
+    
     header = ';'.join(columnsLabels)
     np.savetxt(outputFile, data, 
                 header=f'Input file: {inputFile}\nNumber of events: {nevts}\n{header}',

@@ -1,5 +1,9 @@
-# back2futureTrigger
+# back2futureTrigger - Backup branch
 
+
+This branch holds the results for the trigger proposal without overlaps with other triggers (2025 studies)
+
+---------------------------------------------------
 
 ## Dipole DM Model (A. Lessa and J. Zurita)
 

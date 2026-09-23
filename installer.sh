@@ -29,7 +29,7 @@ fi
 cd $homeDIR
 
 
-madgraph="MG5_aMC_v3.6.3.tar.gz"
+madgraph="MG5_aMC_v3.7.0.tar.gz"
 URL=https://launchpad.net/mg5amcnlo/3.0/3.6.x/+download/$madgraph
 # Use github version with fix for printing intermediate particles
 #madgraph="mg5amcnlo-3.6.3.zip"
