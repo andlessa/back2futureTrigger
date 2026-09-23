@@ -4,33 +4,12 @@ homeDIR="$( pwd )"
 
 echo "Installation will take place in $homeDIR"
 
-echo "[Checking system dependencies]"
-PKG_OK=$(dpkg-query -W -f='${Status}' autoconf 2>/dev/null | grep -c "ok installed")
-if test $PKG_OK = "0" ; then
-  echo "autoconf not found. Install it with sudo apt-get install autoconf."
-  exit
-fi
-PKG_OK=$(dpkg-query -W -f='${Status}' libtool 2>/dev/null | grep -c "ok installed")
-if test $PKG_OK = "0" ; then
-  echo "libtool not found. Install it with sudo apt-get install libtool."
-  exit
-fi
-PKG_OK=$(dpkg-query -W -f='${Status}' gzip 2>/dev/null | grep -c "ok installed")
-if test $PKG_OK = "0" ; then
-  echo "gzip not found. Install it with sudo apt-get install gzip."
-  exit
-fi
-PKG_OK=$(dpkg-query -W -f='${Status}' bzr 2>/dev/null | grep -c "ok installed")
-if test $PKG_OK = "0" ; then
-  echo "bzr not found. Install it with sudo apt-get install bzr."
-  exit
-fi
 
 cd $homeDIR
 
 
-madgraph="MG5_aMC_v3.6.3.tar.gz"
-URL=https://launchpad.net/mg5amcnlo/3.0/3.6.x/+download/$madgraph
+madgraph="MG5_aMC_v3.8.0.tar.gz"
+URL=https://launchpad.net/mg5amcnlo/3.0/3.8.x/+download/$madgraph
 # Use github version with fix for printing intermediate particles
 #madgraph="mg5amcnlo-3.6.3.zip"
 echo -n "Install MadGraph (y/n)? "
@@ -46,10 +25,10 @@ if echo "$answer" | grep -iq "^y" ;then
 	#mv mg5amcnlo-3.6.3 MG5;
 	#mv $madgraph"_bak" $madgraph
 	cd $homeDIR
-	cd ./MG5/bin;
+	cd ./MG5;
 	echo "[installer] installing HepMC, LHAPDF6 and Pythia8 under MadGraph5"
         echo "install hepmc\ninstall lhapdf6\ninstall pythia8\nexit\n" > mad_install.txt;
-	./mg5_aMC -f mad_install.txt
+	./bin/mg5_aMC -f mad_install.txt
 	cd $homeDIR
 	sed  "s|homeDIR|$homeDIR|g" mg5_configuration.txt > ./MG5/input/mg5_configuration.txt;
 fi
