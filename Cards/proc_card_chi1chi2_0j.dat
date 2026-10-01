@@ -8,5 +8,5 @@ define vl~ = ve~ vm~ vt~
 define c1 = ~chi1 ~chi1bar
 define c2 = ~chi2 ~chi2bar
 define c0 = ~chi0 ~chi0bar
-generate p p > c1 c2 j / h, (c1 > b b~ c0), (c2 > b b~ c0)
-output ../../pp2chi1chi2_1j
+generate p p > c1 c2 / h, (c1 > b b~ c0), (c2 > b b~ c0)
+output ../../pp2chi1chi2_0j
