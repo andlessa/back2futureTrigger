@@ -8,8 +8,10 @@ echo "Installation will take place in $homeDIR"
 cd $homeDIR
 
 
-madgraph="MG5_aMC_v3.8.0.tar.gz"
-URL=https://launchpad.net/mg5amcnlo/3.0/3.8.x/+download/$madgraph
+#madgraph="MG5_aMC_v3.8.0.tar.gz"
+#URL=https://launchpad.net/mg5amcnlo/3.0/3.8.x/+download/$madgraph
+madgraph="MG5_aMC_v3.6.7.tar.gz"
+URL=https://launchpad.net/mg5amcnlo/3.0/3.6.x/+download/$madgraph
 # Use github version with fix for printing intermediate particles
 #madgraph="mg5amcnlo-3.6.3.zip"
 echo -n "Install MadGraph (y/n)? "
