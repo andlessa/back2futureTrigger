@@ -18,7 +18,7 @@
 #*********************************************************************
 # Tag name for the run (one word)                                    *
 #*********************************************************************
-  ddmH_mS_m1_m0	= run_tag ! name of the run 
+  chi1chi2	= run_tag ! name of the run 
 #*********************************************************************
 # Number of events and rnd seed                                      *
 # Warning: Do not generate more than 1M events in a single run       *
@@ -34,8 +34,8 @@
 #*********************************************************************
      1        = lpp1    ! beam 1 type 
      1        = lpp2    ! beam 2 type
-     6500.0     = ebeam1  ! beam 1 total energy in GeV
-     6500.0     = ebeam2  ! beam 2 total energy in GeV
+     6800.0     = ebeam1  ! beam 1 total energy in GeV
+     6800.0     = ebeam2  ! beam 2 total energy in GeV
 # To see polarised beam options: type "update beam_pol"
 
 #*********************************************************************
@@ -108,6 +108,7 @@
 # Parton level cuts definition *
 #*******************************
   0.0  = dsqrt_shat ! minimal shat for full process
+  -1  = dsqrt_shatmax ! maximum shat for full process
 #                                                                    
 #
 #*********************************************************************

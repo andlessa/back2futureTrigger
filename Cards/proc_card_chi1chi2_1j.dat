@@ -1,4 +1,4 @@
-import model ../../models/DipoleDM2/DipoleDM2_minimalH_UFO
+import model ../models/models/InelasticEFTDM/InelasticEFTDM_minimal_UFO
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
 define l+ = e+ mu+
@@ -10,4 +10,4 @@ define c2 = ~chi2 ~chi2bar
 define c0 = ~chi0 ~chi0bar
 generate p p > c1 c2 / h, (c1 > b b~ c0), (c2 > b b~ c0)
 add process p p > c1 c2 j  / h,  (c1 > b b~ c0), (c2 > b b~ c0)
-output ../../pp2chi0chi0J_2_minimalH_scan
+output ../../pp2chi1chi2J_minimal_scan
