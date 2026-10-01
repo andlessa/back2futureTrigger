@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 13.3.1 for Linux x86 (64-bit) (July 24, 2023)
-# Date: Thu 1 Oct 2026 15:04:33
+# Date: Thu 1 Oct 2026 16:29:08
 
 
 # 
@@ -54,7 +54,7 @@
 # Vertex definitions
 #
 
-   * 211 vertices written.
+   * 187 vertices written.
    * vertices.py written.
 #
 # Lorentz structure definitions
@@ -66,9 +66,9 @@
 # Coupling definitions
 #
 
-   >>>> Non positive interaction order QED found for coupling GC_83.
-   >>>> Non positive interaction order QED found for coupling GC_87.
-   * 132 couplings written.
+   >>>> Non positive interaction order QED found for coupling GC_76.
+   >>>> Non positive interaction order QED found for coupling GC_78.
+   * 119 couplings written.
    * couplings.py written.
 #
 # Coupling order definitions

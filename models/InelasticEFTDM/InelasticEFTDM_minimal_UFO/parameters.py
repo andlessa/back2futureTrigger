@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 13.3.1 for Linux x86 (64-bit) (July 24, 2023)
-# Date: Thu 1 Oct 2026 15:05:05
+# Date: Thu 1 Oct 2026 16:29:40
 
 
 
@@ -327,6 +327,12 @@ GGH = Parameter(name = 'GGH',
                 value = '-0.08333333333333333*(cosa*G**2*cmath.sqrt(( ((6*MT**2)/MH**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MH**2)))**2)/MH**4)**2 if abs(MH**2/MT**2)/4.<1. else (36*MT**8*((cmath.pi**2*(-1 + MH**2/(4.*MT**2)) + MH**2/MT**2)**2 + 2*(cmath.pi**2*(-1 + MH**2/(4.*MT**2)) - MH**2/MT**2)*(-1 + MH**2/(4.*MT**2))*cmath.log((1 + 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2))/(1 - 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2)))**2 + (-1 + MH**2/(4.*MT**2))**2*cmath.log((1 + 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2))/(1 - 2*cmath.sqrt(((-1 + MH**2/(4.*MT**2))*MT**2)/MH**2)))**4))/MH**8 )))/(cmath.pi**2*vev)',
                 texname = 'G_H')
 
+GGS = Parameter(name = 'GGS',
+                nature = 'internal',
+                type = 'real',
+                value = '-0.08333333333333333*(G**2*sina*cmath.sqrt(( ((6*MT**2)/MSd**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**4)**2 if abs(MSd**2/MT**2)/4.<1. else (36*MT**8*((cmath.pi**2*(-1 + MSd**2/(4.*MT**2)) + MSd**2/MT**2)**2 + 2*(cmath.pi**2*(-1 + MSd**2/(4.*MT**2)) - MSd**2/MT**2)*(-1 + MSd**2/(4.*MT**2))*cmath.log((1 + 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2))/(1 - 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2)))**2 + (-1 + MSd**2/(4.*MT**2))**2*cmath.log((1 + 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2))/(1 - 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2)))**4))/MSd**8 )))/(cmath.pi**2*vev)',
+                texname = 'G_S')
+
 lam1 = Parameter(name = 'lam1',
                  nature = 'internal',
                  type = 'real',
@@ -356,12 +362,6 @@ ytau = Parameter(name = 'ytau',
                  type = 'real',
                  value = '(ymtau*cmath.sqrt(2))/vev',
                  texname = '\\text{ytau}')
-
-GGS = Parameter(name = 'GGS',
-                nature = 'internal',
-                type = 'real',
-                value = '-0.08333333333333333*(G**2*sina*cmath.sqrt(( ((6*MT**2)/MSd**2 + (6*MT**2*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**2 - (24*MT**4*cmath.asin(1/(2.*cmath.sqrt(MT**2/MSd**2)))**2)/MSd**4)**2 if abs(MSd**2/MT**2)/4.<1. else (36*MT**8*((cmath.pi**2*(-1 + MSd**2/(4.*MT**2)) + MSd**2/MT**2)**2 + 2*(cmath.pi**2*(-1 + MSd**2/(4.*MT**2)) - MSd**2/MT**2)*(-1 + MSd**2/(4.*MT**2))*cmath.log((1 + 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2))/(1 - 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2)))**2 + (-1 + MSd**2/(4.*MT**2))**2*cmath.log((1 + 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2))/(1 - 2*cmath.sqrt(((-1 + MSd**2/(4.*MT**2))*MT**2)/MSd**2)))**4))/MSd**8 )))/(cmath.pi**2*vev)',
-                texname = 'G_S')
 
 mu2h = Parameter(name = 'mu2h',
                  nature = 'internal',

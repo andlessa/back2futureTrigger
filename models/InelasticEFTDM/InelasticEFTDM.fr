@@ -215,14 +215,13 @@ GGH == {TeX -> Subscript[G, H],
 
 GGS == {TeX -> Subscript[G, S],
        ParameterType -> Internal,
-       InteractionOrder -> {{QCD, 2},{NP,1}},
+       InteractionOrder -> {QCD, 2},
        Value -> -sina*(gs^2/(4*Pi(3*Pi vev)))*Sqrt[ffabs2[(MSd/2/MT)^2]]},
 
 sina == {
     ParameterType -> External,
     BlockName -> NPINPUTS,
     Value -> 0.2,
-    InteractionOrder -> {NP, 1},
     Description -> "Sine of Higgses mixing angle"
   },
 vevD == {
