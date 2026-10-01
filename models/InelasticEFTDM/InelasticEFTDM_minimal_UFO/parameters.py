@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 13.3.1 for Linux x86 (64-bit) (July 24, 2023)
-# Date: Wed 23 Sep 2026 15:23:19
+# Date: Thu 1 Oct 2026 15:05:05
 
 
 
@@ -32,14 +32,6 @@ Chxx10 = Parameter(name = 'Chxx10',
                    texname = 'C_{\\text{hxx10}}',
                    lhablock = 'NPINPUTS',
                    lhacode = [ 5 ])
-
-ychi11 = Parameter(name = 'ychi11',
-                   nature = 'external',
-                   type = 'real',
-                   value = 1.,
-                   texname = 'y_{\\text{chi11}}',
-                   lhablock = 'NPINPUTS',
-                   lhacode = [ 9 ])
 
 ychi20 = Parameter(name = 'ychi20',
                    nature = 'external',
