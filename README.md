@@ -14,12 +14,12 @@ The BSM Lagrangian implemented [here](./models/InelasticEFTDM/InelasticEFTDM_ful
 where  $`\mathcal{L}_{\text{SM}}`$ represents the SM Lagrangian and
 ```math
 \begin{align}
-   \mathcal{L}_{\phi} &=  \left(\partial^{\mu}\phi\right)^2 - \mu_2^2 |\phi|^2 - \lambda_2 \phi^4 - \lambda_3 \phi^2 |H|^2 \,, \\
+   \mathcal{L}_{\phi} &=  \left(\partial^{\mu}\phi\right)^2 - \mu_2^2 |\phi|^2 - \lambda_2 \phi^4 - \lambda_3 \phi^2 |H|^2 - \frac{G_{S}}{4} G^{\mu\nu} G_{\mu\nu} S \,, \\
    \mathcal{L}_\chi &=  i \overline{\chi}_i \cancel \partial \chi_i - \tilde{M}_{ij} \overline{\chi}_i \chi_j  - \left(y_\chi\right)_{ij} \overline{\chi}_i \chi_j \phi \,,\\
    \mathcal{L}_{H\chi} &= \frac{\left(C_{H \chi \chi}\right)_{ij}}{\Lambda} \overline{\chi}_i \chi_j |H|^2 \,.
 \end{align}
 ```
-In the equations above $H$ represents the Higgs doublet.
+In the equations above $H$ represents the Higgs doublet and $`G_S = -g_s^2 \sin\alpha\sqrt{F((\frac{M_S}{2 m_t})^2)}/(12\pi^2 v)`$ is the effective $`S-g-g`$ coupling induced by mixing with the Higgs (see below).
 
 Assuming that both $H$ and $\phi$ develop vevs, $\langle \phi \rangle = v_D/\sqrt{2}$ and $\langle H \rangle = v/\sqrt{2}$, we obtain the mass eigenstates $h$ and $S$:
 ```math
@@ -48,10 +48,11 @@ and
 (C_{H\chi\chi})_{00} = (C_{H\chi\chi})_{11} = (C_{H\chi\chi})_{22} = (C_{H\chi\chi})_{20} = (C_{H\chi\chi})_{02} = (C_{H\chi\chi})_{21} = (C_{H\chi\chi})_{12} = 0
 ```
 
-With the above conditions $\chi_1$ only decays through the effective operator and the Lagrangian interactions simplify to:
+With the above conditions $\chi_1$ only decays through the effective operator and the relevant Lagrangian interactions simplify to:
 ```math
 \begin{align}
-   \mathcal{L}  &\supset  - \left[\left(y_\chi\right)_{21} \overline{\chi}_2 \chi_1 + \left(y_\chi\right)_{20} \overline{\chi}_2 \chi_0 + h.c.\right] \phi + \frac{\left(C_{H \chi \chi}\right)_{10}}{\Lambda} \left(\overline{\chi}_1 \chi_0 + h.c.\right) |H|^2 \,.
+   \mathcal{L}  \supset &  - \frac{1}{\sqrt{2}}\left[\left(y_\chi\right)_{21} \overline{\chi}_2 \chi_1 + \left(y_\chi\right)_{20} \overline{\chi}_2 \chi_0 + h.c.\right]\left(\cos\alpha S - \sin\alpha h\right)\\
+   & + \sqrt{2} \left(C_{H \chi \chi}\right)_{10}\frac{v}{\Lambda} \left(\overline{\chi}_1 \chi_0 + h.c.\right) \left(\cos\alpha h + \sin\alpha S \right) - \frac{G_{S}}{4} G^{\mu\nu} G_{\mu\nu} S \,.
 \end{align}
 ```
 
