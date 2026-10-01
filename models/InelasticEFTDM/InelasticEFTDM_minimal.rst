@@ -12,5 +12,6 @@ M$Restrictions = {
 	    Chxx11->0,
 	    ychi00->0,
 		ychi10->0,
-		ychi22->0,
+		ychi11->0,
+		ychi22->0
 }

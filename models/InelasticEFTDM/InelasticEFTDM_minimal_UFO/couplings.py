@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.49
 # Mathematica version: 13.3.1 for Linux x86 (64-bit) (July 24, 2023)
-# Date: Wed 23 Sep 2026 15:23:19
+# Date: Thu 1 Oct 2026 15:05:05
 
 
 from object_library import all_couplings, Coupling
@@ -490,58 +490,50 @@ GC_120 = Coupling(name = 'GC_120',
                   order = {'QED':1})
 
 GC_121 = Coupling(name = 'GC_121',
-                  value = '(complex(0,1)*sina*ychi11)/cmath.sqrt(2)',
-                  order = {'NP':2})
-
-GC_122 = Coupling(name = 'GC_122',
-                  value = '-((complex(0,1)*ychi11*cmath.sqrt(1 - sina**2))/cmath.sqrt(2))',
-                  order = {'NP':1})
-
-GC_123 = Coupling(name = 'GC_123',
                   value = '(complex(0,1)*sina*ychi20)/cmath.sqrt(2)',
                   order = {'NP':2})
 
-GC_124 = Coupling(name = 'GC_124',
+GC_122 = Coupling(name = 'GC_122',
                   value = '-((complex(0,1)*ychi20*cmath.sqrt(1 - sina**2))/cmath.sqrt(2))',
                   order = {'NP':1})
 
-GC_125 = Coupling(name = 'GC_125',
+GC_123 = Coupling(name = 'GC_123',
                   value = '(complex(0,1)*sina*ychi21)/cmath.sqrt(2)',
                   order = {'NP':2})
 
-GC_126 = Coupling(name = 'GC_126',
+GC_124 = Coupling(name = 'GC_124',
                   value = '-((complex(0,1)*ychi21*cmath.sqrt(1 - sina**2))/cmath.sqrt(2))',
                   order = {'NP':1})
 
-GC_127 = Coupling(name = 'GC_127',
+GC_125 = Coupling(name = 'GC_125',
                   value = 'yt/cmath.sqrt(2)',
                   order = {'QED':1})
 
-GC_128 = Coupling(name = 'GC_128',
+GC_126 = Coupling(name = 'GC_126',
                   value = '-((complex(0,1)*sina*yt)/cmath.sqrt(2))',
                   order = {'NP':1,'QED':1})
 
-GC_129 = Coupling(name = 'GC_129',
+GC_127 = Coupling(name = 'GC_127',
                   value = '-((complex(0,1)*yt*cmath.sqrt(1 - sina**2))/cmath.sqrt(2))',
                   order = {'QED':1})
 
-GC_130 = Coupling(name = 'GC_130',
+GC_128 = Coupling(name = 'GC_128',
                   value = '-ytau',
                   order = {'QED':1})
 
-GC_131 = Coupling(name = 'GC_131',
+GC_129 = Coupling(name = 'GC_129',
                   value = 'ytau',
                   order = {'QED':1})
 
-GC_132 = Coupling(name = 'GC_132',
+GC_130 = Coupling(name = 'GC_130',
                   value = '-(ytau/cmath.sqrt(2))',
                   order = {'QED':1})
 
-GC_133 = Coupling(name = 'GC_133',
+GC_131 = Coupling(name = 'GC_131',
                   value = '-((complex(0,1)*sina*ytau)/cmath.sqrt(2))',
                   order = {'NP':1,'QED':1})
 
-GC_134 = Coupling(name = 'GC_134',
+GC_132 = Coupling(name = 'GC_132',
                   value = '-((complex(0,1)*ytau*cmath.sqrt(1 - sina**2))/cmath.sqrt(2))',
                   order = {'QED':1})
 

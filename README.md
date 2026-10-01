@@ -41,7 +41,7 @@ Where the mixing angle ($`\alpha`$) is given by
 A minimal version of the above Lagrangian can be obtained with the [InelasticEFTDM_minimal restrictions](./models/InelasticEFTDM/InelasticEFTDM_minimal.rst), which imposes the additional requirements:
 
 ```math
-(y_\chi)_{00}= (y_{\chi})_{10} = (y_{\chi})_{01} = (y_{\chi})_{22} = 0
+(y_\chi)_{00}= (y_{\chi})_{10} = (y_{\chi})_{01} = (y_{\chi})_{11} = (y_{\chi})_{22} = 0
 ```
 and 
 ```math
@@ -51,7 +51,7 @@ and
 With the above conditions $\chi_1$ only decays through the effective operator and the Lagrangian interactions simplify to:
 ```math
 \begin{align}
-   \mathcal{L}  &\supset  - \left[\left(y_\chi\right)_{21} \overline{\chi}_2 \chi_1 + \left(y_\chi\right)_{20} \overline{\chi}_2 \chi_0 + h.c.\right] \phi - \left(y_\chi\right)_{11} \overline{\chi}_1 \chi_1 \phi + \frac{\left(C_{H \chi \chi}\right)_{10}}{\Lambda} \left(\overline{\chi}_1 \chi_0 + h.c.\right) |H|^2 \,.
+   \mathcal{L}  &\supset  - \left[\left(y_\chi\right)_{21} \overline{\chi}_2 \chi_1 + \left(y_\chi\right)_{20} \overline{\chi}_2 \chi_0 + h.c.\right] \phi + \frac{\left(C_{H \chi \chi}\right)_{10}}{\Lambda} \left(\overline{\chi}_1 \chi_0 + h.c.\right) |H|^2 \,.
 \end{align}
 ```
 
