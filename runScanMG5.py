@@ -292,6 +292,13 @@ def runDelphes(parser,runInfo,runDelphesPythia=True) -> Dict:
             
             hepmcFile = hepmcFiles[0]
             logger.debug("Running DelphesHepMC2 with files %s and %s" %(delphescard,hepmcFile))
+            if os.path.splitext(hepmcFile)[-1] == '.gz':
+                logger.info(f'HEPMC file {hepmcFile} is gzipped. Unzipping...')
+                run = subprocess.Popen('gunzip -f %s' %hepmcFile,shell=True,
+                                        stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+                output,errorMsg = run.communicate()
+                hepmcFile = os.path.splitext(hepmcFile)[0]
+                logger.info(f'Unzipped HEPMC file to {hepmcFile}')
             run = subprocess.Popen('./DelphesHepMC2 %s %s %s' %(delphescard,rootFile,hepmcFile),shell=True,
                                     stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
                                     cwd=delphesDir)
