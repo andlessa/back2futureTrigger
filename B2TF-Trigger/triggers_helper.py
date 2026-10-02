@@ -8,42 +8,22 @@ from xml.etree import ElementTree as ET
 
 def B2TF_L1(metOnTime, jetsDelayedL1 : List) -> dict:
 
+    # l1_cuflow_old = {
+    #                 'L1: 40 GeV < MET(N) < 100 GeV' : 0,
+    #                 'L1: 40 GeV < PT Jet1(N+1)' : 0,
+    #                 'L1: DPhi(Jet(N+1),MET(N)) < 1.0' : 0,
+    #             }
+
+
     l1_cuflow = {
-                    'L1: 40 GeV < MET(N-1) < 100 GeV' : 0,
-                    'L1: 40 GeV < PT Jet1(N)' : 0,
-                    'L1: DPhi(Jet(N),MET(N-1)) < 1.0' : 0,
+                    'L1: 200 GeV < MET(N)' : 0
                 }
 
 
-    if not (40.0 < metOnTime.MET < 100.0):
+    if not (metOnTime.MET > 200.0):
         return l1_cuflow
 
-    l1_cuflow['L1: 40 GeV < MET(N-1) < 100 GeV'] += 1
-
-    # Keep only jets passing the pt cut
-    jetsDelayedL1 = [j for j in jetsDelayedL1 if j.PT > 20.0]
-    # Keep only jets passing the eta cut
-    jetsDelayedL1 = [j for j in jetsDelayedL1 if abs(j.Eta) < 3.2]   
-    # Sort jets by highest pT
-    jetsDelayedL1 = sorted(jetsDelayedL1, 
-                         key = lambda j: j.PT, reverse=True)
-
-    if (not jetsDelayedL1) or  (jetsDelayedL1[0].PT < 40.0):
-        return l1_cuflow
-    
-    l1_cuflow['L1: 40 GeV < PT Jet1(N)'] += 1
-
-    dphi_min = 2*np.pi
-    for j in jetsDelayedL1[:6]:
-        dphi = np.abs(j.Phi-metOnTime.Phi)
-        if dphi > np.pi:
-            dphi = 2*np.pi - dphi
-        dphi_min = min(dphi,dphi_min)
-
-    if dphi_min > 1.0:
-        return l1_cuflow
-    
-    l1_cuflow['L1: DPhi(Jet(N),MET(N-1)) < 1.0'] += 1
+    l1_cuflow['L1: 200 GeV < MET(N)'] += 1
 
     return l1_cuflow
 
