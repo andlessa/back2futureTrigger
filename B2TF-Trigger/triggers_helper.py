@@ -6,136 +6,102 @@ from xml.etree import ElementTree as ET
 
 
 
-def B2TF_L1(metOnTime, jetsDelayedL1 : List) -> dict:
-
-    # l1_cuflow_old = {
-    #                 'L1: 40 GeV < MET(N) < 100 GeV' : 0,
-    #                 'L1: 40 GeV < PT Jet1(N+1)' : 0,
-    #                 'L1: DPhi(Jet(N+1),MET(N)) < 1.0' : 0,
-    #             }
+def selectionOnTime(metOnTime, jetsOnTime : List) -> dict:
 
 
     l1_cuflow = {
-                    'L1: 200 GeV < MET(N)' : 0
+                'L1(N): 200 GeV < MET(N)' : 0,
+                'L1(N): 150 GeV < pT(j1,N)' : 0
                 }
 
 
     if not (metOnTime.MET > 200.0):
         return l1_cuflow
 
-    l1_cuflow['L1: 200 GeV < MET(N)'] += 1
+    l1_cuflow['L1(N): 200 GeV < MET(N)'] += 1
+
+
+    jets = sorted(jetsOnTime, key=lambda j: j.PT, reverse=True)
+    jets = [j for j in jets[:] if abs(j.Eta) < 2.4]
+
+    if not jets or not (jets[0].PT > 150.0):
+        return l1_cuflow
+    l1_cuflow['L1(N): 150 GeV < pT(j1,N)'] += 1
 
     return l1_cuflow
 
 
-def CalRatioLowET_L1(jetsL1 : List) -> dict:
+@np.vectorize
+def in_ms(z,rho):
 
-    l1_cuflow = {
-                    'L1: Eta Jet < 2.5' : 0,
-                    'L1-LowET: jet(HCAL) > 30 GeV and jet(ECAL) < 3 GeV' : 0,
+    if 7.0 < abs(z) < 13.0 and rho < 7.5:
+        return True
+    elif 3.5 < rho < 7.5 and abs(z) < 7.0:
+        return True
+    else:
+        return False
+
+@np.vectorize
+def in_N(t):
+    
+    if t < 10.0:
+        return True
+    else:
+        return False
+
+@np.vectorize
+def in_Np1(t):
+
+    if 25.0 < t < 50.0:
+        return True
+    else:
+        return False
+
+def selectionDelayed(llpDecays : List, pdgInvisible=4000022) -> dict:
+
+    c_light = 3e8
+    cutflow = {
+                '(N+1): 25 ns < T < 50 ns' : 0,
+                '(N+1): decay in MS' : 0,
+                '(N+1): nRoI >= 3' : 0
                 }
 
-    if not jetsL1:
-        return l1_cuflow
-    jetsL1 = [j for j in jetsL1 if (abs(j.Eta) < 2.5)]
-    jetsL1 = sorted(jetsL1, key=lambda j: j.PT, reverse=True)
-    if not jetsL1:
-        return l1_cuflow
+
+    # Select decays in N+1:
+    decaysNp1 = []
+    for d in llpDecays:
+        l_m = np.linalg.norm([d.X,d.Y,d.Z])*1e-3
+        t = d.T
+        t_readout = (t - l_m/c_light)*1e9 # readout time in ns
+        if in_Np1(t_readout):
+            decaysNp1.append(d)
+
+    if not decaysNp1:
+        return cutflow
+    cutflow['(N+1): 25 ns < T < 50 ns'] += 1
+
+    # Select decays within MS fiducial volume:
+    decaysMS = []
+    for d in decaysNp1:
+        rho = np.linalg.norm([d.X,d.Y])*1e-3
+        z = d.Z*1e-3
+        if in_ms(z,rho):
+            decaysMS.append(d)
     
-    l1_cuflow['L1: Eta Jet < 2.5'] += 1
-            
-    # For the remaining jets, check if there is one jet
-    # Remove jets with large ECAL deposits
-    jets_disp = []
-    for j in jetsL1:
-        jetE = j.PT*np.cosh(j.Eta)
-        Eem = jetE/(1.0+j.EhadOverEem)
-        Ehad = jetE-Eem
-        if (Ehad > 30.0 and Eem < 3.):
-            jets_disp.append(j)
-    
-    if not jets_disp:
-        return l1_cuflow
-    
-    l1_cuflow['L1-LowET: jet(HCAL) > 30 GeV and jet(ECAL) < 3 GeV'] += 1
+    if not decaysMS:
+        return cutflow
+    cutflow['(N+1): decay in MS'] += 1
 
-    return l1_cuflow
+    # Select minimum visible energy in MS:
+    nRoI = 0.0
+    for d in decaysMS:
+        if abs(d.PDG) == pdgInvisible:
+            continue
+        nRoI += (d.E/4.0)
 
-def CalRatioHighET_L1(jetsL1 : List, pTmin : float = 60.0) -> dict:
+    if nRoI < 3.0:
+        return cutflow 
+    cutflow['(N+1): nRoI >= 3'] += 1
 
-    l1_cuflow = {
-                    'L1: Eta Jet < 2.5' : 0,
-                    f'L1-HighET: jet PT > {pTmin:1.0f} GeV' : 0                    
-                }
-
-    if not jetsL1:
-        return l1_cuflow
-    
-
-    jetsL1 = [j for j in jetsL1 if (abs(j.Eta) < 2.5)]
-    jetsL1 = sorted(jetsL1, key=lambda j: j.PT, reverse=True)
-    if not jetsL1:
-        return l1_cuflow
-    
-    l1_cuflow['L1: Eta Jet < 2.5'] += 1
-            
-    # For the remaining jets, check if there is one jet satisfying the minimum pT requirement    
-    if jetsL1[0].PT < pTmin:
-        return l1_cuflow
-    
-    l1_cuflow[f'L1-HighET: jet PT > {pTmin:1.0f} GeV'] += 1
-
-    return l1_cuflow
-
-def CalRatio_HLT(jetsHLT : List, tracks : Union[List,None]) -> dict:
-
-    hlt_cuflow = {
-                    'HLT: Eta Jet < 2.5 PT Jet > 20 GeV' : 0,
-                    'HLT: Jet EMF < 0.06' : 0                    
-                }
-
-    if tracks is not None:
-        hlt_cuflow.update({'HLT: DR(Tracks,Jet) > 0.2' : 0})
-
-
-    jetsHLT = [j for j in jetsHLT if (abs(j.Eta) < 2.5 and j.PT > 20.0)]
-    if not jetsHLT:
-        return hlt_cuflow
-    
-    hlt_cuflow['HLT: Eta Jet < 2.5 PT Jet > 20 GeV'] += 1
-        
-    jets_disp = []
-    for j in jetsHLT:
-        EMF = 1.0/(1.0+j.EhadOverEem)
-        if EMF < 0.06:
-            jets_disp.append(j)
-
-    if not jets_disp:
-        return hlt_cuflow
-    
-    hlt_cuflow['HLT: Jet EMF < 0.06'] += 1
-    
-
-    # Finally for the remaining jets remove jets with tracks close
-    # to it and belonging to the delayed event    
-    if tracks is not None:
-        jets_clean = []
-        for j in jets_disp:
-            dRmin = 100.0
-            for track in tracks:
-                dphi = np.abs((j.Phi-track.Phi))
-                if dphi > np.pi:
-                    dphi = 2*np.pi - dphi
-                deta = (j.Eta-track.Eta)
-                dR = np.sqrt(deta**2 + dphi**2)
-                dRmin = min(dR,dRmin)
-            if dRmin > 0.2:
-                jets_clean.append(j)
-
-        if not jets_clean:
-            return hlt_cuflow
-
-        hlt_cuflow['HLT: DR(Tracks,Jet) > 0.2'] += 1
-     
-    return hlt_cuflow
+    return cutflow
 

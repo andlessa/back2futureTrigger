@@ -4,8 +4,8 @@ B2F generator-level cutflow selections (applied in order)
      d = beta*gamma * VTIMUP        (VTIMUP = invariant c*tau, mm)
 
 2. Fiducial volume (barrel/endcap split at |eta| = 1.05)
-     barrel:  4.25 m <  R  < 10.0 m -> 3.5 < R < 7
-     endcap:  6.10 m < |z| < 21.5 m -> ?
+     barrel:  3.5 m < R < 7.5 m
+     endcap:  7 m < |z| < 13 m
 
 3. Timing: 25 ns <= dt < 50 ns
      dt = (d/c) * (1/beta - 1)      

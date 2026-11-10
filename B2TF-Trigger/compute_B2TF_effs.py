@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 
 import os, time, sys
-sys.path.append('../')
 import numpy as np
-import pyhepmc
 import random
 import logging
 import subprocess
 import multiprocessing
 import tqdm
 from helper import getModelDict
-from triggers_helper import B2TF_L1,CalRatio_HLT
+from triggers_helper import selectionOnTime,selectionDelayed
 delphesDir = os.path.abspath("../DelphesLLP")
 os.environ['ROOT_INCLUDE_PATH'] = os.path.join(delphesDir,"external")
 
@@ -37,34 +35,19 @@ def getEffForB2TF(tree) -> dict:
     evt_cutFlow = {}
     evt_cutFlow['All'] = 1
     
-    ### L1 Trigger
+    ### L1 (on-time, N) Trigger
     # Get MET from the L1 (on-time) calorimenter
     metOnTime = tree.L1METOnTime.At(0)
-    # Get jets from the L1 (delayed) calorimeter
-    jetsDelayedL1 = list(tree.L1JetDelayed)
-    evt_cutFlow.update(B2TF_L1(metOnTime,jetsDelayedL1))
+    jetsOnTime = list(tree.HLTJetEnergyScaleOnTime)
+    evt_cutFlow.update(selectionOnTime(metOnTime,jetsOnTime))
 
     # If any of the cuts failed, stop
     if any(val == 0 for val in evt_cutFlow.values()):
         return evt_cutFlow
 
-    ### HLT Trigger
-    # Get jets from the L1 (delayed) calorimeter
-    jetsDelayedHLT = list(tree.HLTJetDelayed)    
-    tracksDelayed = None
-    if hasattr(tree,'AllTracks'):
-        tracksDelayed = []
-        for track in tree.AllTracks:
-            l_track = np.sqrt(track.X**2 + track.Y**2 + track.Z**2)
-            t_readout =  track.T - l_track*1e-3/c
-            if not (22e-9 < t_readout < 40e-9):
-                continue
-            if track.PT < 2.0:
-                continue
-            tracksDelayed.append(track)
-    
-    hlt_cutFlow = CalRatio_HLT(jetsDelayedHLT,tracksDelayed)
-    evt_cutFlow.update(hlt_cutFlow)
+    ### Selection (delayed, N+1)
+    llp_decays = list(tree.llpDirectDaughters)
+    evt_cutFlow.update(selectionDelayed(llp_decays))
     
     return evt_cutFlow
 
@@ -88,10 +71,10 @@ def getEfficiencies(inputFile,ijob=0):
         return None
     
     # Total efficiencies (for each tau value)
-    effsDict = {"Trigger" : 0.0,
+    effsDict = {"Selected" : 0.0,
                 "Nevents" : 0.0}
     
-    evts_cutFlow = {}
+    cutFlow = {}
     
     
     nevts = tree.GetEntries()
@@ -107,26 +90,25 @@ def getEfficiencies(inputFile,ijob=0):
             evt_eff = 1.0
         # Add event efficiency to total efficiencies 
         # for the given selection (for each tau value)
-        effsDict['Trigger'] += evt_eff
+        effsDict['Selected'] += evt_eff
         for key,val in evt_cutFlow.items():
-            if key not in evts_cutFlow:
-                evts_cutFlow[key] = 0
-            evts_cutFlow[key] += val
+            cutFlow.setdefault(key,0)
+            cutFlow[key] += val
         
     f.Close()
     
     # Divide the total efficiency by the number of events:
-    effsDict["TriggerErr"] = np.sqrt(effsDict["Trigger"])/effsDict['Nevents']
-    effsDict["Trigger"] = effsDict["Trigger"]/effsDict['Nevents']
+    effsDict["SelectedErr"] = np.sqrt(effsDict["Selected"])/effsDict['Nevents']
+    effsDict["Selected"] = effsDict["Selected"]/effsDict['Nevents']
 
     # Store input file name
     effsDict['inputFile'] = inputFile
     # Get model information
     modelDict = getModelDict(inputFile,verbose=False)
     effsDict.update(modelDict)
-    evts_cutFlow.update(modelDict)
+    cutFlow.update(modelDict)
 
-    return effsDict,evts_cutFlow
+    return effsDict,cutFlow
 
 def saveOutput(effsDict,outputFile,
                evts_cutFlow=None,cutFile=None):
@@ -136,8 +118,8 @@ def saveOutput(effsDict,outputFile,
     inputFile = effsDict.pop('inputFile')
 
     
-    effsDict['eff'] = effsDict.pop('Trigger')
-    effsDict['effError'] = effsDict.pop('TriggerErr')
+    effsDict['eff'] = effsDict.pop('Selected')
+    effsDict['effError'] = effsDict.pop('SelectedErr')
     
     # Get column labels and data
     columnsLabels = list(effsDict.keys())
