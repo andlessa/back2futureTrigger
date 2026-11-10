@@ -1,0 +1,31 @@
+B2F generator-level cutflow selections (applied in order)
+
+1. chi1 (PDG 4000023) present with a decay vertex
+     d = beta*gamma * VTIMUP        (VTIMUP = invariant c*tau, mm)
+
+2. Fiducial volume (barrel/endcap split at |eta| = 1.05)
+     barrel:  4.25 m <  R  < 10.0 m -> 3.5 < R < 7
+     endcap:  6.10 m < |z| < 21.5 m -> ?
+
+3. Timing: 25 ns <= dt < 50 ns
+     dt = (d/c) * (1/beta - 1)      
+
+4. Recoil parton in BC(N)
+     status 1, |PDG| <= 6 or 21
+     pT > 150 GeV
+     |eta| < 2.4
+     not a descendant of chi1 (recursive)
+     dR > 0.4 from the chi1 direction
+
+5. MET in BC(N) > 200 GeV
+     MET = | pT(chi1) + sum pT(stable invisibles not descended from chi1) |
+
+6. RoI proxy >= 3                             [minimal impact at parton level]
+     n_RoI = (visible energy of chi1 descendants, excluding chi0) / 4 GeV
+
+Normalisation
+     N = sigma * L * eff_kin 
+     sigma    = XSECUP from the LHE (branching fractions included)
+     eff_kin  = measured fraction surviving 1-6
+
+
