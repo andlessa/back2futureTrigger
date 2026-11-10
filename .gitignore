@@ -4,3 +4,6 @@
 *.csv
 __pycache__
 *.pkl
+processFolders/*
+DelphesLLP
+MG5
