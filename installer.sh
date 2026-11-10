@@ -28,8 +28,8 @@ if echo "$answer" | grep -iq "^y" ;then
 	#mv $madgraph"_bak" $madgraph
 	cd $homeDIR
 	cd ./MG5;
-	echo "[installer] installing HepMC, LHAPDF6 and Pythia8 under MadGraph5"
-        echo "install hepmc\ninstall lhapdf6\ninstall pythia8\nexit\n" > mad_install.txt;
+	echo -e "[installer] installing HepMC, LHAPDF6 and Pythia8 under MadGraph5"
+        echo -e "install hepmc\ninstall lhapdf6\ninstall pythia8\nexit\n" > mad_install.txt;
 	./bin/mg5_aMC -f mad_install.txt
 	cd $homeDIR
 	sed  "s|homeDIR|$homeDIR|g" mg5_configuration.txt > ./MG5/input/mg5_configuration.txt;
