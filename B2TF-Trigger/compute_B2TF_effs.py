@@ -38,7 +38,7 @@ def getEffForB2TF(tree) -> dict:
     ### L1 (on-time, N) Trigger
     # Get MET from the L1 (on-time) calorimenter
     metOnTime = tree.L1METOnTime.At(0)
-    jetsOnTime = list(tree.HLTJetEnergyScaleOnTime)
+    jetsOnTime = list(tree.HLTJetOnTime)
     evt_cutFlow.update(selectionOnTime(metOnTime,jetsOnTime))
 
     # If any of the cuts failed, stop
@@ -206,7 +206,7 @@ if __name__ == "__main__":
         cutFlowStr += f'CutFlow for {effsDict['inputFile']}:\n'
         for key,val in evts_cutFlow.items():
             cutFlowStr += f'  {key} : {val} ({val/evts_cutFlow['All']:1.3e})\n'
-        saveOutput(effsDict,effFile,evts_cutFlow,cutFile)        
+        # saveOutput(effsDict,effFile,evts_cutFlow,cutFile)        
 
     logger.debug(cutFlowStr+'\n')
             

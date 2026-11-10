@@ -95,7 +95,7 @@ def selectionDelayed(llpDecays : List, pdgInvisible=4000022) -> dict:
     # Select minimum visible energy in MS:
     nRoI = 0.0
     for d in decaysMS:
-        if abs(d.PDG) == pdgInvisible:
+        if abs(d.PID) == pdgInvisible:
             continue
         nRoI += (d.E/4.0)
 
