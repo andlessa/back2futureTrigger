@@ -106,7 +106,19 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None,xsecFil
             xsecData = np.genfromtxt(xsecFile,skip_header=1)
             xsec_pb = xsecData[1]
         except:
-            pass
+            xsecFile = list(glob.glob(os.path.join(os.path.dirname(f),'*banner.txt')))[0]
+            xsec_tot_pb = None
+            xsec_matched_pb = None
+            with open(xsecFile,'r') as ff:
+                for line in ff.readlines():
+                    if 'Matched Integrated weight (pb)' in line:
+                        xsec_matched_pb = float(line.split(':',1)[-1])
+                    if 'Integrated weight (pb)' in line:
+                        xsec_tot_pb = float(line.split(':',1)[-1])
+            if xsec_matched_pb is not None:
+                xsec_pb = xsec_matched_pb
+            elif xsec_tot_pb is not None:
+                xsec_pb = xsec_tot_pb
             
     parsDict = {}
     parsDict['m1'] = slhaData.blocks['MASS'][LLP]
@@ -117,20 +129,13 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None,xsecFil
         parsDict['m2'] = slhaData.blocks['MASS'][LLP2]
 
     try:
-        if 'm2' in parsDict:
-            relabelModelPars = {1 : 'lambdauv', 
-                            11 : 'chxx10', 
-                            18 : 'ychi20', 
-                            19 : 'ychi21', 
-                            20 : 'sina',
-                            }
-        else:
-            relabelModelPars = {1 : 'lambdauv', 
-                            7 : 'chxx10', 
-                            8 : 'ychi1', 
-                            10 : 'ychi10', 
-                            11 : 'sina',
-                            }
+        
+        relabelModelPars = {1 : 'lambdauv', 
+                        5 : 'chxx10', 
+                        12 : 'ychi20', 
+                        13 : 'ychi21', 
+                        14 : 'sina',
+                        }
         for key,val in slhaData.blocks['NPINPUTS'].items():
             newkey = relabelModelPars.get(key,key)
             parsDict[newkey] = val

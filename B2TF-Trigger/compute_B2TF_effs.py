@@ -105,6 +105,7 @@ def getEfficiencies(inputFile,ijob=0):
     effsDict['inputFile'] = inputFile
     # Get model information
     modelDict = getModelDict(inputFile,verbose=False)
+    print('modelDict=',modelDict)
     effsDict.update(modelDict)
     cutFlow.update(modelDict)
 
@@ -112,7 +113,8 @@ def getEfficiencies(inputFile,ijob=0):
 
 def saveOutput(effsDict,outputFile,
                evts_cutFlow=None,cutFile=None):
-        
+
+    print('Dict=',effsDict)
      # Extract info for comments
     nevts = effsDict.pop('Nevents')
     inputFile = effsDict.pop('inputFile')
@@ -123,6 +125,7 @@ def saveOutput(effsDict,outputFile,
     
     # Get column labels and data
     columnsLabels = list(effsDict.keys())
+    print(columnsLabels)
     data = np.array([list(effsDict.values())])
     header = ';'.join(columnsLabels)
     np.savetxt(outputFile, data, 
@@ -206,7 +209,7 @@ if __name__ == "__main__":
         cutFlowStr += f'CutFlow for {effsDict['inputFile']}:\n'
         for key,val in evts_cutFlow.items():
             cutFlowStr += f'  {key} : {val} ({val/evts_cutFlow['All']:1.3e})\n'
-        # saveOutput(effsDict,effFile,evts_cutFlow,cutFile)        
+        saveOutput(effsDict,effFile,evts_cutFlow,cutFile)        
 
     logger.debug(cutFlowStr+'\n')
             
