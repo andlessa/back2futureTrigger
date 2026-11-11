@@ -16,7 +16,7 @@ def combineFiles(effFiles,outputFile):
 
     newData = pd.concat(newData,ignore_index=True)
     with open(outputFile,'w') as f:
-        f.write('# ' + ','.join(newData.columns) + '\n')
+        f.write(','.join(newData.columns) + '\n')
         newData.to_csv(f,index=False,header=False,float_format='%1.3e')
 
 
