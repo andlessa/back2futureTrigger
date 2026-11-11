@@ -1,4 +1,4 @@
-# m1,m0,ms,tau,m2,lambdauv,chxx10,ychi20,ychi21,sina,xsec_pb,eff,efferror,filename
+m1,m0,ms,tau,m2,lambdauv,chxx10,ychi20,ychi21,sina,xsec_pb,eff,efferror,filename
 1.965e+02,1.365e+02,4.000e+02,6.607e-08,2.015e+02,9.074e+06,1.000e-01,1.000e-01,1.500e+00,2.000e-01,7.220e-03,2.996e-04,7.060e-05,../processFolders/pp2chi1chi2_01j_nosmear/Events/run_01/chi1chi2_01j_mS_400_m2_202_m1_196_dm_60_ctau_20.0_delphes_card_b2tf_nosmear_b2tf_effs.csv
 1.965e+02,9.652e+01,4.000e+02,6.618e-08,2.015e+02,3.979e+07,1.000e-01,1.000e-01,1.500e+00,2.000e-01,6.936e-03,2.325e-04,6.213e-05,../processFolders/pp2chi1chi2_01j_nosmear/Events/run_02/chi1chi2_01j_mS_400_m2_202_m1_196_dm_100_ctau_20.0_delphes_card_b2tf_nosmear_b2tf_effs.csv
 1.936e+02,1.336e+02,4.000e+02,6.606e-08,1.986e+02,9.039e+06,1.000e-01,1.000e-01,1.500e+00,2.000e-01,2.049e-02,2.620e-04,6.550e-05,../processFolders/pp2chi1chi2_01j_nosmear/Events/run_03/chi1chi2_01j_mS_400_m2_199_m1_194_dm_60_ctau_20.0_delphes_card_b2tf_nosmear_b2tf_effs.csv
