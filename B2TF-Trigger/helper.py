@@ -125,6 +125,33 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None,xsecFil
     parsDict['m0'] = slhaData.blocks['MASS'][LSP]
     parsDict['mS'] = slhaData.blocks['MASS'][mother]
     parsDict['tau'] = 6.58212e-25/slhaData.decays[LLP].totalwidth
+    try:
+        decs = slhaData.decays[mother].decays
+        br = 0.0
+        for d in decs:
+            ids = sorted([abs(pdg) for pdg in d.ids])
+            if ids == sorted([LLP,LLP2]):
+                br += d.br
+        parsDict['BRs2chi1chi2'] = br
+        
+        decs = slhaData.decays[LLP].decays
+        br = 0.0
+        for d in decs:
+            ids = sorted([abs(pdg) for pdg in d.ids])
+            if ids == sorted([LSP,5,5]):
+                br += d.br
+        parsDict['BRchi12chi0bb'] = br
+
+        decs = slhaData.decays[LLP2].decays
+        br = 0.0
+        for d in decs:
+            ids = sorted([abs(pdg) for pdg in d.ids])
+            if ids == sorted([LSP,5,5]):
+                br += d.br
+        parsDict['BRchi22chi0bb'] = br
+    except:
+        pass
+        
     if LLP2 in slhaData.blocks['MASS']:
         parsDict['m2'] = slhaData.blocks['MASS'][LLP2]
 
