@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 
 
-import numpy as np
+import pandas as pd
 
 
 def combineFiles(effFiles,outputFile):
 
     newData = []
-    nf = 0
     for effFile in effFiles:
-        effData = np.genfromtxt(effFile,names=True,
-                                case_sensitive='lower',
-                                skip_header=2,delimiter=';')        
-        nf += 1
+        # Skip the 2 comment lines; the 3rd line is the '# '-prefixed header
+        effData = pd.read_csv(effFile,skiprows=2,sep=';')
+        effData.columns = [c.lstrip('#').strip().lower() for c in effData.columns]
         effData['filename'] = effFile
         newData.append(effData)
 
-    newData = np.array(newData,dtype=effData.dtype)
-    np.savetxt(outputFile,newData,delimiter=',',header=','.join(newData.dtype.names),fmt='%1.3e')
+    newData = pd.concat(newData,ignore_index=True)
+    with open(outputFile,'w') as f:
+        f.write('# ' + ','.join(newData.columns) + '\n')
+        newData.to_csv(f,index=False,header=False,float_format='%1.3e')
 
 
 if __name__ == "__main__":
