@@ -113,7 +113,6 @@ def getEfficiencies(inputFile,ijob=0):
 def saveOutput(effsDict,outputFile,
                evts_cutFlow=None,cutFile=None):
 
-    print('Dict=',effsDict)
      # Extract info for comments
     nevts = effsDict.pop('Nevents')
     inputFile = effsDict.pop('inputFile')
@@ -124,7 +123,6 @@ def saveOutput(effsDict,outputFile,
     
     # Get column labels and data
     columnsLabels = list(effsDict.keys())
-    print(columnsLabels)
     data = np.array([list(effsDict.values())])
     header = ';'.join(columnsLabels)
     np.savetxt(outputFile, data, 
