@@ -13,7 +13,7 @@ def combineFiles(effFiles,outputFile):
                                 case_sensitive='lower',
                                 skip_header=2,delimiter=';')        
         nf += 1
-
+        effData['filename'] = effFile
         newData.append(effData)
 
     newData = np.array(newData,dtype=effData.dtype)
