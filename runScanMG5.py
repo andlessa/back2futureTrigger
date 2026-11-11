@@ -237,6 +237,7 @@ def runDelphes(parser,runInfo,runDelphesPythia=True) -> Dict:
     delphescardList = pars['delphescard'].split(',')
     hepmcFiles = []
     lheFile = ""
+    hepmcFile = ""
     
     for delphescard in delphescardList:
         delphescard = os.path.abspath(delphescard)
@@ -251,7 +252,7 @@ def runDelphes(parser,runInfo,runDelphesPythia=True) -> Dict:
         delphesDir = os.path.abspath(pars['delphesDir'])
         # Get possible input files:
         eventsFolder = os.path.join(runFolder,'Events',runInfo['run number'])
-        lheFile = os.path.join(eventsFolder,'unweighted_events.lhe.gz')        
+        lheFile = os.path.join(eventsFolder,'unweighted_events.lhe.gz')            
         hepmcFiles = list(glob.glob(os.path.join(eventsFolder,'*hepmc*')))
 
 
@@ -314,7 +315,7 @@ def runDelphes(parser,runInfo,runDelphesPythia=True) -> Dict:
                 f.write(output)
 
     if cleanOutput:
-        for f in hepmcFiles + [lheFile]:
+        for f in [hepmcFile,lheFile]:
             if os.path.isfile(f):
                 os.remove(f)
         
