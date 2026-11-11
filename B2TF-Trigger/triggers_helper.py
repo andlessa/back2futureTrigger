@@ -11,7 +11,7 @@ def selectionOnTime(metOnTime, jetsOnTime : List) -> dict:
 
     l1_cuflow = {
                 'L1(N): 200 GeV < MET(N)' : 0,
-                'L1(N): 150 GeV < pT(j1,N)' : 0
+                'L1(N): 150 GeV < pTj1(N)' : 0
                 }
 
 
@@ -26,7 +26,7 @@ def selectionOnTime(metOnTime, jetsOnTime : List) -> dict:
 
     if not jets or not (jets[0].PT > 150.0):
         return l1_cuflow
-    l1_cuflow['L1(N): 150 GeV < pT(j1,N)'] += 1
+    l1_cuflow['L1(N): 150 GeV < pTj1(N)'] += 1
 
     return l1_cuflow
 
