@@ -180,3 +180,6 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None,xsecFil
         print('tau (ns) = ',parsDict['tau']*1e9)
     
     return modelInfoDict
+
+
+
