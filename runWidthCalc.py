@@ -13,6 +13,9 @@ import multiprocessing
 import tqdm
 import numpy as np
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
+
 FORMAT = '%(levelname)s in %(module)s.%(funcName)s(): %(message)s at %(asctime)s'
 logging.basicConfig(format=FORMAT,datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger("MG5Scan")
@@ -162,6 +165,109 @@ def runMadEvent(parser) -> str:
 
     return newFile
 
+def getWidth(m1, m0, lambdaUV, pdg=4000023,
+             processFolder=os.path.join(_HERE, 'lifetime_scan'),
+             proccard=os.path.join(_HERE, 'Cards/proc_card_Sd.dat'),
+             paramcard=os.path.join(_HERE, 'Cards/param_card.dat'),
+             extraPars=None, removeProcessFolder=False):
+    """
+    Compute the total width (in GeV) of the particle with the given PDG
+    (default chi1 = 4000023) for the parameters (m1, m0, lambdaUV).
+
+    :param m1: chi1 mass (M1)
+    :param m0: chi0 mass (M0)
+    :param lambdaUV: UV scale (lambdauv)
+    :param pdg: PDG code of the particle whose width is returned
+    :param processFolder: MadGraph process folder used as template. It is
+                          generated from proccard if it does not exist.
+                          It is never modified (the run happens in a temporary copy).
+    :param proccard: process card (only used if processFolder does not exist)
+    :param paramcard: default param_card.dat
+    :param extraPars: dict with additional/overriding parameters (e.g. {'sina': 0.15})
+    :param removeProcessFolder: if True, also delete processFolder at the end
+                                (it will then be regenerated on every call, which is slow).
+    :param useCache: if True, return the cached width when available. If False,
+                     always recompute (the result still updates the cache).
+    :param cacheFile: JSON file used as persistent cache. If None, only an
+                      in-memory cache is used.
+
+    :return: total width in GeV (float)
+    """
+
+    import pyslha
+    # Fixed model parameters (same as [MadEventSet] in parameters_lifetimeScan.ini)
+    DEFAULT_PARS = {
+        'MSd': 5000.,
+        'M2': 5000.,
+        'sina': 0.2,
+        'ychi20': 0.1,
+        'ychi21': 1.5,
+        'chxx10': 0.1,
+        'ws': 1.0,  # Skip computing the Sd width
+        'w2': 1.0,  # Skip computing the chi2 width
+    }
+
+    pars = dict(DEFAULT_PARS)
+    pars.update({'M1': m1, 'M0': m0, 'lambdauv': lambdaUV})
+    if extraPars:
+        pars.update(extraPars)
+
+
+    processFolder = os.path.abspath(processFolder).rstrip('/')
+    if not os.path.isdir(processFolder):
+        logger.info('Process folder %s not found. Generating it.' % processFolder)
+        cwd = os.getcwd()
+        try:
+            # generateProcessFolder uses ./MG5 relative to the cwd
+            os.chdir(_HERE)
+            generateProcessFolder({'MadEventPars': {'proccard': os.path.abspath(proccard),
+                                                    'processFolder': processFolder}})
+        finally:
+            os.chdir(cwd)
+        if not os.path.isdir(processFolder):
+            raise RuntimeError('Failed to generate process folder %s' % processFolder)
+
+    # All intermediate files live inside tmpDir, which is always removed
+    tmpDir = tempfile.mkdtemp(prefix=os.path.basename(processFolder) + '_width_',
+                              dir=os.path.dirname(processFolder))
+    try:
+        runFolder = shutil.copytree(processFolder, os.path.join(tmpDir, 'run'), symlinks=True)
+        runParamCard = os.path.join(runFolder, 'Cards', 'param_card.dat')
+        if paramcard is not None:
+            if not os.path.isfile(paramcard):
+                raise ValueError('Param card %s not found' % paramcard)
+            shutil.copyfile(paramcard, runParamCard)
+
+        commandsFile = os.path.join(tmpDir, 'commands.txt')
+        with open(commandsFile, 'w') as f:
+            f.write('compute_widths %i\n' % pdg)
+            for key, val in pars.items():
+                f.write('set %s %s\n' % (key, val))
+            f.write('done\n')
+
+        run = subprocess.run('./bin/madevent < %s' % commandsFile, shell=True,
+                             cwd=runFolder, capture_output=True, text=True)
+        logger.debug('MadEvent output:\n%s' % run.stdout)
+        if run.returncode != 0:
+            raise RuntimeError('MadEvent failed (code %i):\n%s'
+                               % (run.returncode, run.stderr))
+
+        slha = pyslha.readSLHAFile(runParamCard)
+        assert slha is not None, 'Failed to read SLHA file %s' % runParamCard
+        # Sanity check: make sure the parameters were actually set
+        mass = slha.blocks['MASS'][pdg] if pdg in slha.blocks['MASS'].keys() else None
+        if pdg == 4000023 and (mass is None or abs(mass - m1) > 1e-6 * max(1., abs(m1))):
+            raise RuntimeError('M1 in the output param card (%s) does not match the input (%s).\n'
+                               'MadEvent output:\n%s' % (mass, m1, run.stdout[-3000:]))
+        if not slha.decays or pdg not in slha.decays:
+            raise RuntimeError('No decay information found for PDG %i in %s.\n' % (pdg, runParamCard))
+        width = slha.decays[pdg].totalwidth
+    finally:
+        shutil.rmtree(tmpDir, ignore_errors=True)
+        if removeProcessFolder:
+            shutil.rmtree(processFolder, ignore_errors=True)
+
+    return width
 
 def main(parfile,verbose):
    
