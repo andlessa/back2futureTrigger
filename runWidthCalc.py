@@ -155,7 +155,7 @@ def runMadEvent(parser) -> str:
     
     newFile = os.path.join(outputFolder,f'param_card_{run_tag}.dat')
     shutil.copyfile(os.path.join(runFolder,'Cards/param_card.dat'),newFile)
-    logger.info(f'Copying {os.path.join(runFolder,'Cards/param_card.dat')} to {newFile}')
+    logger.info(f"Copying {os.path.join(runFolder,'Cards/param_card.dat')} to {newFile}")
     
     # if (runFolder != processFolder) and (runFolder != outputFolder):
         # shutil.rmtree(runFolder)
