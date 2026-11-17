@@ -201,10 +201,15 @@ def runMG5(parser,runPythia=False, runMadSpin=False) -> Dict:
 
     # If run folder does not exist, create it using processFolder as a template:
     if not os.path.isdir(runFolder):
-        runFolder = shutil.copytree(processFolder,runFolder,
-                                    ignore=shutil.ignore_patterns('Events','*.lhe'),
+    # To avoid recursion when copying the process folder, we first copy the process folder 
+    # to a temporary location and then move it to the results folder.
+        run_tmp = shutil.copytree(processFolder,os.path.basename(runFolder),
+                                    ignore=shutil.ignore_patterns('Events','*.lhe','scan_inputFiles',
+                                                                  'scan_results','*.root','*.hepmc'),
                                     symlinks=True)
-        os.makedirs(os.path.join(runFolder,'Events'))       
+        os.makedirs(os.path.join(run_tmp,'Events'))
+        shutil.move(run_tmp, runFolder)
+       
         logger.info("Created temporary folder %s" %runFolder) 
             
     if not os.path.isdir(runFolder):
@@ -266,9 +271,16 @@ def runMG5(parser,runPythia=False, runMadSpin=False) -> Dict:
     ncore = parser['options']['ncore']
     
     logger.debug("Generating MG5 events with command file %s" %commandsFile)
-    run = subprocess.Popen('./bin/generate_events --multicore --nb_core=%i < %s' %(ncore,commandsFile),
+    # Fix the Python hash seed: MG5 stores the helicity filter (SubProcesses/P*/Hel/selection)
+    # as str(set), whose ordering is random between Python sessions. This makes MG5 believe the
+    # helicity selection changed and recompile all matrix*_optim.f files in every run. Only needed if hel_recycling = True
+    #env = os.environ.copy()
+    #env['PYTHONHASHSEED'] = '0'
+    run = subprocess.Popen(f'./bin/generate_events --multicore --nb_core={ncore} < {commandsFile}',
                            shell=True,stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE,cwd=runFolder)
+                           stderr=subprocess.PIPE,cwd=runFolder
+                        #    ,env=env
+                           )
       
     output,errorMsg= run.communicate()
     runInfo = {}
