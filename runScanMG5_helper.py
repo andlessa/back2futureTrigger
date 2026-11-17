@@ -70,7 +70,7 @@ def generateInputFiles(parfile) -> Set[folderTuple]:
         newParser.set('MadGraphPars','runNumber','%02d' %(run0+irun))
         newParser.set('MadGraphPars','resultsFolder',outputFolder)
 
-        parserDict = newParser.toDict(raw=False)
+        parserDict = newParser.toDict(raw=False,abspath_existing=True)
         # Create text config file to store the dictionary of parameters for this run.
         # This file can be read again by ConfigParserExt in the worker.
         outfile = f"{inputFolder}/job_{irun:05d}.ini"
@@ -405,17 +405,29 @@ def generateEvents(parser):
     run_delphes = False
     run_madgraph = False
     run_madspin = False
+    runInfo = {}
 
-    if 'runMadGraph' in parser['options']:
-        run_madgraph = parser["options"]["runMadGraph"]
-    if 'runPythia' in parser['options']:
-        run_pythia = parser["options"]["runPythia"]
-    if 'runDelphes' in parser['options']:
-        run_delphes = parser["options"]["runDelphes"]
-    if 'runDelphesPythia' in parser['options']:
-        run_delphespythia = parser["options"]["runDelphesPythia"]
-    if 'runMadSpin' in parser['options']:
-        run_madspin = parser["options"]["runMadSpin"]
+    if isinstance(parser,str):
+        configFile = parser
+        parser = ConfigParserExt(inline_comment_prefixes="#")
+        ret = parser.read(configFile)
+        if ret == []:
+            logger.error(f"Could not read config file: {configFile}")
+            return runInfo
+        parserDict = parser.toDict(raw=False,abspath_existing=True)
+    elif isinstance(parser,Dict):
+        parserDict = parser
+    else:
+        logger.error(f"Parser should be either a file path or a dictionary and not  {type(parser).__name__}.")
+        return runInfo
+
+    assert isinstance(parserDict,Dict), f"Parser should be a dictionary and not {type(parserDict).__name__}."
+    if isinstance(parserDict['options'], dict):        
+        run_madgraph = parserDict["options"].get("runMadGraph", False)    
+        run_pythia = parserDict["options"].get("runPythia", False)
+        run_delphes = parserDict["options"].get("runDelphes", False)
+        run_delphespythia = parserDict["options"].get("runDelphesPythia", False)
+        run_madspin = parserDict["options"].get("runMadSpin", False)
 
     if run_pythia and run_delphespythia:
         logger.warning('Both runPythia and runDelphesPythia set to True. Setting runDelphesPythia to False')
@@ -434,7 +446,6 @@ def generateEvents(parser):
     elif run_delphes or run_delphespythia or run_pythia:
         logger.error("Pythia and Delphes can only run if runMadGraph = True")
         return {}
-
     
 def moveFolders(runInfo):
     """
