@@ -263,10 +263,9 @@ def getWidth(m1, m0, lambdaUV, pdg=4000023,
             raise RuntimeError('No decay information found for PDG %i in %s.\n' % (pdg, runParamCard))
         width = slha.decays[pdg].totalwidth
     finally:
-        print(tmpDir)
-        # shutil.rmtree(tmpDir, ignore_errors=True)
-        # if removeProcessFolder:
-            # shutil.rmtree(processFolder, ignore_errors=True)
+        shutil.rmtree(tmpDir, ignore_errors=True)
+        if removeProcessFolder:
+            shutil.rmtree(processFolder, ignore_errors=True)
 
     return width
 

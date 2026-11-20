@@ -85,5 +85,6 @@ if __name__ == "__main__":
         resultsFolder = folderTuple.outputFolder
         subFile = generateCondorFile(inputFolder,resultsFolder,args.outputFile,args.workerFile,args.verbose)
         logger.info(f"Submit file: {subFile} created.")
-            
+
+    print(f"The condor jobs can be submitted with the command:\n\ncondor_submit {subFile}\n")
     print("\n\nDone in %3.2f min" %((time.time()-t0)/60.))
