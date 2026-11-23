@@ -23,22 +23,23 @@ def selectionOnTime(metOnTime, jetsOnTime : List) -> dict:
 
 
     jets = sorted(jetsOnTime, key=lambda j: j.PT, reverse=True)
-    jets = [j for j in jets[:] if abs(j.Eta) < 2.4]
+    jets = [j for j in jets[:] if (abs(j.Eta) < 2.4) and (j.PT > 25.0)]
 
     if not jets or not (jets[0].PT > 150.0):
         return l1_cuflow
     l1_cuflow['L1(N): 150 GeV < pTj1(N)'] += 1
 
-    dphi_min = 2*np.pi
-    j = jets[0]
-    dphi = np.abs(j.Phi-metOnTime.Phi)
-    if dphi > np.pi:
-        dphi = 2*np.pi - dphi
-    dphi_min = min(dphi,dphi_min)
-    if metOnTime.MET <= 250.0 and dphi_min < 0.6:
-        return l1_cuflow
-    elif metOnTime.MET > 250.0 and dphi_min < 0.4:
-        return l1_cuflow
+    
+    for j in jets[:4]:
+        dphi_min = 2*np.pi
+        dphi = np.abs(j.Phi-metOnTime.Phi)
+        if dphi > np.pi:
+            dphi = 2*np.pi - dphi
+        dphi_min = min(dphi,dphi_min)
+        if metOnTime.MET <= 250.0 and dphi_min < 0.6:
+            return l1_cuflow
+        elif metOnTime.MET > 250.0 and dphi_min < 0.4:
+            return l1_cuflow
     
     l1_cuflow['L1(N): Dphi(jet_MET) > 0.4/0.6'] += 1
 
