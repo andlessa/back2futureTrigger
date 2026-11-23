@@ -20,10 +20,9 @@ def selectionOnTime(metOnTime, jetsOnTime : List) -> dict:
         return l1_cuflow
 
     l1_cuflow['L1(N): 200 GeV < MET(N)'] += 1
-
-
+    
+    jets = [j for j in jetsOnTime if (abs(j.Eta) < 2.4) and (j.PT > 25.0)]
     jets = sorted(jetsOnTime, key=lambda j: j.PT, reverse=True)
-    jets = [j for j in jets[:] if (abs(j.Eta) < 2.4) and (j.PT > 25.0)]
 
     if not jets or not (jets[0].PT > 150.0):
         return l1_cuflow
