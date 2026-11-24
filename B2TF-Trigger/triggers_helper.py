@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from typing import List
 import numpy as np
 from xml.etree import ElementTree as ET
@@ -67,6 +66,16 @@ def in_N(t):
 def in_Np1(t):
 
     if 25.0 < t < 50.0:
+        return True
+    else:
+        return False
+
+@np.vectorize
+def in_hcal(z,rho):
+
+    if 4.3 < abs(z) < 5.0 and rho < 3.5:
+        return True
+    elif 2.0 < rho < 3.5 and abs(z) < 4.3:
         return True
     else:
         return False
