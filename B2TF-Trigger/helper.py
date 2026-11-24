@@ -127,7 +127,7 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None,xsecFil
     parsDict['m0'] = slhaData.blocks['MASS'][LSP]
     parsDict['mS'] = slhaData.blocks['MASS'][mother]
     parsDict['tau'] = 6.58212e-25/slhaData.decays[LLP].totalwidth
-    pdgLabels = {LLP : 'chi1', LSP : 'chi0', mother : 's', LLP2 : 'chi2', 23 : 'W', 24 : 'Z', 5 : 'b', 
+    pdgLabels = {LLP : 'chi1', LSP : 'chi0', mother : 's', LLP2 : 'chi2', 23 : 'Z', 24 : 'W', 5 : 'b', 
                  6 : 't', 25 : 'h', 15 : 'tau', 11 : 'e', 13 : 'mu', 12 : 'nu_e', 14 : 'nu_mu', 
                  16 : 'nu_tau', 21 : 'g'}
     for mom in [LLP,LLP2,mother]:
