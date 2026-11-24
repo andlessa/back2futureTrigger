@@ -8,7 +8,7 @@
 set ExecutionPath {
 
   LLPFilter
-
+  LLP2Filter
   ParticlePropagator
   TrackMerger
   
@@ -51,7 +51,7 @@ set ExecutionPath {
 module BSMFilter LLPFilter {
 
   set InputArray Delphes/allParticles
-  set OutputArray bsmParticles
+  set OutputArray llpParticles
   set MothersArray mothers
   set FinalDaughtersArray finalDaughters  
   set DirectDaughtersArray directDaughters
@@ -63,6 +63,25 @@ module BSMFilter LLPFilter {
   add PdgCode {-4000023}
 }
 
+
+#####################
+# Chi2 Filter
+#####################
+
+module BSMFilter LLP2Filter {
+
+  set InputArray Delphes/allParticles
+  set OutputArray llp2Particles
+  set MothersArray mothers2
+  set FinalDaughtersArray finalDaughters2  
+  set DirectDaughtersArray directDaughters2
+  set PTMin 0.0
+  set massMin 0.0
+  
+  # Select chi2
+  add PdgCode {4000024}
+  add PdgCode {-4000024}
+}
 
 #############################################
 # Propagate particles in up to the end of ECAL
@@ -1090,13 +1109,21 @@ module TreeWriter TreeWriter {
 #  add Branch LLPFilter/mothers llpMothers GenParticle
 #  add Branch L1CALOnTime/flowTracks TrackOnTime Track
 #  add Branch L1CALOnTime/flowNeutrals NeutralOnTime Tower
+#  add Branch L1CALOnTime/towers l1calOnTimeTowers Tower
+#  add Branch L1CALOnTime/flowNeutrals NeutralOnTime Tower
+
 #  add Branch ECALDelayed/eflowTracks ETrackDelayed Track
 #  add Branch ECALDelayed/eflowNeutrals ENeutralDelayed Tower
 #  add Branch HCALDelayed/eflowTracks HTrackDelayed Track
 #  add Branch HCALDelayed/eflowNeutrals HNeutralDelayed Tower
 
-  add Branch LLPFilter/bsmParticles llpParticles GenParticle
+  add Branch LLPFilter/llpParticles llpParticles GenParticle
   add Branch LLPFilter/directDaughters llpDirectDaughters GenParticle
+#  add Branch LLPFilter/finalDaughters llpFinalDaughters GenParticle
+  
+  add Branch LLP2Filter/llp2Particles llp2Particles GenParticle
+  add Branch LLP2Filter/directDaughters2 llp2DirectDaughters GenParticle
+#  add Branch LLP2Filter/finalDaughters2 llp2FinalDaughters GenParticle
  
 #  add Branch L1CALOnTime/towers L1TowerOnTime Tower
   add Branch L1METOnTime/momentum L1METOnTime MissingET
