@@ -101,8 +101,10 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None,xsecFil
         slhaData = pyslha.readSLHA(slhaData)
 
     if xsecFile is None:
-        try:
+        try:            
             xsecFile = list(glob.glob(os.path.join(os.path.dirname(f),'*merged_xsecs*txt')))[0]
+            if os.path.getsize(xsecFile) <= 100:
+                raise ValueError(f"File {xsecFile} is empty")
             xsecData = np.genfromtxt(xsecFile,skip_header=1)
             xsec_pb = xsecData[1]
         except:
@@ -125,32 +127,20 @@ def getModelDict(inputFile,model='minimalH',verbose=True,bannerFile=None,xsecFil
     parsDict['m0'] = slhaData.blocks['MASS'][LSP]
     parsDict['mS'] = slhaData.blocks['MASS'][mother]
     parsDict['tau'] = 6.58212e-25/slhaData.decays[LLP].totalwidth
-    try:
-        decs = slhaData.decays[mother].decays
-        br = 0.0
+    pdgLabels = {LLP : 'chi1', LSP : 'chi0', mother : 's', LLP2 : 'chi2', 23 : 'W', 24 : 'Z', 5 : 'b', 
+                 6 : 't', 25 : 'h', 15 : 'tau', 11 : 'e', 13 : 'mu', 12 : 'nu_e', 14 : 'nu_mu', 
+                 16 : 'nu_tau', 21 : 'g'}
+    for mom in [LLP,LLP2,mother]:
+        if mom not in slhaData.decays:
+            continue
+        decs = slhaData.decays[mom].decays
+        if len(decs) == 0:
+            continue
         for d in decs:
             ids = sorted([abs(pdg) for pdg in d.ids])
-            if ids == sorted([LLP,LLP2]):
-                br += d.br
-        parsDict['BRs2chi1chi2'] = br
-        
-        decs = slhaData.decays[LLP].decays
-        br = 0.0
-        for d in decs:
-            ids = sorted([abs(pdg) for pdg in d.ids])
-            if ids == sorted([LSP,5,5]):
-                br += d.br
-        parsDict['BRchi12chi0bb'] = br
-
-        decs = slhaData.decays[LLP2].decays
-        br = 0.0
-        for d in decs:
-            ids = sorted([abs(pdg) for pdg in d.ids])
-            if ids == sorted([LSP,5,5]):
-                br += d.br
-        parsDict['BRchi22chi0bb'] = br
-    except:
-        pass
+            label = f'BR{pdgLabels[mom]}2{"".join([pdgLabels[pdg] for pdg in ids])}'
+            parsDict.setdefault(label, 0.0)
+            parsDict[label] += d.br        
         
     if LLP2 in slhaData.blocks['MASS']:
         parsDict['m2'] = slhaData.blocks['MASS'][LLP2]

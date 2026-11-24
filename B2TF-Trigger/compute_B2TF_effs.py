@@ -8,6 +8,7 @@ import subprocess
 import multiprocessing
 import tqdm
 from helper import getModelDict
+from typing import Union, Tuple
 from triggers_helper import selectionOnTime,selectionDelayed
 delphesDir = os.path.abspath("../DelphesLLP")
 os.environ['ROOT_INCLUDE_PATH'] = os.path.join(delphesDir,"external")
@@ -51,7 +52,7 @@ def getEffForB2TF(tree) -> dict:
     
     return evt_cutFlow
 
-def getEfficiencies(inputFile,ijob=0):
+def getEfficiencies(inputFile,ijob=0,suppress_output=False) -> Union[None,Tuple[dict,dict]]:
 
 
     # Set the seed for each run, so the results independ on
@@ -78,9 +79,13 @@ def getEfficiencies(inputFile,ijob=0):
     
     
     nevts = tree.GetEntries()
-    for ievt in tqdm.tqdm(range(nevts),position=ijob,
+    if not suppress_output:
+        iterator = tqdm.tqdm(range(nevts),position=ijob,
                           desc=os.path.basename(inputFile),
-                          leave=True):
+                          leave=True)
+    else:
+        iterator = range(nevts)
+    for ievt in iterator:
         tree.GetEntry(ievt) 
         effsDict['Nevents'] += 1.0
         evt_cutFlow = getEffForB2TF(tree)
@@ -189,8 +194,12 @@ if __name__ == "__main__":
     ncpus = min(ncpus,len(inputFileList))
     pool = multiprocessing.Pool(processes=ncpus)
     children = []
+    if ncpus > 1:
+        suppress_output = True
+    else:
+        suppress_output = False
     for ijob,inputfile in enumerate(inputFileList):
-        p = pool.apply_async(getEfficiencies, args=(inputfile,ijob))
+        p = pool.apply_async(getEfficiencies, args=(inputfile,ijob,suppress_output))
         children.append(p)
 
     nfiles = len(inputFileList)
@@ -198,7 +207,11 @@ if __name__ == "__main__":
     
     cutFlowStr=''
     logger.info(f'Analyzing {nfiles} files')
-    for p in children: 
+    if ncpus > 1:
+        iterator = tqdm.tqdm(children,position=0,leave=True)
+    else:
+        iterator = children
+    for p in iterator: 
         effsDict,evts_cutFlow = p.get()
         outFile = effsDict['inputFile'].split('.root')[0].split('.hepmc')[0]
         effFile = outFile + output_suffix +'_b2tf_effs.csv'
