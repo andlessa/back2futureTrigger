@@ -26,7 +26,7 @@ def generateCondorFile(configFolder,resultsFolder,subFile,worker_file='runScanMG
         f.write(f"arguments =  {worker} -c $(config) -v {verbose} \n")
         f.write("getenv = True\n")
         f.write("request_memory = 2GB\n")
-        f.write('requirements = Machine == "fmahep.if.usp.br"\n')
+#        f.write('requirements = Machine == "fmahep.if.usp.br"\n')
 #        f.write("request_cpus = 1\n")
         # f.write(f"initialdir = {resultsFolder}\n")
         f.write(f"output = {configFolder}/job.$(Cluster).$(Process).out\n")
