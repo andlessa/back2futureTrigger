@@ -439,7 +439,7 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
     # the MG5-Pythia8 interface, which runs all chunks with the same card. Note that
     # Random:seed is ignored by Pythia unless Random:setSeed = on).
     # Otherwise, each chunk gets its own seed derived from the MG5 iseed.
-    userSetsRandom = any(l.split('!')[0].strip().lower().startswith('random:')
+    userSetsRandom = any(l.split('!')[0].strip().lower().startswith('random:seed')
                          for l in baseCard.splitlines())
 
     # Matching parameters, following MG5 (madevent_interface.py) defaults for MLM:
@@ -561,6 +561,21 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
         f.write('# Matched cross section from DelphesPythia8Matched (MLM, sum of accepted weights/nLHE)\n')
         f.write('# qCut[GeV]  sigma[pb]  error[pb]  sigma_LHE[pb]  nLHE  nAccepted\n')
         f.write(f"{qcut:.2f}  {xsec:.6e}  {xsecErr:.6e}  {sigmaLHE:.6e}  {totals['nLHE']}  {totals['nAccepted']}\n")
+
+
+    # Add matched cross section to banner:
+    bannerFile = list(glob.glob(os.path.join(eventsFolder, f"*{runInfo['run tag']}_banner.txt")))
+    if bannerFile and len(bannerFile) == 1:
+        bannerFile = bannerFile[0]
+        with open(bannerFile,'r') as f:
+            lines = f.readlines()
+        newLines = list(lines)
+        for i,line in enumerate(lines):
+            if line.startswith('#  Integrated weight'):                
+                newLines.insert(i+1,f"#  Matched Integrated weight (pb)  :  {xsec:.6e} +- {xsecErr:.6e}\n")
+                break
+        with open(bannerFile,'w') as f:
+            f.writelines(newLines)
 
     # Clean up chunk files
     for chunk in chunks:

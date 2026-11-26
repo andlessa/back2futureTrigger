@@ -1,7 +1,7 @@
 /*
  * DelphesPythia8Matched
  *
- * Runs Pythia8 (with MLM jet matching a la MadGraph, i.e. JetMatchingMadgraph)
+ * Runs Pythia8 (with MadGraph MLM jet matching, i.e. JetMatchingMadgraph)
  * on an LHE file and passes the showered/hadronized events directly to Delphes,
  * without writing an intermediate HepMC file.
  *
@@ -15,8 +15,6 @@
  *          so several instances can run in parallel on the same LHE file.
  *  - Main:numberOfEvents is interpreted as the number of *LHE events* to read
  *    (-1 = until end of file), not the number of accepted events.
- *  - The DelphesLHEFReader side-channel is not used (it cannot read .lhe.gz
- *    and desynchronizes from Pythia when events are vetoed).
  *  - A summary (counts and cross sections) is written to an optional text file.
  *
  * Usage: DelphesPythia8Matched config_file pythia_card output_file [summary_file]
@@ -36,11 +34,13 @@
 #include "Pythia8Plugins/JetMatching.h"
 
 #include "TApplication.h"
+#include "TROOT.h"
+
 #include "TDatabasePDG.h"
 #include "TFile.h"
+#include "TLorentzVector.h"
 #include "TObjArray.h"
 #include "TParticlePDG.h"
-#include "TROOT.h"
 #include "TStopwatch.h"
 
 #include "classes/DelphesClasses.h"
@@ -84,15 +84,31 @@ void ConvertInput(Long64_t eventNumber, Pythia8::Pythia *pythia,
   TObjArray *allParticleOutputArray, TObjArray *stableParticleOutputArray, TObjArray *partonOutputArray,
   TStopwatch *readStopWatch, TStopwatch *procStopWatch)
 {
-  HepMCEvent *element = static_cast<HepMCEvent *>(branch->NewEntry());
+  int i;
+
+  HepMCEvent *element;
+  Candidate *candidate;
+  TDatabasePDG *pdg;
+  TParticlePDG *pdgParticle;
+  Int_t pdgCode;
+
+  Int_t pid, status;
+  Double_t px, py, pz, e, mass;
+  Double_t x, y, z, t;
+
+  // event information
+  element = static_cast<HepMCEvent *>(branch->NewEntry());
 
   element->Number = eventNumber;
+
   element->ProcessID = pythia->info.code();
   element->MPI = 1;
   element->Weight = pythia->info.weight();
+
   element->Scale = pythia->info.QRen();
   element->AlphaQED = pythia->info.alphaEM();
   element->AlphaQCD = pythia->info.alphaS();
+
   element->ID1 = pythia->info.id1();
   element->ID2 = pythia->info.id2();
   element->X1 = pythia->info.x1();
@@ -100,44 +116,64 @@ void ConvertInput(Long64_t eventNumber, Pythia8::Pythia *pythia,
   element->ScalePDF = pythia->info.QFac();
   element->PDF1 = pythia->info.pdf1();
   element->PDF2 = pythia->info.pdf2();
+
   element->ReadTime = readStopWatch->RealTime();
   element->ProcTime = procStopWatch->RealTime();
 
-  TDatabasePDG *pdg = TDatabasePDG::Instance();
+  pdg = TDatabasePDG::Instance();
 
-  for(int i = 1; i < pythia->event.size(); ++i)
+  for(i = 1; i < pythia->event.size(); ++i)
   {
     Pythia8::Particle &particle = pythia->event[i];
 
-    Candidate *candidate = factory->NewCandidate();
+    pid = particle.id();
+    status = particle.statusHepMC();
+    px = particle.px();
+    py = particle.py();
+    pz = particle.pz();
+    e = particle.e();
+    mass = particle.m();
+    x = particle.xProd();
+    y = particle.yProd();
+    z = particle.zProd();
+    t = particle.tProd();
 
-    candidate->PID = particle.id();
-    Int_t pdgCode = TMath::Abs(candidate->PID);
-    Int_t status = particle.statusHepMC();
+    candidate = factory->NewCandidate();
+
+    candidate->PID = pid;
+    pdgCode = TMath::Abs(candidate->PID);
+
     candidate->Status = status;
 
     candidate->M1 = particle.mother1() - 1;
     candidate->M2 = particle.mother2() - 1;
+
     candidate->D1 = particle.daughter1() - 1;
     candidate->D2 = particle.daughter2() - 1;
 
-    TParticlePDG *pdgParticle = pdg->GetParticle(particle.id());
+    pdgParticle = pdg->GetParticle(pid);
     candidate->Charge = pdgParticle ? Int_t(pdgParticle->Charge() / 3.0) : -999;
-    candidate->Mass = particle.m();
+    candidate->Mass = mass;
 
-    candidate->Momentum.SetPxPyPzE(particle.px(), particle.py(), particle.pz(), particle.e());
-    candidate->Position.SetXYZT(particle.xProd(), particle.yProd(), particle.zProd(), particle.tProd());
+    candidate->Momentum.SetPxPyPzE(px, py, pz, e);
+
+    candidate->Position.SetXYZT(x, y, z, t);
 
     allParticleOutputArray->Add(candidate);
 
     if(!pdgParticle) continue;
 
     if(status == 1)
+    {
       stableParticleOutputArray->Add(candidate);
+    }
     else if(pdgCode <= 5 || pdgCode == 21 || pdgCode == 15)
+    {
       partonOutputArray->Add(candidate);
+    }
   }
 }
+
 
 //---------------------------------------------------------------------------
 
@@ -165,6 +201,7 @@ int main(int argc, char *argv[])
   }
 
   signal(SIGINT, SignalHandler);
+
   gROOT->SetBatch();
 
   int appargc = 1;
