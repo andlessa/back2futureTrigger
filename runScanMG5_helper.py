@@ -12,6 +12,7 @@ import time,sys,datetime
 from configParserWrapper import ConfigParserExt
 from typing import Dict,Set,Union, NamedTuple
 from collections import namedtuple
+import pylhe
 folderTuple = namedtuple('folderTuple', ['inputFolder', 'outputFolder'])
 
 FORMAT = '%(levelname)s: %(message)s at %(asctime)s'
@@ -311,13 +312,11 @@ def runDelphes(parser,runInfo,runDelphesPythia=True) -> Dict:
     pars = parser["DelphesPars"]
 
     runFolder = parser['MadGraphPars']['runFolder']
-    nevts = parser["MadGraphSet"]["nevents"]
     # Allow for running delphes multiple times with distinct cards
     delphescardList = pars['delphescard'].split(',')
-    hepmcFiles = []
-    lheFile = ""
-    hepmcFile = ""
     
+    lheFile = None
+    hepmcFile = None
     for delphescard in delphescardList:
         delphescard = os.path.abspath(delphescard)
         cardName = os.path.basename(delphescard)
@@ -326,80 +325,294 @@ def runDelphes(parser,runInfo,runDelphesPythia=True) -> Dict:
         
         delphesFile = os.path.join(runFolder,'Events',runInfo['run number'],os.path.basename(delphescard))
         shutil.copyfile(delphescard,delphesFile)
-
-        
-        delphesDir = os.path.abspath(pars['delphesDir'])
-        # Get possible input files:
         eventsFolder = os.path.join(runFolder,'Events',runInfo['run number'])
-        lheFile = os.path.join(eventsFolder,'unweighted_events.lhe.gz')            
-        hepmcFiles = list(glob.glob(os.path.join(eventsFolder,'*hepmc*')))
-
 
         if runDelphesPythia:
+            # Get possible input files:
+            lheFile = os.path.join(eventsFolder,'unweighted_events.lhe.gz')
             if not os.path.isfile(lheFile):
                 logger.error(f'LHE file {lheFile} not found.')
                 return runInfo
-            pythiaCard = os.path.abspath(pars['pythia8card'])
-            pythiaFile = os.path.join(runFolder,'Events',runInfo['run number'],'pythia8_card.dat')
-            shutil.copyfile(pythiaCard,pythiaFile)    
-            #Generate pythia card with additional info
-            with open(pythiaFile,'a') as f:
-                f.write('\n\n')
-                f.write('### Added lines:\n')
-                f.write('Beams:frameType = 4\n')
-                f.write('Beams:LHEF = %s\n' %lheFile)
-                f.write('Beams:setProductionScalesFromLHEF=on\n')
-                f.write('Main:numberOfEvents   = %i\n' %nevts)
-                f.write('Main:timesAllowErrors   = %i\n' %int(1e-2*nevts)) # Allow at most 1% of failures
-                # Matching specific parameters:
-                if 'matching' in pars and pars['matching']:
-                    qcut = 1.5*parser["MadGraphSet"]['xqcut']
-                    njet = pars['njetmax']
-                    f.write('JetMatching:merge=on \n')
-                    f.write('JetMatching:qCut         = %1.2f \n' %qcut)
-                    f.write('JetMatching:nJetMax      = %i \n' %njet)
-
-            logger.debug("Running DelphesPythia8 with config files %s and %s" %(pythiaFile,delphescard))
-            run = subprocess.Popen('./DelphesPythia8 %s %s %s' %(delphescard,pythiaFile,rootFile),shell=True,
-                                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
-                                    cwd=delphesDir)
+            if _getOpt(pars, 'matching', False):
+                runInfo = runDelphesPythiaMatched(parser, runInfo, delphescard,
+                                              lheFile, rootFile)
+            else:
+                runInfo = runDelphesPythiaDefault(parser, runInfo, delphescard, lheFile, rootFile)
         else:   
-            if len(hepmcFiles) > 1:
-                logger.warning(f'Found {len(hepmcFiles)} candidate files for the HEPMC file. Using {hepmcFiles[0]}.')
-            elif not hepmcFiles:
+            hepmcFiles = list(glob.glob(os.path.join(eventsFolder,'*hepmc*')))
+            if not hepmcFiles:
                 logger.error(f'HEPMC file not found in {runFolder}')
                 return runInfo
-            
+            if len(hepmcFiles) > 1:
+                logger.warning(f'Found {len(hepmcFiles)} candidate files for the HEPMC file. Using {hepmcFiles[0]}.')
             hepmcFile = hepmcFiles[0]
-            logger.debug("Running DelphesHepMC2 with files %s and %s" %(delphescard,hepmcFile))
-            if os.path.splitext(hepmcFile)[-1] == '.gz':
-                logger.info(f'HEPMC file {hepmcFile} is gzipped. Unzipping...')
-                run = subprocess.Popen('gunzip -f %s' %hepmcFile,shell=True,
-                                        stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-                output,errorMsg = run.communicate()
-                hepmcFile = os.path.splitext(hepmcFile)[0]
-                logger.info(f'Unzipped HEPMC file to {hepmcFile}')
-            run = subprocess.Popen('./DelphesHepMC2 %s %s %s' %(delphescard,rootFile,hepmcFile),shell=True,
-                                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
-                                    cwd=delphesDir)
-
-        output,errorMsg = run.communicate()
-
-        runInfo.update({'DelphesOutput' : output, 'DelphesError' : errorMsg})
+            runInfo = runDelphesHepMC(parser, runInfo, delphescard, hepmcFile, rootFile)
 
         #Generate pythia log file
         if runDelphesPythia:
             pythia_log = rootFile.replace('.root','_pythia_delphes.log')
             with open(pythia_log,'w') as f:
-                f.write(output)
+                f.write(runInfo['DelphesOutput'])
 
     if cleanOutput:
         for f in [hepmcFile,lheFile]:
+            if not f:
+                continue
             if os.path.isfile(f):
                 os.remove(f)
         
 
     return runInfo
+
+def _getOpt(section, key, default=None):
+    """
+    Returns section[key] if present, otherwise default. Works for dictionaries and
+    ConfigParserExt sections (whose .get(key,default) is not supported).
+    """
+    if key in section:
+        return section[key]
+    return default
+
+def _readRunCardValue(runCardFile : str, name : str) -> Union[str,None]:
+    """
+    Reads the value of a parameter from a MadGraph run_card.dat (format: 'value = name ! comment').
+    """
+    if not os.path.isfile(runCardFile):
+        return None
+    with open(runCardFile,'r') as f:
+        for line in f:
+            line = line.split('!')[0].split('#')[0]
+            if '=' not in line:
+                continue
+            val,key = line.split('=',1)
+            if key.strip().lower() == name.lower():
+                return val.strip()
+    return None
+
+
+def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
+                            lheFile : str, rootFile : str) -> Dict:
+    """
+    Runs Pythia8 with MLM matching (JetMatchingMadgraph, same settings as the MG5-Pythia8
+    interface) and Delphes in a single step, without writing HepMC files.
+    The LHE file is split into nchunks slices (via Beams:nSkipLHEFatInit), which are processed
+    in parallel by DelphesPythia8Matched. The output ROOT files are merged with hadd and the
+    matched cross section is written to <run_tag>_merged_xsecs.txt.
+
+    Optional DelphesPars entries: delphesPythiaExe, nchunks (default = options:ncore),
+    qcut (default = 1.5*xqcut), njetmax.
+
+    :return: Updated runInfo dictionary.
+    """
+
+    pars = parser["DelphesPars"]
+    mgSet = parser["MadGraphSet"]
+    runFolder = parser['MadGraphPars']['runFolder']
+    eventsFolder = os.path.dirname(rootFile)
+    delphesDir = os.path.abspath(pars['delphesDir'])
+    runCard = os.path.join(runFolder,'Cards','run_card.dat')
+
+    defaultExe = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              'delphesPythiaMatching','DelphesPythia8Matched')
+    exe = os.path.abspath(_getOpt(pars, 'delphesPythiaExe', defaultExe))
+    if not os.path.isfile(exe):
+        logger.error(f'{exe} not found. Compile it with "make" in delphesPythiaMatching.')
+        return runInfo
+
+    # Pythia card (DelphesPars has priority over MadGraphPars)
+    pythiaCard = _getOpt(pars, 'pythia8card', _getOpt(parser['MadGraphPars'], 'pythia8card'))
+    pythiaCard = os.path.abspath(pythiaCard)
+    with open(pythiaCard,'r') as f:
+        baseCard = f.read()
+
+    # Matching parameters, following MG5 (madevent_interface.py) defaults for MLM:
+    xqcut = _getOpt(mgSet, 'xqcut', _readRunCardValue(runCard,'xqcut'))
+    xqcut = float(xqcut)
+    qcut = float(_getOpt(pars, 'qcut', 1.5*xqcut))
+    if qcut < 1.5*xqcut:
+        logger.warning(f'qCut = {qcut} is smaller than 1.5*xqcut = {1.5*xqcut}')
+    nQmatch = int(_getOpt(mgSet, 'maxjetflavor', _readRunCardValue(runCard,'maxjetflavor') or 4))
+    njetmax = int(pars['njetmax'])
+    iseed = int(_getOpt(mgSet, 'iseed', 0))
+
+    # Split the LHE file
+    nLHE = pylhe.LHEFile.count_events(lheFile)
+    nchunks = int(_getOpt(pars, 'nchunks', _getOpt(parser['options'], 'ncore', 1)))
+    nchunks = max(1,min(nchunks,nLHE))
+    chunkSize = -(-nLHE // nchunks)  # ceil
+    logger.info(f'Running DelphesPythia8Matched on {nLHE} LHE events in {nchunks} chunks '
+                f'(qCut = {qcut:.1f} GeV, nJetMax = {njetmax}, nQmatch = {nQmatch})')
+
+    chunks = []
+    for ichunk in range(nchunks):
+        nskip = ichunk*chunkSize
+        if nskip >= nLHE:
+            break
+        tag = os.path.splitext(rootFile)[0] + f'_chunk{ichunk}'
+        chunk = {'card' : tag + '_pythia8.cmnd', 'root' : tag + '.root',
+                 'summary' : tag + '_summary.txt', 'log' : tag + '.log'}
+        with open(chunk['card'],'w') as f:
+            f.write(baseCard)
+            f.write('\n\n### Added by runDelphesPythiaMatched:\n')
+            f.write('Beams:frameType = 4\n')
+            f.write(f'Beams:LHEF = {lheFile}\n')
+            f.write('Beams:setProductionScalesFromLHEF = on\n')
+            f.write(f'Beams:nSkipLHEFatInit = {nskip}\n')
+            f.write(f'Main:numberOfEvents = {min(chunkSize, nLHE-nskip)}\n') # number of LHE events
+            f.write('Random:setSeed = on\n')
+            f.write(f'Random:seed = {(iseed*1000 + ichunk + 1) % 900000000}\n')
+            f.write('JetMatching:merge = on\n')
+            f.write('JetMatching:scheme = 1\n')
+            f.write('JetMatching:setMad = off\n')
+            f.write(f'JetMatching:qCut = {qcut:.4f}\n')
+            f.write(f'JetMatching:nJetMax = {njetmax}\n')
+            f.write(f'JetMatching:nQmatch = {nQmatch}\n')
+            f.write('JetMatching:coneRadius = 1.0\n')
+            f.write('JetMatching:etaJetMax = 1000.0\n')
+        for f in [chunk['root'],chunk['summary']]:
+            if os.path.isfile(f):
+                os.remove(f)
+        chunk['logF'] = open(chunk['log'],'w')
+        chunk['proc'] = subprocess.Popen([exe, delphescard, chunk['card'], chunk['root'], chunk['summary']],
+                                         stdout=chunk['logF'], stderr=subprocess.STDOUT,
+                                         cwd=delphesDir)
+        chunks.append(chunk)
+
+    # Wait for all chunks and collect summaries
+    totals = {'nLHE' : 0, 'nAccepted' : 0, 'nVetoed' : 0, 'nErrors' : 0}
+    sigmaLHE = None
+    failed = False
+    for chunk in chunks:
+        ret = chunk['proc'].wait()
+        chunk['logF'].close()
+        if ret != 0 or not os.path.isfile(chunk['summary']):
+            logger.error(f"DelphesPythia8Matched failed (exit code {ret}). See {chunk['log']}")
+            failed = True
+            continue
+        summary = {}
+        with open(chunk['summary'],'r') as f:
+            for line in f:
+                key,val = line.split('=')
+                summary[key.strip()] = float(val)
+        for key in totals:
+            totals[key] += int(summary[key])
+        sigmaLHE = summary['sigmaLHE_pb']
+
+    # Concatenate logs
+    pythia_log = rootFile.replace('.root','_pythia_delphes.log')
+    with open(pythia_log,'w') as fout:
+        for chunk in chunks:
+            if os.path.isfile(chunk['log']):
+                fout.write(f"\n######## {os.path.basename(chunk['card'])} ########\n")
+                with open(chunk['log'],'r') as fin:
+                    shutil.copyfileobj(fin,fout)
+
+    if failed:
+        runInfo.update({'DelphesError' : f'DelphesPythia8Matched failed. See {pythia_log}'})
+        return runInfo
+
+    # Merge ROOT files
+    rootChunks = [chunk['root'] for chunk in chunks]
+    if os.path.isfile(rootFile):
+        os.remove(rootFile)
+    if len(rootChunks) == 1:
+        shutil.move(rootChunks[0],rootFile)
+    else:
+        run = subprocess.run(['hadd','-f',rootFile] + rootChunks,
+                             capture_output=True, text=True)
+        if run.returncode != 0:
+            logger.error(f'hadd failed:\n{run.stderr}')
+            runInfo.update({'DelphesError' : run.stderr})
+            return runInfo
+
+    # Matched cross section (unweighted LHE events): sigma_LHE * N_accepted/N_LHE
+    eff = totals['nAccepted']/totals['nLHE']
+    effErr = (eff*(1.0-eff)/totals['nLHE'])**0.5
+    xsec, xsecErr = sigmaLHE*eff, sigmaLHE*effErr
+    logger.info(f"Matching efficiency = {eff:.4f} +- {effErr:.4f} ({totals['nAccepted']}/{totals['nLHE']}, "
+                f"{totals['nErrors']} errors). Matched cross section = {xsec:.4e} +- {xsecErr:.1e} pb")
+
+    # Same file name and layout (2nd column = xsec in pb) as the MG5 merged_xsecs.txt
+    xsecFile = os.path.join(eventsFolder, f"{runInfo['run tag']}_merged_xsecs.txt")
+    with open(xsecFile,'w') as f:
+        f.write('# Matched cross section from DelphesPythia8Matched (MLM, sigma_LHE*nAccepted/nLHE)\n')
+        f.write('# qCut[GeV]  sigma[pb]  error[pb]  sigma_LHE[pb]  nLHE  nAccepted\n')
+        f.write(f"{qcut:.2f}  {xsec:.6e}  {xsecErr:.6e}  {sigmaLHE:.6e}  {totals['nLHE']}  {totals['nAccepted']}\n")
+
+    # Clean up chunk files
+    for chunk in chunks:
+        for key in ['card','root','summary','log']:
+            if os.path.isfile(chunk[key]):
+                os.remove(chunk[key])
+
+    runInfo.update({'LHE cross-section (pb)' : sigmaLHE,
+                    'cross-section (pb)' : xsec,
+                    'cross-section error (pb)' : xsecErr,
+                    'matching efficiency' : eff,
+                    'Number of accepted events' : totals['nAccepted'],
+                    'DelphesOutput' : pythia_log, 'DelphesError' : ''})
+
+    return runInfo
+
+def runDelphesPythiaDefault(parser,runInfo,delphescard,lheFile,rootFile) -> Dict:
+
+    pars = parser["DelphesPars"]
+    runFolder = parser['MadGraphPars']['runFolder']
+    delphesDir = os.path.abspath(pars['delphesDir'])
+    nevts = parser["MadGraphSet"]["nevents"]
+    pythiaCard = os.path.abspath(pars['pythia8card'])
+    pythiaFile = os.path.join(runFolder,'Events',runInfo['run number'],'pythia8_card.dat')
+    shutil.copyfile(pythiaCard,pythiaFile)    
+    #Generate pythia card with additional info
+    with open(pythiaFile,'a') as f:
+        f.write('\n\n')
+        f.write('### Added lines:\n')
+        f.write('Beams:frameType = 4\n')
+        f.write('Beams:LHEF = %s\n' %lheFile)
+        f.write('Beams:setProductionScalesFromLHEF=on\n')
+        f.write('Main:numberOfEvents   = %i\n' %nevts)
+        f.write('Main:timesAllowErrors   = %i\n' %int(1e-2*nevts)) # Allow at most 1% of failures
+        # Matching specific parameters:
+        if 'matching' in pars and pars['matching']:
+            qcut = 1.5*float(parser["MadGraphSet"]['xqcut'])
+            njet = pars['njetmax']
+            f.write('JetMatching:merge=on \n')
+            f.write('JetMatching:qCut         = %1.2f \n' %qcut)
+            f.write('JetMatching:nJetMax      = %i \n' %njet)
+
+    logger.debug("Running DelphesPythia8 with config files %s and %s" %(pythiaFile,delphescard))
+    run = subprocess.Popen('./DelphesPythia8 %s %s %s' %(delphescard,pythiaFile,rootFile),shell=True,
+                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
+                            cwd=delphesDir)
+
+    output,errorMsg = run.communicate()
+
+    runInfo.update({'DelphesOutput' : output, 'DelphesError' : errorMsg})
+    
+    return runInfo
+
+def runDelphesHepMC(parser,runInfo,delphescard,hepmcFile,rootFile) -> Dict:
+
+    pars = parser["DelphesPars"]
+    delphesDir = os.path.abspath(pars['delphesDir'])
+    logger.debug("Running DelphesHepMC2 with files %s and %s" %(delphescard,hepmcFile))
+    if os.path.splitext(hepmcFile)[-1] == '.gz':
+        logger.info(f'HEPMC file {hepmcFile} is gzipped. Unzipping...')
+        run = subprocess.Popen('gunzip -f %s' %hepmcFile,shell=True,
+                                stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+        output,errorMsg = run.communicate()
+        hepmcFile = os.path.splitext(hepmcFile)[0]
+        logger.info(f'Unzipped HEPMC file to {hepmcFile}')
+    run = subprocess.Popen('./DelphesHepMC2 %s %s %s' %(delphescard,rootFile,hepmcFile),shell=True,
+                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
+                            cwd=delphesDir)
+
+    output,errorMsg = run.communicate()
+
+    runInfo.update({'DelphesOutput' : output, 'DelphesError' : errorMsg})
+
+    return runInfo
+
 
 def generateEvents(parser):
     """

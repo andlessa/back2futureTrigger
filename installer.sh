@@ -55,6 +55,10 @@ if echo "$answer" | grep -iq "^y" ;then
   make HAS_PYTHIA8=true;
   rm -rf .git
   cd $homeDIR;
+  echo "[installer] Building DelphesPythia8Matched (Pythia8 + MLM matching + Delphes, without writing a HepMC file)";
+  cd delphesPythiaMatching;
+  make PYTHIA8=$pythiaDir DELPHES=$homeDIR/DelphesLLP;
+  cd $homeDIR;
 #  rm DelphesLLP.tar.gz;
 fi
 
