@@ -241,6 +241,7 @@ int main(int argc, char *argv[])
 
     // ---- Event loop ----
     Long64_t nLHE = 0, nAccepted = 0, nVetoed = 0, nErrors = 0;
+    double sumW = 0.0, sumW2 = 0.0; // sums of accepted event weights (pb)
     bool reachedEOF = false, tooManyErrors = false;
     TStopwatch readStopWatch, procStopWatch;
 
@@ -292,6 +293,8 @@ int main(int argc, char *argv[])
       treeWriter->Clear();
       modularDelphes->Clear();
       ++nAccepted;
+      sumW += pythia->info.weight();
+      sumW2 += pythia->info.weight() * pythia->info.weight();
 
       readStopWatch.Start();
       if(nLHE % 1000 == 0)
@@ -304,14 +307,18 @@ int main(int argc, char *argv[])
     treeWriter->Write();
 
     // ---- Cross sections ----
-    // sigma_LHE: sum of XSECUP from the LHE <init> block (pb).
-    // Matched cross section assuming unweighted (equal-weight) LHE events:
-    //   sigma_match = sigma_LHE * nAccepted / nLHE
-    double sigmaLHE = 0.0;
+    // Matched cross section from the event weights (pb), same convention as Pythia's
+    // sigmaGen for LHE strategy +-4 (and MG5 with event_norm = average):
+    //   sigma_match = (1/N_LHE) * sum_{accepted} w_i
+    // The statistical error treats each LHE event as x_i = w_i (accepted) or 0 (vetoed):
+    //   delta = sqrt( (<x^2> - <x>^2) / N_LHE )
+    // Note: XSECUP from the <init> block is NOT used, since it can be inconsistent with
+    // the event weights in MLM-matched MG5 samples.
+    double sigmaMatched = nLHE > 0 ? sumW / double(nLHE) : 0.0;
+    double sigmaMatchedErr = nLHE > 0 ? sqrt(max(0.0, sumW2 / double(nLHE) - sigmaMatched * sigmaMatched) / double(nLHE)) : 0.0;
+    double sigmaInitLHE = 0.0;
     for(int i = 0; i < pythia->info.nProcessesLHEF(); ++i)
-      sigmaLHE += pythia->info.sigmaLHEF(i);
-    double eff = nLHE > 0 ? double(nAccepted) / double(nLHE) : 0.0;
-    double effErr = nLHE > 0 ? sqrt(eff * (1.0 - eff) / double(nLHE)) : 0.0;
+      sigmaInitLHE += pythia->info.sigmaLHEF(i);
 
     ostringstream summary;
     summary.precision(8);
@@ -323,9 +330,11 @@ int main(int argc, char *argv[])
             << "reachedEOF = " << reachedEOF << "\n"
             << "aborted = " << (tooManyErrors || interrupted) << "\n"
             << "qCut = " << pythia->parm("JetMatching:qCut") << "\n"
-            << "sigmaLHE_pb = " << sigmaLHE << "\n"
-            << "sigmaMatched_pb = " << sigmaLHE * eff << "\n"
-            << "sigmaMatchedErr_pb = " << sigmaLHE * effErr << "\n"
+            << "sumW_pb = " << sumW << "\n"
+            << "sumW2_pb2 = " << sumW2 << "\n"
+            << "sigmaMatched_pb = " << sigmaMatched << "\n"
+            << "sigmaMatchedErr_pb = " << sigmaMatchedErr << "\n"
+            << "sigmaInitXSECUP_pb = " << sigmaInitLHE << "\n"
             << "sigmaGenPythia_pb = " << pythia->info.sigmaGen() * 1e9 << "\n"
             << "sigmaErrPythia_pb = " << pythia->info.sigmaErr() * 1e9 << "\n";
 

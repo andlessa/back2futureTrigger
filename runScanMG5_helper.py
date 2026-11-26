@@ -12,7 +12,6 @@ import time,sys,datetime
 from configParserWrapper import ConfigParserExt
 from typing import Dict,Set,Union, NamedTuple
 from collections import namedtuple
-import pylhe
 folderTuple = namedtuple('folderTuple', ['inputFolder', 'outputFolder'])
 
 FORMAT = '%(levelname)s: %(message)s at %(asctime)s'
@@ -348,8 +347,8 @@ def runDelphes(parser,runInfo,runDelphesPythia=True) -> Dict:
             hepmcFile = hepmcFiles[0]
             runInfo = runDelphesHepMC(parser, runInfo, delphescard, hepmcFile, rootFile)
 
-        #Generate pythia log file
-        if runDelphesPythia:
+        #Generate pythia log file (the matched run already writes its own log)
+        if runDelphesPythia and not _getOpt(pars, 'matching', False):
             pythia_log = rootFile.replace('.root','_pythia_delphes.log')
             with open(pythia_log,'w') as f:
                 f.write(runInfo['DelphesOutput'])
@@ -389,6 +388,18 @@ def _readRunCardValue(runCardFile : str, name : str) -> Union[str,None]:
                 return val.strip()
     return None
 
+def _countLHEEvents(lheFile : str) -> int:
+    """
+    Counts the number of events in a (possibly gzipped) LHE file.
+    """
+    import gzip
+    opener = gzip.open if lheFile.endswith('.gz') else open
+    nevts = 0
+    with opener(lheFile,'rb') as f:
+        for line in f:
+            if line.lstrip().startswith(b'<event'):
+                nevts += 1
+    return nevts
 
 def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
                             lheFile : str, rootFile : str) -> Dict:
@@ -424,6 +435,12 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
     pythiaCard = os.path.abspath(pythiaCard)
     with open(pythiaCard,'r') as f:
         baseCard = f.read()
+    # If the user card sets any Random:* option, use it as is in every chunk (this reproduces
+    # the MG5-Pythia8 interface, which runs all chunks with the same card. Note that
+    # Random:seed is ignored by Pythia unless Random:setSeed = on).
+    # Otherwise, each chunk gets its own seed derived from the MG5 iseed.
+    userSetsRandom = any(l.split('!')[0].strip().lower().startswith('random:')
+                         for l in baseCard.splitlines())
 
     # Matching parameters, following MG5 (madevent_interface.py) defaults for MLM:
     xqcut = _getOpt(mgSet, 'xqcut', _readRunCardValue(runCard,'xqcut'))
@@ -436,7 +453,7 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
     iseed = int(_getOpt(mgSet, 'iseed', 0))
 
     # Split the LHE file
-    nLHE = pylhe.LHEFile.count_events(lheFile)
+    nLHE = _countLHEEvents(lheFile)
     nchunks = int(_getOpt(pars, 'nchunks', _getOpt(parser['options'], 'ncore', 1)))
     nchunks = max(1,min(nchunks,nLHE))
     chunkSize = -(-nLHE // nchunks)  # ceil
@@ -459,8 +476,9 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
             f.write('Beams:setProductionScalesFromLHEF = on\n')
             f.write(f'Beams:nSkipLHEFatInit = {nskip}\n')
             f.write(f'Main:numberOfEvents = {min(chunkSize, nLHE-nskip)}\n') # number of LHE events
-            f.write('Random:setSeed = on\n')
-            f.write(f'Random:seed = {(iseed*1000 + ichunk + 1) % 900000000}\n')
+            if not userSetsRandom:
+                f.write('Random:setSeed = on\n')
+                f.write(f'Random:seed = {(iseed*1000 + ichunk + 1) % 900000000}\n')
             f.write('JetMatching:merge = on\n')
             f.write('JetMatching:scheme = 1\n')
             f.write('JetMatching:setMad = off\n')
@@ -480,7 +498,7 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
 
     # Wait for all chunks and collect summaries
     totals = {'nLHE' : 0, 'nAccepted' : 0, 'nVetoed' : 0, 'nErrors' : 0}
-    sigmaLHE = None
+    sumW, sumW2 = 0.0, 0.0
     failed = False
     for chunk in chunks:
         ret = chunk['proc'].wait()
@@ -496,7 +514,8 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
                 summary[key.strip()] = float(val)
         for key in totals:
             totals[key] += int(summary[key])
-        sigmaLHE = summary['sigmaLHE_pb']
+        sumW += summary['sumW_pb']
+        sumW2 += summary['sumW2_pb2']
 
     # Concatenate logs
     pythia_log = rootFile.replace('.root','_pythia_delphes.log')
@@ -525,17 +544,21 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
             runInfo.update({'DelphesError' : run.stderr})
             return runInfo
 
-    # Matched cross section (unweighted LHE events): sigma_LHE * N_accepted/N_LHE
-    eff = totals['nAccepted']/totals['nLHE']
-    effErr = (eff*(1.0-eff)/totals['nLHE'])**0.5
-    xsec, xsecErr = sigmaLHE*eff, sigmaLHE*effErr
+    # Matched cross section from the accepted event weights (pb):
+    # sigma = sum_acc w_i / N_LHE, error = sqrt((<w^2> - <w>^2)/N_LHE), with w_i = 0 for vetoed events
+    nLHEtot = totals['nLHE']
+    eff = totals['nAccepted']/nLHEtot
+    effErr = (eff*(1.0-eff)/nLHEtot)**0.5
+    xsec = sumW/nLHEtot
+    xsecErr = (max(0.0, sumW2/nLHEtot - xsec**2)/nLHEtot)**0.5
+    sigmaLHE = xsec/eff if eff > 0 else 0.0  # cross section before matching
     logger.info(f"Matching efficiency = {eff:.4f} +- {effErr:.4f} ({totals['nAccepted']}/{totals['nLHE']}, "
                 f"{totals['nErrors']} errors). Matched cross section = {xsec:.4e} +- {xsecErr:.1e} pb")
 
     # Same file name and layout (2nd column = xsec in pb) as the MG5 merged_xsecs.txt
     xsecFile = os.path.join(eventsFolder, f"{runInfo['run tag']}_merged_xsecs.txt")
     with open(xsecFile,'w') as f:
-        f.write('# Matched cross section from DelphesPythia8Matched (MLM, sigma_LHE*nAccepted/nLHE)\n')
+        f.write('# Matched cross section from DelphesPythia8Matched (MLM, sum of accepted weights/nLHE)\n')
         f.write('# qCut[GeV]  sigma[pb]  error[pb]  sigma_LHE[pb]  nLHE  nAccepted\n')
         f.write(f"{qcut:.2f}  {xsec:.6e}  {xsecErr:.6e}  {sigmaLHE:.6e}  {totals['nLHE']}  {totals['nAccepted']}\n")
 
