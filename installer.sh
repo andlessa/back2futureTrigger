@@ -49,17 +49,18 @@ if echo "$answer" | grep -iq "^y" ;then
   if [ -d "DelphesLLP" ]; then
      rm -rf DelphesLLP
   fi
-  tar -zxf DelphesLLP.tar.gz;
+  delphesTag="3.5.1.llp"
+  delphesTarball="delphesLLP-$delphesTag.tar.gz"
+  delphesURL=https://github.com/andlessa/delphesLLP/archive/refs/tags/$delphesTag.tar.gz
+  echo "[installer] getting DelphesLLP (tag $delphesTag)";
+  wget -O $delphesTarball $delphesURL 2>/dev/null || curl -L -o $delphesTarball $delphesURL;
+  mkdir DelphesLLP;
+  tar -zxf $delphesTarball -C DelphesLLP --strip-components 1;
+  rm -f $delphesTarball;
   cd DelphesLLP;
   export PYTHIA8=$pythiaDir;
   make HAS_PYTHIA8=true;
-  rm -rf .git
   cd $homeDIR;
-#  echo "[installer] Building DelphesPythia8Matched (Pythia8 + MLM matching + Delphes, without writing a HepMC file)";
-#  cd delphesPythiaMatching;
-#  make PYTHIA8=$pythiaDir DELPHES=$homeDIR/DelphesLLP;
-#  cd $homeDIR;
-#  rm DelphesLLP.tar.gz;
 fi
 
 echo "\n[installer] For running Delphes the following env variables should be set:\n\n export LD_LIBRARY_PATH=$homeDIR/MG5/HEPTools/pythia8/lib"
