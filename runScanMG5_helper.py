@@ -424,7 +424,7 @@ def runDelphesPythiaMatched(parser, runInfo : Dict, delphescard : str,
     runCard = os.path.join(runFolder,'Cards','run_card.dat')
 
     defaultExe = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                              'delphesPythiaMatching','DelphesPythia8Matched')
+                              delphesDir,'DelphesPythia8Matched')
     exe = os.path.abspath(_getOpt(pars, 'delphesPythiaExe', defaultExe))
     if not os.path.isfile(exe):
         logger.error(f'{exe} not found. Compile it with "make" in delphesPythiaMatching.')
